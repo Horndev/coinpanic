@@ -30,13 +30,26 @@
     <div class="container body-content">
         @RenderBody()
         <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Coinpanic.com</p>
-        </footer>
-    </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8"></div>
+                <div class="col-md-2">
+                    <div class="pull-right">
+                        <a href="https://github.com/Horndev/coinpanic"><span webicon="foundation:social-github" style="color: #808080;width:32px;height:32px;"></span></a>
+                        <a href="https://www.reddit.com/r/coinpanic/"><span webicon="foundation:social-reddit" style="color: #808080;width:32px;height:32px;"></span></a>
+                    </div>
+                </div>
+                <div class="col-md-2 pull-right">
+                    &copy; @DateTime.Now.Year - Coinpanic.com
+                </div>
+            </div>
 
+        </div>
+    </div>
+    
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/icons")
     @RenderSection("scripts", required: false)
 </body>
 </html>
