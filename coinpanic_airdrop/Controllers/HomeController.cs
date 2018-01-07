@@ -15,14 +15,14 @@ namespace coinpanic_airdrop.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "Coinpanic Bitcoin Services.";
 
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Coinpanic Bitcoin Services.";
 
             return View();
         }
