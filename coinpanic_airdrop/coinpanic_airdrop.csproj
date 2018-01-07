@@ -51,6 +51,9 @@
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.5\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -160,6 +163,30 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bower_components\font-awesome\.gitignore" />
+    <Content Include="bower_components\font-awesome\css\font-awesome.css" />
+    <Content Include="bower_components\font-awesome\css\font-awesome.min.css" />
+    <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.svg" />
+    <Content Include="bower_components\font-awesome\HELP-US-OUT.txt" />
+    <Content Include="bower_components\webicon\.gitignore" />
+    <Content Include="bower_components\webicon\angular-webicon-core.js" />
+    <Content Include="bower_components\webicon\angular-webicon-core.min.js" />
+    <Content Include="bower_components\webicon\angular-webicon.js" />
+    <Content Include="bower_components\webicon\angular-webicon.min.js" />
+    <Content Include="bower_components\webicon\extensions\fontawesome.js" />
+    <Content Include="bower_components\webicon\extensions\fontawesome.min.js" />
+    <Content Include="bower_components\webicon\extensions\glyphicons.js" />
+    <Content Include="bower_components\webicon\extensions\glyphicons.min.js" />
+    <Content Include="bower_components\webicon\extensions\icons8.js" />
+    <Content Include="bower_components\webicon\extensions\icons8.min.js" />
+    <Content Include="bower_components\webicon\extensions\welovesvg.js" />
+    <Content Include="bower_components\webicon\extensions\welovesvg.min.js" />
+    <Content Include="bower_components\webicon\index.js" />
+    <Content Include="bower_components\webicon\jquery-webicon-core.js" />
+    <Content Include="bower_components\webicon\jquery-webicon-core.min.js" />
+    <Content Include="bower_components\webicon\jquery-webicon.js" />
+    <Content Include="bower_components\webicon\jquery-webicon.min.js" />
+    <Content Include="bower_components\webicon\webicon.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\DonationQR.png" />
@@ -172,6 +199,56 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="bower_components\font-awesome\.bower.json" />
+    <Content Include="bower_components\font-awesome\.npmignore" />
+    <Content Include="bower_components\font-awesome\bower.json" />
+    <Content Include="bower_components\font-awesome\css\font-awesome.css.map" />
+    <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.eot" />
+    <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.ttf" />
+    <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.woff" />
+    <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.woff2" />
+    <Content Include="bower_components\font-awesome\fonts\FontAwesome.otf" />
+    <Content Include="bower_components\font-awesome\less\animated.less" />
+    <Content Include="bower_components\font-awesome\less\bordered-pulled.less" />
+    <Content Include="bower_components\font-awesome\less\core.less" />
+    <Content Include="bower_components\font-awesome\less\fixed-width.less" />
+    <Content Include="bower_components\font-awesome\less\font-awesome.less" />
+    <Content Include="bower_components\font-awesome\less\icons.less" />
+    <Content Include="bower_components\font-awesome\less\larger.less" />
+    <Content Include="bower_components\font-awesome\less\list.less" />
+    <Content Include="bower_components\font-awesome\less\mixins.less" />
+    <Content Include="bower_components\font-awesome\less\path.less" />
+    <Content Include="bower_components\font-awesome\less\rotated-flipped.less" />
+    <Content Include="bower_components\font-awesome\less\screen-reader.less" />
+    <Content Include="bower_components\font-awesome\less\stacked.less" />
+    <Content Include="bower_components\font-awesome\less\variables.less" />
+    <Content Include="bower_components\font-awesome\scss\font-awesome.scss" />
+    <Content Include="bower_components\font-awesome\scss\_animated.scss" />
+    <Content Include="bower_components\font-awesome\scss\_bordered-pulled.scss" />
+    <Content Include="bower_components\font-awesome\scss\_core.scss" />
+    <Content Include="bower_components\font-awesome\scss\_fixed-width.scss" />
+    <Content Include="bower_components\font-awesome\scss\_icons.scss" />
+    <Content Include="bower_components\font-awesome\scss\_larger.scss" />
+    <Content Include="bower_components\font-awesome\scss\_list.scss" />
+    <Content Include="bower_components\font-awesome\scss\_mixins.scss" />
+    <Content Include="bower_components\font-awesome\scss\_path.scss" />
+    <Content Include="bower_components\font-awesome\scss\_rotated-flipped.scss" />
+    <Content Include="bower_components\font-awesome\scss\_screen-reader.scss" />
+    <Content Include="bower_components\font-awesome\scss\_stacked.scss" />
+    <Content Include="bower_components\font-awesome\scss\_variables.scss" />
+    <Content Include="bower_components\webicon\.bower.json" />
+    <Content Include="bower_components\webicon\angular-webicon-core.min.js.map" />
+    <Content Include="bower_components\webicon\angular-webicon.min.js.map" />
+    <Content Include="bower_components\webicon\bower.json" />
+    <Content Include="bower_components\webicon\extensions\fontawesome.min.js.map" />
+    <Content Include="bower_components\webicon\extensions\glyphicons.min.js.map" />
+    <Content Include="bower_components\webicon\extensions\icons8.min.js.map" />
+    <Content Include="bower_components\webicon\extensions\welovesvg.min.js.map" />
+    <Content Include="bower_components\webicon\jquery-webicon-core.min.js.map" />
+    <Content Include="bower_components\webicon\jquery-webicon.min.js.map" />
+    <Content Include="bower_components\webicon\LICENSE.md" />
+    <Content Include="bower_components\webicon\package.json" />
+    <Content Include="bower_components\webicon\README.md" />
     <None Include="Properties\PublishProfiles\coinpanic.com - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\coinpanic.com - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
@@ -200,6 +277,7 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Claim.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -26,5 +26,10 @@ namespace coinpanic_airdrop.Controllers
 
             return View();
         }
+
+        public ActionResult Claim()
+        {
+            return View();
+        }
     }
 }
