@@ -9,10 +9,10 @@ namespace coinpanic_airdrop
         public static void RegisterBundles(BundleCollection bundles)
         {
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-                        "~/Scripts/jquery-{version}.js"));
+                        "~/bower_components/jQuery/dist/jquery.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
-                        "~/Scripts/jquery.validate*"));
+                        "~/bower_components/jquery-validation/jquery.validate.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/icons").Include(
                         "~/bower_components/webicon/jquery-webicon.min.js"));
@@ -23,11 +23,11 @@ namespace coinpanic_airdrop
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
+                      "~/bower_components/bootstrap/dist/js/bootstrap.min.js",
                       "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
+                      "~/bower_components/bootstrap/dist/css/bootstrap.min.css",
                       "~/bower_components/font-awesome/css/font-awesome.min.css",
                       "~/Content/site.css"));
         }
