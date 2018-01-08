@@ -18,5 +18,15 @@ namespace coinpanic_airdrop.Controllers
         {
             return View();
         }
+
+        public ActionResult BCX()
+        {
+            return View();
+        }
+
+        public ActionResult B2X()
+        {
+            return View();
+        }
     }
 }
