@@ -126,6 +126,25 @@
             </div>
         </div>
     </div>
+    <div class="card">
+        <div class="card-header" role="tab" id="headingBTW">
+            <h5 class="mb-0">
+                <span class="badge badge-info">Claims Offline</span>
+                <a class="collapsed" data-toggle="collapse" href="#collapseBTW" role="button" aria-expanded="false" aria-controls="collapseBTW">
+                    Bitcoin World (BTW)
+                </a>
+            </h5>
+        </div>
+        <div id="collapseBTW" class="collapse" role="tabpanel" aria-labelledby="headingBTW" data-parent="#accordion">
+            <div class="card-body">
+                <p>Homepage: </p>
+                <p>Exchanges: </p>
+                <p>
+                    @Html.ActionLink("Claim BTW", "BTW", "Claim", new { area = "" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 <br />
 <br />
