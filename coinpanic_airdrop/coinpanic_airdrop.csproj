@@ -161,6 +161,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\CoinClaim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1111,14 +1112,14 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\Claim.cshtml" />
-    <Content Include="Views\Claim\Index.cshtml" />
     <Content Include="Views\Claim\BCD.cshtml" />
     <Content Include="Views\Claim\BCX.cshtml" />
     <Content Include="Views\Claim\B2X.cshtml" />
+    <Content Include="Views\Claim\NewClaim.cshtml" />
+    <Content Include="Views\Claim\InvalidCoin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

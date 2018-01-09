@@ -18,6 +18,12 @@ namespace coinpanic_airdrop
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
+
+            routes.MapRoute(
+                name: "Claim",
+                url: "{controller}/{action}/{coin}",
+                defaults: new { controller = "Claim", action = "New", coin = "" }
+                );
         }
     }
 }
