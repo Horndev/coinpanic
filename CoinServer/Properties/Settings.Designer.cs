@@ -25,10 +25,55 @@ namespace CoinServer.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("30001")]
+        [global::System.Configuration.DefaultSettingValueAttribute("30002")]
         public int UBTCport {
             get {
                 return ((int)(this["UBTCport"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("coinpanicubtc")]
+        public string UBTCuser {
+            get {
+                return ((string)(this["UBTCuser"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30001")]
+        public string B2Xport {
+            get {
+                return ((string)(this["B2Xport"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("coinpanicb2x")]
+        public string B2Xuser {
+            get {
+                return ((string)(this["B2Xuser"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("coinpanicb2xpw")]
+        public string B2Xpw {
+            get {
+                return ((string)(this["B2Xpw"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string B2Xwalletpw {
+            get {
+                return ((string)(this["B2Xwalletpw"]));
             }
         }
     }

@@ -168,6 +168,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bower_components\bitcore-lib\benchmark\script.js" />
+    <Content Include="bower_components\bitcore-lib\benchmark\serialization.js" />
+    <Content Include="bower_components\bitcore-lib\bitcore-lib.js" />
     <Content Include="bower_components\bootstrap\.babelrc.js" />
     <Content Include="bower_components\bootstrap\.gitattributes" />
     <Content Include="bower_components\bootstrap\.gitignore" />
@@ -753,6 +756,7 @@
     <Content Include="bower_components\webicon\webicon.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\claim_process.png" />
     <Content Include="Content\DonationQR.png" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -1086,6 +1090,30 @@
     <Content Include="bower_components\jquery-validation\README.md" />
     <Content Include="bower_components\jquery-validation\validation.jquery.json" />
     <Content Include="bower.json" />
+    <Content Include="bower_components\bitcore-lib\.bower.json" />
+    <Content Include="bower_components\bitcore-lib\benchmark\block-357238.json" />
+    <Content Include="bower_components\bitcore-lib\benchmark\package.json" />
+    <Content Include="bower_components\bitcore-lib\bower.json" />
+    <Content Include="bower_components\bitcore-lib\docs\address.md" />
+    <Content Include="bower_components\bitcore-lib\docs\block.md" />
+    <Content Include="bower_components\bitcore-lib\docs\browser.md" />
+    <Content Include="bower_components\bitcore-lib\docs\crypto.md" />
+    <Content Include="bower_components\bitcore-lib\docs\encoding.md" />
+    <Content Include="bower_components\bitcore-lib\docs\examples.md" />
+    <Content Include="bower_components\bitcore-lib\docs\hierarchical.md" />
+    <Content Include="bower_components\bitcore-lib\docs\index.md" />
+    <Content Include="bower_components\bitcore-lib\docs\networks.md" />
+    <Content Include="bower_components\bitcore-lib\docs\privatekey.md" />
+    <Content Include="bower_components\bitcore-lib\docs\publickey.md" />
+    <Content Include="bower_components\bitcore-lib\docs\script.md" />
+    <Content Include="bower_components\bitcore-lib\docs\transaction.md" />
+    <Content Include="bower_components\bitcore-lib\docs\unit.md" />
+    <Content Include="bower_components\bitcore-lib\docs\unspentoutput.md" />
+    <Content Include="bower_components\bitcore-lib\docs\uri.md" />
+    <Content Include="bower_components\bitcore-lib\LICENSE" />
+    <Content Include="bower_components\bitcore-lib\package-lock.json" />
+    <Content Include="bower_components\bitcore-lib\package.json" />
+    <Content Include="bower_components\bitcore-lib\README.md" />
     <None Include="Properties\PublishProfiles\coinpanic.com - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\coinpanic.com - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
