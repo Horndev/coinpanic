@@ -10,6 +10,9 @@ namespace CoinServer
     {
         static void Main(string[] args)
         {
+            int rpc_port = Properties.Settings.Default.UBTCport;
+
+
         }
     }
 }
