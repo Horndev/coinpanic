@@ -30,6 +30,9 @@ namespace coinpanic_airdrop
                       "~/bower_components/bootstrap/dist/css/bootstrap.min.css",
                       "~/bower_components/font-awesome/css/font-awesome.min.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/cryptolib").Include(
+                       "~/bower_components/bitcore-lib/bitcore-lib.js"));
         }
     }
 }

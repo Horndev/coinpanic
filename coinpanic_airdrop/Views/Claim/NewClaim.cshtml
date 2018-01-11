@@ -6,3 +6,91 @@
 
 <h2>@Model.Code</h2>
 
+<form>
+    <div class="form-group">
+        <label for="depositAddress">Deposit Address</label>
+        <input type="text" class="form-control" id="depositAddress" placeholder="Deposit Address">
+    </div>
+    <div id="accordion" role="tablist">
+        <div class="card">
+            <div class="card-header" role="tab" id="headingOne">
+                <h5 class="mb-0">
+                    <a class="collapsed" data-toggle="collapse" href="#collapseOne" role="button" aria-expanded="false" aria-controls="collapseOne">
+                        Option 1: You sign transaction
+                    </a>
+                </h5>
+            </div>
+            <div id="collapseOne" class="collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="PublicKeys">Insert your public keys</label>
+                        <textarea type="text" class="form-control" rows="5" id="PublicKeys" aria-describedby="pubhelp" placeholder="Enter your keys (one per line)"></textarea>
+                        <small id="pubhelp" class="form-text text-muted">We'll never share your information</small>
+                        <label for="emailAddress">Email Address</label>
+                        <input type="email" class="form-control" id="emailAddress" placeholder="your email" />
+                        <small id="emailhelp" class="form-text text-muted">Email to send your unsigned transaction.</small>
+                    </div>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+        @*<div class="card">
+                <div class="card-header" role="tab" id="headingOne">
+                    <h5 class="mb-0">
+                        <a class="collapsed" data-toggle="collapse" href="#collapsestx" role="button" aria-expanded="false" aria-controls="collapsestx">
+                            Option 2: Transmit signed transaction (after option 1)
+                        </a>
+                    </h5>
+                </div>
+                <div id="collapsestx" class="collapse" role="tabpanel" aria-labelledby="headingstx" data-parent="#accordion">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="PublicKeys">Insert your public keys</label>
+                            <textarea type="text" class="form-control" id="SignedTx" aria-describedby="SignedTXhelp" placeholder="Enter yourSignedTransaction"></textarea>
+                            <small id="SignedTXhelp" class="form-text text-muted">Paste your signed transaction here (HEX)</small>
+                        </div>
+                        <p></p>
+                    </div>
+                </div>
+            </div>*@
+        <div class="card">
+            <div class="card-header" role="tab" id="headingTwo">
+                <h5 class="mb-0">
+                    <a class="collapsed" data-toggle="collapse" href="#collapseTwo" role="button" aria-expanded="false" aria-controls="collapseTwo">
+                        Option 2: Coinpanic forwards your coins
+                    </a>
+                </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="PrivateKeys">Insert your private keys</label>
+                        <textarea type="text" class="form-control" rows="5" id="PrivateKeys" aria-describedby="pubhelp" placeholder="Enter your keys (one per line)"></textarea>
+                        <small id="pubhelp" class="form-text text-muted">We'll never share your information</small>
+                    </div>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+@*@section scripts {
+    <script type="text/javascript">
+
+    $(document).ready(function(){
+
+        $('depositAddress').click(function () {
+
+                alert('You clicked '+ name +"!");
+
+        });
+
+    });
+
+</script>*@
+}
+@Scripts.Render("~/bundles/cryptolib")

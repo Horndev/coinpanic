@@ -23,7 +23,7 @@
                 <p>Homepage: <a href="http://btcd.io">btcd.io</a></p>
                 <p>Exchanges: yobit.net</p>
                 <p>
-                    @Html.ActionLink("Claim BCD", "BCD", "Claim", new { area = "" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
+                    @Html.ActionLink("Claim BCD", "NewClaim", "Claim", new { coin = "BCD" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
                 </p>
             </div>
         </div>
@@ -41,6 +41,9 @@
             <div class="card-body">
                 <p>Homepage: <a href="http://supersmartbitcoin.com/">supersmartbitcoin.com</a></p>
                 <p>Exchanges: yobit.net</p>
+                <p>
+                    @Html.ActionLink("Claim SBTC", "NewClaim", "Claim", new { coin = "SBTC" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
+                </p>
             </div>
         </div>
     </div>
@@ -57,6 +60,9 @@
             <div class="card-body">
                 <p>Homepage: <a href="https://bitcoingold.org/">bitcoingold.org</a></p>
                 <p>Exchanges: yobit.net</p>
+                <p>
+                    @Html.ActionLink("Claim BTG", "NewClaim", "Claim", new { coin = "BTG" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
+                </p>
             </div>
         </div>
     </div>
@@ -73,6 +79,9 @@
             <div class="card-body">
                 <p>Homepage: </p>
                 <p>Exchanges: </p>
+                <p>
+                    @Html.ActionLink("Claim BTX", "NewClaim", "Claim", new { coin = "BTX" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
+                </p>
             </div>
         </div>
     </div>
@@ -89,6 +98,9 @@
             <div class="card-body">
                 <p>Homepage: </p>
                 <p>Exchanges: </p>
+                <p>
+                    @Html.ActionLink("Claim BCH", "NewClaim", "Claim", new { coin = "BCH" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
+                </p>
             </div>
         </div>
     </div>
@@ -105,6 +117,9 @@
             <div class="card-body">
                 <p>Homepage: </p>
                 <p>Exchanges: </p>
+                <p>
+                    @Html.ActionLink("Claim UBTC", "NewClaim", "Claim", new { coin = "UBTC" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
+                </p>
             </div>
         </div>
     </div>
@@ -120,9 +135,9 @@
         <div id="collapseSeven" class="collapse" role="tabpanel" aria-labelledby="headingSeven" data-parent="#accordion">
             <div class="card-body">
                 <p>Homepage: </p>
-                <p>Exchanges: </p>
+                <p>Exchanges: https://exrates.me</p>
                 <p>
-                    @Html.ActionLink("Claim B2X", "B2X", "Claim", new { area = "" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
+                    @Html.ActionLink("Claim B2X", "NewClaim", "Claim", new { coin = "B2X" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
                 </p>
             </div>
         </div>
@@ -141,7 +156,7 @@
                 <p>Homepage: </p>
                 <p>Exchanges: </p>
                 <p>
-                    @Html.ActionLink("Claim BTW", "BTW", "Claim", new { area = "" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
+                    @Html.ActionLink("Claim B2X", "NewClaim", "Claim", new { coin = "BTW" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
                 </p>
             </div>
         </div>
