@@ -32,3 +32,9 @@ _ReSharper*/
 packages/
 *.pubxml
 /CoinServer/Properties/Settings.settings
+/coinpanic_airdrop/Products
+/coinpanic_airdrop/Properties/Settings.settings
+/coinpanic_airdrop/AppSettings.config
+/coinpanic_airdrop/Database.config
+/coinpanic_airdrop/Tools/CoinpanicSignTx.exe.old2
+/coinpanic_airdrop/Tools/CoinpanicSignTx.exe.old

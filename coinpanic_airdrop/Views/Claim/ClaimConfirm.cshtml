@@ -1,0 +1,147 @@
+﻿@model coinpanic_airdrop.Models.CoinClaim
+
+@{
+    ViewBag.Title = "ClaimConfirm";
+}
+
+<h2>Confirm and Sign @Model.CoinShortName Claim</h2>
+<br />
+<br />
+<p> <b>@Model.Deposited @Model.CoinShortName</b> will be deposited in your address <b>@Model.DepositAddress</b></p>
+<br />
+<div><b>@Model.CoinShortName found in submitted addresses:</b><br /></div>
+<table class="table table-bordered table-responsive table-hover">
+    <tr>
+        <th>Address</th>
+        <th>Amount (@Model.CoinShortName)</th>
+    </tr>
+    @foreach (var d in Model.InputAddresses)
+    {
+        <tr>
+            <td>@d.PublicAddress</td>
+            <td>
+                @if (Model.CoinShortName == "BCX")
+                {
+                    @(d.ClaimValue * 10000.0)
+                }
+                else
+                {
+                    @d.ClaimValue
+                }
+            </td>
+        </tr>
+    }
+</table>
+
+<table class="table table-bordered table-responsive table-hover">
+    <tr>
+        <th>Total @Model.CoinShortName (@Model.CoinShortName)</th>
+        <th>You Receive (@Model.CoinShortName)</th>
+        <th>Service Fee (@Model.CoinShortName) *</th>
+        <th>Miner Fee (@Model.CoinShortName)</th>
+    </tr>
+    <tr>
+        <td>
+        @if (Model.CoinShortName == "BCX")
+        {
+            @(Model.TotalValue * 10000.0)
+        }
+        else
+        {
+            @Model.TotalValue
+        }
+        </td>
+        <td>
+        @if (Model.CoinShortName == "BCX")
+        {
+            @(Model.Deposited * 10000.0)
+        }
+        else
+        {
+            @Model.Deposited
+        }
+        </td>
+        <td>
+        @if (Model.CoinShortName == "BCX")
+        {
+            @(Model.MyFee * 10000.0)
+        }
+        else
+        {
+            @Model.MyFee
+        }
+         (5%)</td>
+        <td>
+            @if (Model.CoinShortName == "BCX")
+            {
+                @(Model.MinerFee * 10000.0)
+            }
+            else
+            {
+                @Model.MinerFee
+            }
+        </td>
+    </tr>
+</table>
+<p>* Q: Why is there a fee? A: Coinpanic.com has developed a toolset which is able to generate these transactions using the specific formatting required for the forks, as well as to be able to claim from segwit accounts.  This fee ensures we can continue to develop and improve our services for future forks.</p>
+<h3>Signing Instructions</h3>
+<p> You must now sign the transaction on your computer using your private keys.  This can be done offline for maximum securty.</p>
+<b> If you encounter any problems, or have any questions, please contact claims@coinpanic.com or /u/Zelgada on Reddit</b>
+<p> </p>
+<ul class="list-group">
+    <li class="list-group-item justify-content-between">
+        <a href="~/Tools/CoinpanicSignTx.exe" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-download"></span> Download</a> the offline signing tool.
+        This tool implements the signing algorithms used by the various forked coins.  You can use this tool without any connection to the internet.  You will need only your private keys.
+    </li>
+    <li class="list-group-item justify-content-between">
+        <a href="DownloadTransactionFile/?claimId=@Model.ClaimId" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-download"></span> Download </a> your custom BlockChainData.txt and <b>save it to the same folder you saved the signing tool.</b>
+        
+    </li>
+    <li class="list-group-item justify-content-between">
+        At the command shell navigate to the folder containing CoinpanicSignTx.exe and BlockChainData.txt. Run the command: <br /><kbd>CoinpanicSignTx.exe -c @Model.CoinShortName -p PRIVATEKEY1 -p PRIVATEKEY2 UNSIGNED_TRANSACTION</kbd> <br />
+        Make sure to enter each of your private keys for the claimed addresses using the -p flag. <br />
+        You can find the content of <kbd>UNSIGNED_TRANSACTION</kbd> below.
+        Your private keys will start with a'K' or 'L' and be 52 characters long (base 58 encoded). For example: KxX4edUCKiXWZh8TaB7zq9Lm2RCxSy5YgJL9VkRh5JH5G3wSKzdg.
+        
+        @*<p><a class="btn btn-default" href="http://www.coinpanic.com/Home/Claim">Learn more about how to obtain your private keys &raquo;</a></p>*@
+    </li>
+    <li class="list-group-item justify-content-between">
+        The program will return a signed transaction.  If the output is the same as the unsigned transaction, the signing process did not work.
+        Copy the resulting signed transaction, and paste it into the form below.  
+        @if (Model.CoinShortName == "B2X")
+        {
+            <span>Alternatively, you can broadcast it on <a href="http://explorer.b2x-segwit.io/tx/send">http://explorer.b2x-segwit.io/tx/send</a></span>
+        } 
+    </li>
+</ul>
+<br />
+<h5> Your <kbd>UNSIGNED_TRANSACTION</kbd> is (copy from here):</h5>
+<p class="card-text">
+    <div class="form-group">
+        <div class="col-sm-10">
+            <textarea type="text" class="form-control" rows="7" name="SignedTX" id="SignedTX" aria-describedby="pubhelp" placeholder="Copy your unsigned transaction from here">
+            @Model.UnsignedTX
+        </textarea>
+        </div>
+    </div>
+</p>
+<h2>Once you have run CoinpanicSignTx.exe with your private keys, proceed to the step below.</h2>
+<form action="/Claim/TransmitTransaction" method="post">
+    <input type="hidden" name="claimId" value="@Model.ClaimId" />
+    <p class="card-text">
+        <div class="form-group">
+            <div class="col-sm-10">
+                <label for="SignedTX">Paste your signed transaction here:</label>
+                <textarea type="text" class="form-control" rows="5" name="signedTransaction" id="signedTransaction" aria-describedby="pubhelp" placeholder="Paste your signed transaction here after running CoinpanicSignTx.exe.  It should look different than the unsigned transaction if it was successful."></textarea>
+                <small id="pubhelp" class="form-text text-muted">We will broadcast your transaction to the network.</small>
+            </div>
+        </div>
+    </p>
+    <div class="form-group">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary">Transmit</button>
+        </div>
+    </div>
+</form>
+
+<p> Your Coinpanic.com claim identifier is <a href="#" class="badge badge-secondary">@Model.ClaimId</a>. </p>

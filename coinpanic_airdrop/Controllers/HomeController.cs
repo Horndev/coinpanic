@@ -31,5 +31,10 @@ namespace coinpanic_airdrop.Controllers
         {
             return View();
         }
+
+        public ActionResult Legal()
+        {
+            return View();
+        }
     }
 }

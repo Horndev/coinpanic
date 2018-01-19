@@ -4,93 +4,73 @@
     ViewBag.Title = "";
 }
 
-<h2>@Model.Code</h2>
-
-<form>
-    <div class="form-group">
-        <label for="depositAddress">Deposit Address</label>
-        <input type="text" class="form-control" id="depositAddress" placeholder="Deposit Address">
+@if (@Model.CoinShortName != "B2X")
+{ 
+    <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">Claim @Model.CoinShortName</h4>
+        <p>Note that claims are currently in manual mode.  <b>Please contact /u/Zelgada on reddit, or claims@coinpanic.com</b></p>
     </div>
-    <div id="accordion" role="tablist">
-        <div class="card">
-            <div class="card-header" role="tab" id="headingOne">
-                <h5 class="mb-0">
-                    <a class="collapsed" data-toggle="collapse" href="#collapseOne" role="button" aria-expanded="false" aria-controls="collapseOne">
-                        Option 1: You sign transaction
-                    </a>
-                </h5>
-            </div>
-            <div id="collapseOne" class="collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="PublicKeys">Insert your public keys</label>
-                        <textarea type="text" class="form-control" rows="5" id="PublicKeys" aria-describedby="pubhelp" placeholder="Enter your keys (one per line)"></textarea>
-                        <small id="pubhelp" class="form-text text-muted">We'll never share your information</small>
-                        <label for="emailAddress">Email Address</label>
-                        <input type="email" class="form-control" id="emailAddress" placeholder="your email" />
-                        <small id="emailhelp" class="form-text text-muted">Email to send your unsigned transaction.</small>
-                    </div>
-                    <p></p>
-                </div>
-            </div>
+}
+
+<div class="card">
+    <h3 class="card-header">Secure Claim (5% fee)</h3>
+    <div class="form-group">
+        <div class="col-sm-10">
+            <br />
+            <h4 class="card-title">You will sign the transaction without revealing your private keys</h4>
         </div>
-        @*<div class="card">
-                <div class="card-header" role="tab" id="headingOne">
-                    <h5 class="mb-0">
-                        <a class="collapsed" data-toggle="collapse" href="#collapsestx" role="button" aria-expanded="false" aria-controls="collapsestx">
-                            Option 2: Transmit signed transaction (after option 1)
-                        </a>
-                    </h5>
+    </div>
+    <form action="/Claim/InitializeClaim" method="post">
+        <input type="hidden" name="claimId" value="@Model.ClaimId" />
+        <p class="card-text">
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <label for="PublicKeys">Insert your public addresses (all types accepted including segwit P2SH*, starting with '3', and bech32, starting with 'bc1')</label>
+                    <textarea type="text" class="form-control" rows="5" name="PublicKeys" id="PublicKeys" aria-describedby="pubhelp" placeholder="Enter your addresses (one per line)"></textarea>
+                    <small id="pubhelp" class="form-text text-muted">We'll never share your information</small>
                 </div>
-                <div id="collapsestx" class="collapse" role="tabpanel" aria-labelledby="headingstx" data-parent="#accordion">
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="PublicKeys">Insert your public keys</label>
-                            <textarea type="text" class="form-control" id="SignedTx" aria-describedby="SignedTXhelp" placeholder="Enter yourSignedTransaction"></textarea>
-                            <small id="SignedTXhelp" class="form-text text-muted">Paste your signed transaction here (HEX)</small>
-                        </div>
-                        <p></p>
-                    </div>
+            </div>
+            @*<div class="form-group">
+                <div class="col-sm-10">
+                    <label for="emailAddress">Email Address (optional)</label>
+                    <input type="email" class="form-control" id="emailAddress" name="emailAddress" placeholder="your email" />
+                    <small id="emailhelp" class="form-text text-muted">Optional email to send your unsigned transaction and instructions.</small>
                 </div>
             </div>*@
-        <div class="card">
-            <div class="card-header" role="tab" id="headingTwo">
-                <h5 class="mb-0">
-                    <a class="collapsed" data-toggle="collapse" href="#collapseTwo" role="button" aria-expanded="false" aria-controls="collapseTwo">
-                        Option 2: Coinpanic forwards your coins
-                    </a>
-                </h5>
-            </div>
-            <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="PrivateKeys">Insert your private keys</label>
-                        <textarea type="text" class="form-control" rows="5" id="PrivateKeys" aria-describedby="pubhelp" placeholder="Enter your keys (one per line)"></textarea>
-                        <small id="pubhelp" class="form-text text-muted">We'll never share your information</small>
-                    </div>
-                    <p></p>
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <h5>Warning: Please make sure the deposit address is correct.  Sending your coins to a cross-fork address, or incorrect address, could result in the unrecoverable loss of your coins.</h5>
+                    <label for="depositAddress">Your @Model.CoinShortName deposit address (where your @Model.CoinShortName should be sent)</label>
+                    <input placeholder="Enter deposit address" type="text" class="form-control" id="depositAddress" name="depositAddress">
                 </div>
             </div>
+        </p>
+        
+        <div class="form-group">
+            <div class="col-sm-10">
+                <p>Please note that there is a 5% fee added to your transaction for using our services.</p>
+                <button type="submit" class="btn btn-primary">Next</button>
+                <p> Your Coinpanic.com claim identifier is <a href="#" class="badge badge-secondary">@Model.ClaimId</a>. </p>
+            </div>
         </div>
-    </div>
-    <br />
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+    </form>
+</div>
 
 
-@*@section scripts {
-    <script type="text/javascript">
 
-    $(document).ready(function(){
+    @*@section scripts {
+                <script type="text/javascript">
 
-        $('depositAddress').click(function () {
+                $(document).ready(function(){
 
-                alert('You clicked '+ name +"!");
+                    $('depositAddress').click(function () {
 
-        });
+                            alert('You clicked '+ name +"!");
 
-    });
+                    });
 
-</script>*@
-}
-@Scripts.Render("~/bundles/cryptolib")
+                });
+
+            </script>
+        }*@
+    @Scripts.Render("~/bundles/cryptolib")

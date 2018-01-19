@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title</title>
     @Styles.Render("~/Content/css")
+    @Styles.Render("~/bundles/fontawesome/css")
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
@@ -57,10 +58,11 @@
         @RenderBody()
         <hr />
         <div class="container">
-            <div class="row">
-                <div class="col-md-8"></div>
+            <div class="row text-center">
+                <div class="col-md-8">@Html.ActionLink("Legal", "Legal", "Home")</div>
                 <div class="col-md-2">
                     <div class="pull-right">
+                        
                         <a href="https://github.com/Horndev/coinpanic"><span webicon="foundation:social-github" style="color: #808080;width:32px;height:32px;"></span></a>
                         <a href="https://www.reddit.com/r/coinpanic/"><span webicon="foundation:social-reddit" style="color: #808080;width:32px;height:32px;"></span></a>
                     </div>

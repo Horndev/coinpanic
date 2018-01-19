@@ -28,8 +28,10 @@ namespace coinpanic_airdrop
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/bower_components/bootstrap/dist/css/bootstrap.min.css",
-                      "~/bower_components/font-awesome/css/font-awesome.min.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new StyleBundle("~/bundles/fontawesome/css").Include(
+                      "~/bower_components/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));
 
             bundles.Add(new ScriptBundle("~/bundles/cryptolib").Include(
                        "~/bower_components/bitcore-lib/bitcore-lib.js"));
