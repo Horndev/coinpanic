@@ -1,0 +1,1 @@
+﻿Select * from CoinClaim where [CoinShortName] = 'B2X' and TotalValue > 1;

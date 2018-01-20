@@ -11,15 +11,16 @@ namespace CoinController
         public enum ForkCode
         {
             BTC = 0,    //The original chain
-            BCH,
-            SBTC,
-            BTD,        //Bitcoin Diamond
-            UBTC,
+            BCH,        //Bitcoin Cash
+            SBTC,       //Super Bitcoin
+            BCD,        //Bitcoin Diamond
+            UBTC,       //United Bitcoin
             BTX,        //Bitcore
             BTW,        //BitcoinWorld
             B2X,        //Segwit2x
-            BTF,
-            FBTC,
+            BTF,        //Bitcoin Faith
+            FBTC,       //Fast Bitcoin
+            BTG,        //Bitcoin Gold
             BCX,        //Bitcoin X
             NUMBER_OF_FORKS     //Leave at end to know how many forks are supported
         }
@@ -32,6 +33,10 @@ namespace CoinController
             { ForkCode.UBTC, 501878 },
             { ForkCode.SBTC, 498888 },
             { ForkCode.BCX, 498888 },
+            { ForkCode.BCD, 495866 },
+            { ForkCode.BCH, 478588 },
+            { ForkCode.BTG, 491407 },
+            { ForkCode.BTW, 499777 },
         };
 
         public static readonly Dictionary<ForkCode, string> ForkShortName = new Dictionary<ForkCode, string>
@@ -42,6 +47,7 @@ namespace CoinController
             { ForkCode.FBTC, "FBTC" },
             { ForkCode.SBTC, "SBTC" },
             { ForkCode.BCX, "BCX" },
+            { ForkCode.BCD, "BCD" },
         };
 
         public static readonly Dictionary<string, ForkCode> ForkShortNameCode = new Dictionary<string, ForkCode>
@@ -52,6 +58,7 @@ namespace CoinController
             {  "FBTC",ForkCode.FBTC },
             {  "SBTC",ForkCode.SBTC },
             {  "BCX",ForkCode.BCX },
+            {  "BCD",ForkCode.BCD },
         };
 
         public static readonly Dictionary<ForkCode, string> ForkLongName = new Dictionary<ForkCode, string>
@@ -62,6 +69,7 @@ namespace CoinController
             { ForkCode.FBTC, "Fast Bitcoin" },
             { ForkCode.SBTC, "Super Bitcoin" },
             { ForkCode.BCX, "Bitcoin X" },
+            { ForkCode.BCD, "Bitcoin Diamond" },
         };
 
     }

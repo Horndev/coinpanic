@@ -39,6 +39,21 @@ namespace coinpanic_airdrop.Models
         public string BlockData { get; set; }
     }
 
+    //Information on connecting to the P2P networks
+    public class SeedNode
+    {
+        [Key]
+        public int SeedNodeId { get; set; }
+
+        public string Coin { get; set; }
+
+        public string IP { get; set; }
+
+        public int Port { get; set; }
+
+        public bool Enabled { get; set; }
+    }
+
     public class InputAddress
     {
         [Key]

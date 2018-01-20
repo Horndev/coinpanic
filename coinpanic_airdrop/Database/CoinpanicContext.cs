@@ -18,6 +18,7 @@ namespace coinpanic_airdrop.Database
 
         public DbSet<CoinClaim> Claims { get; set; }
         public DbSet<InputAddress> Addresses { get; set; }
+        public DbSet<SeedNode> SeedNodes { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

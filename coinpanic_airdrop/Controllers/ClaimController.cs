@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using static coinpanic_airdrop.Services.MailingService;
 
 namespace coinpanic_airdrop.Controllers
 {
@@ -125,6 +126,8 @@ namespace coinpanic_airdrop.Controllers
 
             db.SaveChanges();
 
+            MonitoringService.SendMessage("New " + userclaim.CoinShortName + " claim", "new claim Initialized. https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName);
+
             return RedirectToAction("ClaimConfirm", new { claimId = claimId });
         }
 
@@ -176,15 +179,60 @@ namespace coinpanic_airdrop.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet]
+        public ActionResult CheckNode(string coin)
+        {
+            // List of seed nodes
+            var userclaim = db.SeedNodes.Where(n => n.Coin == coin);
+
+
+            var nodes = CoinPanicNodes.GetNodes(coin: coin);
+            string nstatus = "";
+            string connectedtimes = "";
+            string nodestates = "";
+            int numnodes = 0;
+            foreach(var n in nodes)
+            {
+                if (n != null)
+                {
+                    if (n.IsConnected)
+                    {
+                        numnodes += 1;
+                        nstatus += n.Peer.Endpoint.Address.ToString() + (n.IsConnected ? " is connected." : " is disconnected.  ");
+                        connectedtimes += n.Peer.Endpoint.Address.ToString() + ":" + n.ConnectedAt.ToUniversalTime().ToString();
+                        nodestates += n.Peer.Endpoint.Address.ToString() + ":" + n.State.ToString();
+                    }
+                }
+            }
+            ViewBag.result = nstatus;
+            ViewBag.connectedTime = connectedtimes;
+            ViewBag.nodeState = nodestates;
+            ViewBag.numnodes = Convert.ToString(numnodes);
+            return View();
+        }
+
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult TransmitTransaction(string claimId, string signedTransaction)
         {
-
             var userclaim = db.Claims.Where(c => c.ClaimId == claimId).First();
             ViewBag.content = userclaim.CoinShortName + " not currently supported.";
             ViewBag.ClaimId = claimId;
-            userclaim.SignedTX = signedTransaction;
-
+            userclaim.SignedTX = signedTransaction.Trim(' ');
+            Transaction t;
+            try
+            { 
+                t = Transaction.Parse(signedTransaction.Trim(' '));
+            }
+            catch
+            {
+                MonitoringService.SendMessage("Invalid tx " + userclaim.CoinShortName + " submitted " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName);
+                return RedirectToAction("ClaimError", new { message = "Unable to parse signed transaction: \r\n" + signedTransaction, claimId = claimId });
+            }
+            string txid = t.GetHash().ToString();
+            userclaim.TransactionHash = txid;
+            db.SaveChanges();
+            
             if (userclaim.CoinShortName == "B2X")
             {
                 userclaim.SignedTX = signedTransaction;
@@ -198,172 +246,8 @@ namespace coinpanic_airdrop.Controllers
                 ViewBag.content = content;
                 userclaim.TransactionHash = content;
                 userclaim.WasTransmitted = true;
-                db.SaveChanges();
-            }
-            else if (userclaim.CoinShortName == "BCX")  //Bitcoin Faith
-            {
-                //https://www.coinpanic.com/Claim/ClaimConfirm?claimId=kIXqSkIskQ
-                userclaim.SignedTX = signedTransaction;
-                Transaction transaction = Transaction.Parse(signedTransaction);
-                List<string> nodeips = new List<string>()
-                {
-                    "192.169.153.174",
-                    "192.169.154.185",
-                    "120.131.13.249",
-                };
-                List<string> results = new List<string>();
-                string result = "";
-                bool success = false;
-                foreach (string nip in nodeips)
-                {
-                    var BitcoinNode = new BitcoinNode(address: nip, port: 9003);
-                    try
-                    {
-                        result = BitcoinNode.BroadcastTransaction(transaction, Forks.ForkShortNameCode[userclaim.CoinShortName]);
+                MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
 
-                        if (result == transaction.GetHash().ToString() )
-                        {
-                            success = true;
-                            break;
-                        }
-                        else if(result.Substring(0, 6) == "Reject")
-                        {
-                            success = false;
-                            break;
-                        }
-                        else
-                        {
-                            results.Add(result);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        results.Add(nip + ":" + e.Message);
-                    }
-                }
-                if (success)
-                {
-                    ViewBag.content = "Coins successfully broadcast.  Your transaction is: " + transaction.GetHash().ToString();
-                    userclaim.TransactionHash = transaction.GetHash().ToString();
-                    userclaim.WasTransmitted = true;
-                    userclaim.SignedTX = signedTransaction;
-                }
-                else
-                {
-                    ViewBag.content = "Error broadcasting your transaction: " + String.Join(";", results.ToArray());
-                    userclaim.WasTransmitted = false;
-                    userclaim.SignedTX = signedTransaction;
-                }
-                db.SaveChanges();
-            }
-            else if (userclaim.CoinShortName == "BTF")  //Bitcoin Faith
-            {
-                //http://localhost:53483/Claim/ClaimConfirm?claimId=YdJGSDTzfN
-                userclaim.SignedTX = signedTransaction;
-                Transaction transaction = Transaction.Parse(signedTransaction);
-                List<string> nodeips = new List<string>()
-                {
-                    "47.90.38.149",
-                    "120.55.126.189",
-                    "47.90.16.179",
-                    "47.90.38.158",
-                    "47.90.37.123", //b.btf.hjy.cc
-                    "47.90.62.100",
-                };
-                //port 8346
-                List<string> results = new List<string>();
-                string result = "";
-                bool success = false;
-                foreach (string nip in nodeips)
-                {
-                    var BitcoinNode = new BitcoinNode(address: nip, port: 8346);
-                    try
-                    {
-                        result = BitcoinNode.BroadcastTransaction(transaction, Forks.ForkShortNameCode[userclaim.CoinShortName]);
-
-                        if (result == transaction.GetHash().ToString())
-                        {
-                            success = true;
-                            break;
-                        }
-                        else
-                        {
-                            results.Add(result);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        results.Add(nip + ":" + e.Message);
-                    }
-                }
-                if (success)
-                {
-                    ViewBag.content = "Coins successfully broadcast.  Your transaction is: " + transaction.GetHash().ToString();
-                    userclaim.TransactionHash = transaction.GetHash().ToString();
-                    userclaim.WasTransmitted = true;
-                    userclaim.SignedTX = signedTransaction;
-                }
-                else
-                {
-                    ViewBag.content = "Error broadcasting your transaction: " + String.Join(";", results.ToArray());
-                    userclaim.WasTransmitted = false;
-                    userclaim.SignedTX = signedTransaction;
-                }
-                db.SaveChanges();
-            }
-            else if (userclaim.CoinShortName == "SBTC") //Super bitcoin
-            {
-                userclaim.SignedTX = signedTransaction;
-                Transaction transaction = Transaction.Parse(signedTransaction);
-
-                List<string> nodeips = new List<string>()
-                {
-                    "185.17.31.58",
-                    "162.212.157.232",
-                    "101.201.117.68",
-                    "162.212.157.232",
-                    "123.56.143.216"
-                };
-                List<string> results = new List<string>();
-                string result = "";
-                bool success = false;
-                foreach (string nip in nodeips)
-                {
-                    try
-                    {
-
-
-                        var BitcoinNode = new BitcoinNode(address: nip, port: 8334);
-                        result = BitcoinNode.BroadcastTransaction(transaction, Forks.ForkShortNameCode[userclaim.CoinShortName]);
-
-                        if (result == transaction.GetHash().ToString())
-                        {
-                            success = true;
-                            break;
-                        }
-                        else
-                        {
-                            results.Add(result);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        results.Add(nip + ":" + e.Message);
-                    }
-                }
-                if (success)
-                {
-                    ViewBag.content = "Coins successfully broadcast.  Your transaction is: " + transaction.GetHash().ToString();
-                    userclaim.TransactionHash = transaction.GetHash().ToString();
-                    userclaim.WasTransmitted = true;
-                    userclaim.SignedTX = signedTransaction;
-                }
-                else
-                {
-                    ViewBag.content = "Error broadcasting your transaction: " + String.Join(";", results.ToArray());
-                    userclaim.WasTransmitted = false;
-                    userclaim.SignedTX = signedTransaction;
-                }
                 db.SaveChanges();
             }
             else if (userclaim.CoinShortName == "BTG")
@@ -378,8 +262,203 @@ namespace coinpanic_airdrop.Controllers
                 ViewBag.content = content;
                 userclaim.TransactionHash = content;
                 userclaim.WasTransmitted = true;
+                MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
+
                 db.SaveChanges();
             }
+            else
+            {
+                //broadcast it directly to a node
+                var txed = CoinPanicNodes.BroadcastTransaction(coin: userclaim.CoinShortName, transaction: t);
+                if (txed > 0)
+                {
+                    //broadcasted
+                    ViewBag.content = "Transaction was broadcast to " + Convert.ToString(txed) + "node(s).  Your transaction id is: " + txid;
+                    userclaim.TransactionHash = txid;
+                    userclaim.WasTransmitted = true;
+                    userclaim.SignedTX = signedTransaction;
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
+
+                }
+                else
+                {
+                    ViewBag.content = "Error broadcasting your transaction.";
+                    userclaim.WasTransmitted = false;
+                    userclaim.SignedTX = signedTransaction;
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " error broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
+
+                }
+                db.SaveChanges();
+            }
+            db.SaveChanges();
+            //
+            //else if (userclaim.CoinShortName == "BCX")  //Bitcoin Faith
+            //{
+            //    //https://www.coinpanic.com/Claim/ClaimConfirm?claimId=kIXqSkIskQ
+            //    userclaim.SignedTX = signedTransaction;
+
+            //    List<string> nodeips = new List<string>()
+            //    {
+            //        "192.169.153.174",
+            //        "192.169.154.185",
+            //        "120.131.13.249",
+            //    };
+            //    List<string> results = new List<string>();
+            //    string result = "";
+            //    bool success = false;
+            //    foreach (string nip in nodeips)
+            //    {
+            //        var BitcoinNode = new BitcoinNode(address: nip, port: 9003);
+            //        try
+            //        {
+            //            result = BitcoinNode.BroadcastTransaction(transaction, Forks.ForkShortNameCode[userclaim.CoinShortName]);
+
+            //            if (result == transaction.GetHash().ToString() )
+            //            {
+            //                success = true;
+            //                break;
+            //            }
+            //            else if(result.Substring(0, 6) == "Reject")
+            //            {
+            //                success = false;
+            //                break;
+            //            }
+            //            else
+            //            {
+            //                results.Add(result);
+            //            }
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            results.Add(nip + ":" + e.Message);
+            //        }
+            //    }
+            //    if (success)
+            //    {
+            //        ViewBag.content = "Coins successfully broadcast.  Your transaction is: " + transaction.GetHash().ToString();
+            //        userclaim.TransactionHash = transaction.GetHash().ToString();
+            //        userclaim.WasTransmitted = true;
+            //        userclaim.SignedTX = signedTransaction;
+            //    }
+            //    else
+            //    {
+            //        ViewBag.content = "Error broadcasting your transaction: " + String.Join(";", results.ToArray());
+            //        userclaim.WasTransmitted = false;
+            //        userclaim.SignedTX = signedTransaction;
+            //    }
+            //    db.SaveChanges();
+            //}
+            //else if (userclaim.CoinShortName == "BTF")  //Bitcoin Faith
+            //{
+            //    //http://localhost:53483/Claim/ClaimConfirm?claimId=YdJGSDTzfN
+            //    userclaim.SignedTX = signedTransaction;
+            //    Transaction transaction = Transaction.Parse(signedTransaction);
+            //    List<string> nodeips = new List<string>()
+            //    {
+            //        "47.90.38.149",
+            //        "120.55.126.189",
+            //        "47.90.16.179",
+            //        "47.90.38.158",
+            //        "47.90.37.123", //b.btf.hjy.cc
+            //        "47.90.62.100",
+            //    };
+            //    //port 8346
+            //    List<string> results = new List<string>();
+            //    string result = "";
+            //    bool success = false;
+            //    foreach (string nip in nodeips)
+            //    {
+            //        var BitcoinNode = new BitcoinNode(address: nip, port: 8346);
+            //        try
+            //        {
+            //            result = BitcoinNode.BroadcastTransaction(transaction, Forks.ForkShortNameCode[userclaim.CoinShortName]);
+
+            //            if (result == transaction.GetHash().ToString())
+            //            {
+            //                success = true;
+            //                break;
+            //            }
+            //            else
+            //            {
+            //                results.Add(result);
+            //            }
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            results.Add(nip + ":" + e.Message);
+            //        }
+            //    }
+            //    if (success)
+            //    {
+            //        ViewBag.content = "Coins successfully broadcast.  Your transaction is: " + transaction.GetHash().ToString();
+            //        userclaim.TransactionHash = transaction.GetHash().ToString();
+            //        userclaim.WasTransmitted = true;
+            //        userclaim.SignedTX = signedTransaction;
+            //    }
+            //    else
+            //    {
+            //        ViewBag.content = "Error broadcasting your transaction: " + String.Join(";", results.ToArray());
+            //        userclaim.WasTransmitted = false;
+            //        userclaim.SignedTX = signedTransaction;
+            //    }
+            //    db.SaveChanges();
+            //}
+            //else if (userclaim.CoinShortName == "SBTC") //Super bitcoin
+            //{
+            //    userclaim.SignedTX = signedTransaction;
+            //    Transaction transaction = Transaction.Parse(signedTransaction);
+
+            //    List<string> nodeips = new List<string>()
+            //    {
+            //        "185.17.31.58",
+            //        "162.212.157.232",
+            //        "101.201.117.68",
+            //        "162.212.157.232",
+            //        "123.56.143.216"
+            //    };
+            //    List<string> results = new List<string>();
+            //    string result = "";
+            //    bool success = false;
+            //    foreach (string nip in nodeips)
+            //    {
+            //        try
+            //        {
+
+
+            //            var BitcoinNode = new BitcoinNode(address: nip, port: 8334);
+            //            result = BitcoinNode.BroadcastTransaction(transaction, Forks.ForkShortNameCode[userclaim.CoinShortName]);
+
+            //            if (result == transaction.GetHash().ToString())
+            //            {
+            //                success = true;
+            //                break;
+            //            }
+            //            else
+            //            {
+            //                results.Add(result);
+            //            }
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            results.Add(nip + ":" + e.Message);
+            //        }
+            //    }
+            //    if (success)
+            //    {
+            //        ViewBag.content = "Coins successfully broadcast.  Your transaction is: " + transaction.GetHash().ToString();
+            //        userclaim.TransactionHash = transaction.GetHash().ToString();
+            //        userclaim.WasTransmitted = true;
+            //        userclaim.SignedTX = signedTransaction;
+            //    }
+            //    else
+            //    {
+            //        ViewBag.content = "Error broadcasting your transaction: " + String.Join(";", results.ToArray());
+            //        userclaim.WasTransmitted = false;
+            //        userclaim.SignedTX = signedTransaction;
+            //    }
+            //    db.SaveChanges();
+            //}
+
             return View();
         }
     }

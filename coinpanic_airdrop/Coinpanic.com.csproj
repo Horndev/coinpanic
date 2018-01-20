@@ -209,6 +209,18 @@
     <Compile Include="Migrations\201801152139009_AddTotalValue.Designer.cs">
       <DependentUpon>201801152139009_AddTotalValue.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801202221308_AddedSeedNodes.cs" />
+    <Compile Include="Migrations\201801202221308_AddedSeedNodes.Designer.cs">
+      <DependentUpon>201801202221308_AddedSeedNodes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801202253452_DropSeedNodes.cs" />
+    <Compile Include="Migrations\201801202253452_DropSeedNodes.Designer.cs">
+      <DependentUpon>201801202253452_DropSeedNodes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801202255123_AddSeedNodeWithInt.cs" />
+    <Compile Include="Migrations\201801202255123_AddSeedNodeWithInt.Designer.cs">
+      <DependentUpon>201801202255123_AddSeedNodeWithInt.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CoinClaim.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -218,6 +230,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Services\CreateTransactionService.cs" />
+    <Compile Include="Services\MailingService.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -815,42 +828,6 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="Products\B2X\A3Na3\BlockChainData.txt" />
-    <Content Include="Products\B2X\A3Na3\utx.txt" />
-    <Content Include="Products\B2X\CounterproductivePan\BlockChainData.txt" />
-    <Content Include="Products\B2X\CounterproductivePan\utx.txt" />
-    <Content Include="Products\B2X\cryptagion\2018-01-14.png" />
-    <Content Include="Products\B2X\cryptagion\BlockChainData.txt" />
-    <Content Include="Products\B2X\cryptagion\utx.txt" />
-    <Content Include="Products\B2X\F92Ad\BlockChainData.txt" />
-    <Content Include="Products\B2X\F92Ad\utx.txt" />
-    <Content Include="Products\B2X\FieserKiller\BlockChainData.txt" />
-    <Content Include="Products\B2X\FieserKiller\utx.txt" />
-    <Content Include="Products\B2X\gi8sH1K0IbM6\BlockChainData.txt" />
-    <Content Include="Products\B2X\gi8sH1K0IbM6\utx.txt" />
-    <Content Include="Products\B2X\Hark-\BlockChainData.txt" />
-    <Content Include="Products\B2X\Hark-\utx.txt" />
-    <Content Include="Products\B2X\I72Pq\BlockChainData.txt" />
-    <Content Include="Products\B2X\I72Pq\utx.txt" />
-    <Content Include="Products\B2X\index.htm" />
-    <Content Include="Products\B2X\jad939933\BlockChainData.txt" />
-    <Content Include="Products\B2X\jad939933\utx.txt" />
-    <Content Include="Products\B2X\nbitec\2018-01-15 %281%29.png" />
-    <Content Include="Products\B2X\nbitec\2018-01-15.png" />
-    <Content Include="Products\B2X\nbitec\BlockChainData.txt" />
-    <Content Include="Products\B2X\nbitec\utx.txt" />
-    <Content Include="Products\B2X\Rbotiq\BlockChainData.txt" />
-    <Content Include="Products\B2X\Rbotiq\utx.txt" />
-    <Content Include="Products\B2X\striestn\BlockChainData.txt" />
-    <Content Include="Products\B2X\striestn\utx.txt" />
-    <Content Include="Products\B2X\taquitoxz86\BlockChainData.txt" />
-    <Content Include="Products\B2X\taquitoxz86\utx.txt" />
-    <Content Include="Products\B2X\whospumpin\BlockChainData.txt" />
-    <Content Include="Products\B2X\whospumpin\CoinpanicSignTx.exe" />
-    <Content Include="Products\B2X\whospumpin\utx.txt" />
-    <Content Include="Products\SBTC\index.htm" />
-    <Content Include="Products\SBTC\Rbotiq\BlockChainData.txt" />
-    <Content Include="Products\SBTC\Rbotiq\utx.txt" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="ApplicationInsights.config">
@@ -1208,8 +1185,8 @@
     </Content>
     <Content Include="Database.config" />
     <None Include="Properties\PublishProfiles\coinpanic.com - FTP.pubxml" />
-    <None Include="Properties\PublishProfiles\coinpanic.com - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\Coinpanic.com.pubxml" />
+    <None Include="Properties\PublishProfiles\localhost.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -1234,7 +1211,9 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
-    <Content Include="Views\Web.config" />
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
@@ -1248,6 +1227,7 @@
     <Content Include="Views\Claim\ClaimConfirm.cshtml" />
     <Content Include="Views\Claim\TransmitTransaction.cshtml" />
     <Content Include="Views\Home\Legal.cshtml" />
+    <Content Include="Views\Claim\CheckNode.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1287,6 +1267,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801152139009_AddTotalValue.resx">
       <DependentUpon>201801152139009_AddTotalValue.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801202221308_AddedSeedNodes.resx">
+      <DependentUpon>201801202221308_AddedSeedNodes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801202253452_DropSeedNodes.resx">
+      <DependentUpon>201801202253452_DropSeedNodes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801202255123_AddSeedNodeWithInt.resx">
+      <DependentUpon>201801202255123_AddSeedNodeWithInt.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

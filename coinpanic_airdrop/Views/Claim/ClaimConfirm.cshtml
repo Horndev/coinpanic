@@ -7,7 +7,18 @@
 <h2>Confirm and Sign @Model.CoinShortName Claim</h2>
 <br />
 <br />
-<p> <b>@Model.Deposited @Model.CoinShortName</b> will be deposited in your address <b>@Model.DepositAddress</b></p>
+<p> <b>@if (Model.CoinShortName == "BCX")
+{
+    @(Model.Deposited * 10000.0)
+}
+else if (Model.CoinShortName == "BCD")
+{
+    @(Model.Deposited * 10.0)
+}
+else
+{
+    @Model.Deposited
+} @Model.CoinShortName</b> will be deposited in your address <b>@Model.DepositAddress</b></p>
 <br />
 <div><b>@Model.CoinShortName found in submitted addresses:</b><br /></div>
 <table class="table table-bordered table-responsive table-hover">
@@ -23,6 +34,10 @@
                 @if (Model.CoinShortName == "BCX")
                 {
                     @(d.ClaimValue * 10000.0)
+                }
+                else if (Model.CoinShortName == "BCD")
+                {
+                    @(d.ClaimValue * 10.0)
                 }
                 else
                 {
@@ -46,6 +61,10 @@
         {
             @(Model.TotalValue * 10000.0)
         }
+        else if (Model.CoinShortName == "BCD")
+        {
+            @(Model.TotalValue * 10.0)
+        }
         else
         {
             @Model.TotalValue
@@ -55,6 +74,10 @@
         @if (Model.CoinShortName == "BCX")
         {
             @(Model.Deposited * 10000.0)
+        }
+        else if (Model.CoinShortName == "BCD")
+        {
+            @(Model.Deposited * 10.0)
         }
         else
         {
@@ -66,6 +89,10 @@
         {
             @(Model.MyFee * 10000.0)
         }
+        else if (Model.CoinShortName == "BCD")
+        {
+            @(Model.MyFee * 10.0)
+        }
         else
         {
             @Model.MyFee
@@ -75,6 +102,10 @@
             @if (Model.CoinShortName == "BCX")
             {
                 @(Model.MinerFee * 10000.0)
+            }
+            else if (Model.CoinShortName == "BCD")
+            {
+                @(Model.MinerFee * 10.0)
             }
             else
             {
@@ -92,17 +123,20 @@
     <li class="list-group-item justify-content-between">
         <a href="~/Tools/CoinpanicSignTx.exe" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-download"></span> Download</a> the offline signing tool.
         This tool implements the signing algorithms used by the various forked coins.  You can use this tool without any connection to the internet.  You will need only your private keys.
+        <br />
+        The tool is updated frequently to support new coins and patch bugs.  It is recommended to download the latest copy here if you have an older version.
     </li>
     <li class="list-group-item justify-content-between">
         <a href="DownloadTransactionFile/?claimId=@Model.ClaimId" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-download"></span> Download </a> your custom BlockChainData.txt and <b>save it to the same folder you saved the signing tool.</b>
-        
     </li>
     <li class="list-group-item justify-content-between">
-        At the command shell navigate to the folder containing CoinpanicSignTx.exe and BlockChainData.txt. Run the command: <br /><kbd>CoinpanicSignTx.exe -c @Model.CoinShortName -p PRIVATEKEY1 -p PRIVATEKEY2 UNSIGNED_TRANSACTION</kbd> <br />
+        At the command shell navigate to the folder containing CoinpanicSignTx.exe and BlockChainData.txt. Run the command: <br /><kbd>CoinpanicSignTx.exe -c @Model.CoinShortName -p PRIVATEKEY1 -p PRIVATEKEY2 -p [etc.] UNSIGNED_TRANSACTION</kbd> <br />
         Make sure to enter each of your private keys for the claimed addresses using the -p flag. <br />
         You can find the content of <kbd>UNSIGNED_TRANSACTION</kbd> below.
         Your private keys will start with a'K' or 'L' and be 52 characters long (base 58 encoded). For example: KxX4edUCKiXWZh8TaB7zq9Lm2RCxSy5YgJL9VkRh5JH5G3wSKzdg.
-        
+    </li>
+    <li class="list-group-item justify-content-between">
+        <a href="~/Tools/Claim.mp4" class="btn btn-secondary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-video-camera"></span> Watch </a> A video of the process is available.  
         @*<p><a class="btn btn-default" href="http://www.coinpanic.com/Home/Claim">Learn more about how to obtain your private keys &raquo;</a></p>*@
     </li>
     <li class="list-group-item justify-content-between">
@@ -132,7 +166,9 @@
         <div class="form-group">
             <div class="col-sm-10">
                 <label for="SignedTX">Paste your signed transaction here:</label>
-                <textarea type="text" class="form-control" rows="5" name="signedTransaction" id="signedTransaction" aria-describedby="pubhelp" placeholder="Paste your signed transaction here after running CoinpanicSignTx.exe.  It should look different than the unsigned transaction if it was successful."></textarea>
+                <textarea type="text" class="form-control" rows="5" name="signedTransaction" id="signedTransaction" aria-describedby="pubhelp" placeholder="Paste your signed transaction here after running CoinpanicSignTx.exe.  It should look different than the unsigned transaction if it was successful.">
+                    @Model.SignedTX
+                </textarea>
                 <small id="pubhelp" class="form-text text-muted">We will broadcast your transaction to the network.</small>
             </div>
         </div>

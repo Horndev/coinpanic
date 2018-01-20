@@ -12,16 +12,20 @@
     <p>Even though you may trust the person you sent them to, your keys have been revealed.  They can be stolen by malware, or a malicious actor.  Coinpanic.com, through the offline signing method, is able to split your coins without you having to provide anyone your private keys.  You can even sign your transaction without an internet connection.</p>
 </div>
 <div class="alert alert-success" role="alert">
-    <h4 class="alert-heading">SBTC automatic claims now fully online</h4>
+    <h4 class="alert-heading">Bitcoin X (BCX) automatic claims now fully online</h4>
     <p>Make sure you download the updated offline signing tool.  <a href="~/Tools/CoinpanicSignTx.exe" aria-pressed="true"> Download <i class="fa fa-windows" aria-hidden="true"></i></a></p>
-    <p>You can now @Html.ActionLink("Claim SBTC (5% fee)", "NewClaim", "Claim", new { coin = "SBTC" }, new { @class = "btn btn-primary btn-sm active", @role = "button" }) automatically.</p>
+    <p>@Html.ActionLink("Claim BCX (5% fee)", "NewClaim", "Claim", new { coin = "BCX" }, new { @class = "btn btn-primary btn-sm active", @role = "button" })</p>
 </div>
 <div class="alert alert-success" role="alert">
-    <h4 class="alert-heading">B2X automatic claims now fully online</h4>
-    <p>You can now @Html.ActionLink("Claim B2X (5% fee)", "NewClaim", "Claim", new { coin = "B2X" }, new { @class = "btn btn-primary btn-sm active", @role = "button" }) automatically.</p>
+    <h4 class="alert-heading">Super Bitcoin (SBTC) automatic claims now fully online</h4>
+    <p>@Html.ActionLink("Claim SBTC (5% fee)", "NewClaim", "Claim", new { coin = "SBTC" }, new { @class = "btn btn-primary btn-sm active", @role = "button" })</p>
+</div>
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Segwit2x (B2X) automatic claims now fully online</h4>
+    <p>@Html.ActionLink("Claim B2X (5% fee)", "NewClaim", "Claim", new { coin = "B2X" }, new { @class = "btn btn-primary btn-sm active", @role = "button" })</p>
 </div>
 <div class="alert alert-info" role="alert">
-    <h4 class="alert-heading">All coins except B2X and SBTC are currently in manual mode.</h4>
+    <h4 class="alert-heading">All coins except B2X, BCX, and SBTC are currently in manual mode.</h4>
     <p>
         The priority is to get all coins running in automatic mode.  If you need assistance, 
         <b>Please contact claims@coinpanic.com or /u/Zelgada on Reddit</b>
@@ -67,7 +71,7 @@
     <div class="card">
         <div class="card-header" role="tab" id="headingTwo">
             <h5 class="mb-0">
-                <span class="badge badge-danger">Network Down</span>
+                <span class="badge badge-success">Online</span>
                 <a class="collapsed" data-toggle="collapse" href="#collapseTwo" role="button" aria-expanded="false" aria-controls="collapseTwo">
                     Super Bitcoin (SBTC)
                 </a>
@@ -86,7 +90,7 @@
     <div class="card">
         <div class="card-header" role="tab" id="headingBCX">
             <h5 class="mb-0">
-                <span class="badge badge-danger">Network Down</span>
+                <span class="badge badge-success">Online</span>
                 <a class="collapsed" data-toggle="collapse" href="#collapseBCX" role="button" aria-expanded="false" aria-controls="collapseBCX">
                     Bitcoin X (BCX)
                 </a>

@@ -25,7 +25,7 @@ namespace CoinController
 
         public static List<BitcoinAddress> ParseAddresses(List<string> addresses)
         {
-            return addresses.Select(a => BitcoinAddress.Create(a, Network.Main)).ToList();
+            return addresses.Where(a => a.Length > 30).Select(a => BitcoinAddress.Create(a.Trim(' '), Network.Main)).ToList();
         }
 
         public static BitcoinAddress ParseAddress(string addresses)
@@ -48,6 +48,10 @@ namespace CoinController
             if (forkCode == Forks.ForkCode.SBTC || forkCode == Forks.ForkCode.BTF)
             {
                 utx.Version = 2;
+            }
+            else if (forkCode == Forks.ForkCode.BCD)
+            {
+                utx.Version = 12;
             }
 
             return utx.ToHex();
