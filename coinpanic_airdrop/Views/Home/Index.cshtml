@@ -1,4 +1,6 @@
-﻿@{
+﻿@model coinpanic_airdrop.Models.IndexModel
+
+@{
     ViewBag.Title = "Coinpanic.com";
 }
 
@@ -11,251 +13,44 @@
     <h4 class="alert-heading">Do not hand out your private keys or seed words to anyone.</h4>
     <p>Even though you may trust the person you sent them to, your keys have been revealed.  They can be stolen by malware, or a malicious actor.  Coinpanic.com, through the offline signing method, is able to split your coins without you having to provide anyone your private keys.  You can even sign your transaction without an internet connection.</p>
 </div>
+
+@foreach (var d in Model.CoinInfo)
+{
+    <div class="alert @d.Value.AlertClass" role="alert">
+        <h4 class="alert-heading">@d.Value.CoinName @d.Value.CoinHeaderMessage</h4>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <p>
+                        @Html.ActionLink("Claim " + d.Key + " (5% fee)", "NewClaim", "Claim", new { coin = d.Key }, new { @class = "btn btn-primary btn-sm active", @role = "button" })
+                    Exchange: <a href="@d.Value.ExchangeURL">@d.Value.Exchange</a>
+                </p>
+                </div>
+                <div class="col-12 col-md-auto">
+                    <p>
+                        @*@d.Value.Nodes Connected nodes*@
+                    </p>
+                </div>
+                <div class="col col-lg-1 pull-right">
+                    @if (d.Value.Status == "online")
+                    {
+                        <span class="badge badge-success">@d.Value.Status</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <p>@d.Value.CoinNotice</p>
+        
+    </div>
+}
+
 <div class="alert alert-success" role="alert">
-    <h4 class="alert-heading">Bitcoin X (BCX) automatic claims now fully online</h4>
-    <p>Make sure you download the updated offline signing tool.  <a href="~/Tools/CoinpanicSignTx.exe" aria-pressed="true"> Download <i class="fa fa-windows" aria-hidden="true"></i></a></p>
-    <p>@Html.ActionLink("Claim BCX (5% fee)", "NewClaim", "Claim", new { coin = "BCX" }, new { @class = "btn btn-primary btn-sm active", @role = "button" })</p>
-</div>
-<div class="alert alert-success" role="alert">
-    <h4 class="alert-heading">Super Bitcoin (SBTC) automatic claims now fully online</h4>
-    <p>@Html.ActionLink("Claim SBTC (5% fee)", "NewClaim", "Claim", new { coin = "SBTC" }, new { @class = "btn btn-primary btn-sm active", @role = "button" })</p>
-</div>
-<div class="alert alert-success" role="alert">
-    <h4 class="alert-heading">Segwit2x (B2X) automatic claims now fully online</h4>
-    <p>@Html.ActionLink("Claim B2X (5% fee)", "NewClaim", "Claim", new { coin = "B2X" }, new { @class = "btn btn-primary btn-sm active", @role = "button" })</p>
-</div>
-<div class="alert alert-info" role="alert">
-    <h4 class="alert-heading">All coins except B2X, BCX, and SBTC are currently in manual mode.</h4>
-    <p>
-        The priority is to get all coins running in automatic mode.  If you need assistance, 
-        <b>Please contact claims@coinpanic.com or /u/Zelgada on Reddit</b>
-    </p>
+    <h4 class="alert-heading">New signing tool with graphical interface.</h4>
+    <p>Try the new signing tool on your next claim.  <a href="~/Tools/CoinPanicSignTxUI.zip" aria-pressed="true"> Download <i class="fa fa-windows" aria-hidden="true"></i></a></p>
 </div>
 <div class="alert alert-success" role="alert">
     <h4 class="alert-heading">Bech32 supported for SegWit enabled forks</h4>
     <p>We've successfully implemented claiming Bech32 addresses for our process (including electrum keys).</p>
-</div>
-@*<div class="alert alert-info" role="alert">
-    <h4 class="alert-heading">Delayed processing times</h4>
-    <p>
-    Due to the large volume of requests, please note that there are delays in processing your claims.  Until the automatic claims system is online, it will be around 24 hours before your claim can be processed.  We apologize for the inconvenience.
-    </p>
-</div>*@
-@*<div class="alert alert-info" role="alert">
-    <h4 class="alert-heading">New offline signing tool</h4>
-    <p>
-        New offline signing transaction tool (command line) available for <a href="~/Tools/CoinpanicSignTx.exe" aria-pressed="true"> Download <i class="fa fa-windows" aria-hidden="true"></i></a>.  Currently only a windows version of the signing tool is available.  Use as directed by CoinPanic.com.
-    </p>
-</div>*@
-<h2>Supported Coins (Click for more information)</h2>
-<div id="accordion" role="tablist">
-    <div class="card">
-        <div class="card-header" role="tab" id="headingB2X">
-            <h5 class="mb-0">
-                <a class="collapsed " data-toggle="collapse" href="#collapseB2X" role="button" aria-expanded="false" aria-controls="collapseB2X">
-                    <span class="badge badge-success">Online</span>
-                    Bitcoin Segwit2x (B2X)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseB2X" class="collapse" role="tabpanel" aria-labelledby="headingB2X" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: <a href="http://b2x-segwit.io/">http://b2x-segwit.io/</a></p>
-                <p>Exchanges: <a href="https://exrates.me">https://exrates.me</a> confirmed by Coinpanic.com to work.</p>
-                <p>
-                    @Html.ActionLink("Claim B2X (5% fee)", "NewClaim", "Claim", new { coin = "B2X" }, new { @class = "btn btn-primary btn-lg active", @role = "button" })
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" role="tab" id="headingTwo">
-            <h5 class="mb-0">
-                <span class="badge badge-success">Online</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseTwo" role="button" aria-expanded="false" aria-controls="collapseTwo">
-                    Super Bitcoin (SBTC)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: <a href="http://supersmartbitcoin.com/">supersmartbitcoin.com</a></p>
-                <p>Exchanges: <a href="https://gate.io/ref/754557">https://gate.io</a></p>
-                <p>
-                    @Html.ActionLink("Claim SBTC (5% fee)", "NewClaim", "Claim", new { coin = "SBTC" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled = "true" })
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" role="tab" id="headingBCX">
-            <h5 class="mb-0">
-                <span class="badge badge-success">Online</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseBCX" role="button" aria-expanded="false" aria-controls="collapseBCX">
-                    Bitcoin X (BCX)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseBCX" class="collapse" role="tabpanel" aria-labelledby="headingBCX" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: <a href="https://bcx.org/">https://bcx.org/</a></p>
-                <p>Exchanges: <a href="https://gate.io/ref/754557">https://gate.io</a></p>
-                @Html.ActionLink("Claim BCX (5% fee)", "NewClaim", "Claim", new { coin = "BCX" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled = "true" })
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" role="tab" id="headingBTF">
-            <h5 class="mb-0">
-                <span class="badge badge-danger">Network Down</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseBTF" role="button" aria-expanded="false" aria-controls="collapseBTF">
-                    Bitcoin Faith (BTF)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseBTF" class="collapse" role="tabpanel" aria-labelledby="headingBTF" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: <a href="http://bitcoinfaith.org/">http://bitcoinfaith.org/</a></p>
-                <p>Exchanges: <a href="http://btctrade.im">btctrade.im</a> (After verification - not all nationalities)</p>
-                    @Html.ActionLink("Claim BTF (5% fee)", "NewClaim", "Claim", new { coin = "BTF" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled = "true" })
-            </div>
-        </div>
-    </div>
-    
-    <div class="card">
-        <div class="card-header" role="tab" id="headingFBTC">
-            <h5 class="mb-0">
-                <span class="badge badge-info">Coming Soon</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseFBTC" role="button" aria-expanded="false" aria-controls="collapseFBTC">
-                    Fast Bitcoin (FBTC)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseFBTC" class="collapse" role="tabpanel" aria-labelledby="headingFBTC" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: </p>
-                <p>Exchanges: </p>
-                @*<p>
-                    @Html.ActionLink("Claim FBTC (5% fee)", "NewClaim", "Claim", new { coin = "FBTC" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled = "true" })
-                </p>*@
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" role="tab" id="headingOne">
-            <h5 class="mb-0">
-                <span class="badge badge-danger">Offline</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseOne" role="button" aria-expanded="false" aria-controls="collapseOne">
-                    Bitcoin Diamond (BCD)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseOne" class="collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: <a href="http://btcd.io">btcd.io</a></p>
-                <p>Exchanges: yobit.net</p>
-                @*<p>
-                    @Html.ActionLink("Claim BCD (5% fee)", "NewClaim", "Claim", new { coin = "BCD" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled = "true" })
-                </p>*@
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" role="tab" id="headingThree">
-            <h5 class="mb-0">
-                <span class="badge badge-danger">Offline</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseThree" role="button" aria-expanded="false" aria-controls="collapseThree">
-                    Bitcoin Gold (BTG)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseThree" class="collapse" role="tabpanel" aria-labelledby="headingThree" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: <a href="https://bitcoingold.org/">bitcoingold.org</a></p>
-                <p>Exchanges: yobit.net</p>
-                @*<p>
-                    @Html.ActionLink("Claim BTG (5% fee)", "NewClaim", "Claim", new { coin = "BTG" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled = "true" })
-                </p>*@
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" role="tab" id="headingFour">
-            <h5 class="mb-0">
-                <span class="badge badge-danger">Offline</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseFour" role="button" aria-expanded="false" aria-controls="collapseFour">
-                    Bitcore (BTX)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseFour" class="collapse" role="tabpanel" aria-labelledby="headingFour" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: </p>
-                <p>Exchanges: </p>
-                @*<p>
-                    @Html.ActionLink("Claim BTX (5% fee)", "NewClaim", "Claim", new { coin = "BTX" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled = "true" })
-                </p>*@
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" role="tab" id="headingFive">
-            <h5 class="mb-0">
-                <span class="badge badge-danger">Offline</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseFive" role="button" aria-expanded="false" aria-controls="collapseFive">
-                    Bitcoin Cash (BCH)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseFive" class="collapse" role="tabpanel" aria-labelledby="headingFive" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: </p>
-                <p>Exchanges: </p>
-                @*<p>
-                    @Html.ActionLink("Claim BCH (5% fee)", "NewClaim", "Claim", new { coin = "BCH" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled = "true" })
-                </p>*@
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" role="tab" id="headingSix">
-            <h5 class="mb-0">
-                <span class="badge badge-danger">Offline</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseSix" role="button" aria-expanded="false" aria-controls="collapseSix">
-                    United Bitcoin (UBTC)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseSix" class="collapse" role="tabpanel" aria-labelledby="headingSix" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: </p>
-                <p>Exchanges: </p>
-                @*<p>
-                    @Html.ActionLink("Claim UBTC (5% fee)", "NewClaim", "Claim", new { coin = "UBTC" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled = "true" })
-                </p>*@
-            </div>
-        </div>
-    </div>
-    
-    <div class="card">
-        <div class="card-header" role="tab" id="headingBTW">
-            <h5 class="mb-0">
-                <span class="badge badge-danger">Offline</span>
-                <a class="collapsed" data-toggle="collapse" href="#collapseBTW" role="button" aria-expanded="false" aria-controls="collapseBTW">
-                    Bitcoin World (BTW)
-                </a>
-            </h5>
-        </div>
-        <div id="collapseBTW" class="collapse" role="tabpanel" aria-labelledby="headingBTW" data-parent="#accordion">
-            <div class="card-body">
-                <p>Homepage: </p>
-                <p>Exchanges: </p>
-                @*<p>
-                    @Html.ActionLink("Claim BTW (5% fee)", "NewClaim", "Claim", new { coin = "BTW" }, new { @class = "btn btn-primary btn-lg danger", @role = "button", @disabled="true" })
-                </p>*@
-            </div>
-        </div>
-    </div>
 </div>
 <div class="card">
     <h3 class="card-header">Upcoming Forks</h3>

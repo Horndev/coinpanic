@@ -1,0 +1,37 @@
+﻿@using NodeInterface.Models
+@model NodeInterface.Models.BroadcastModel 
+
+<div class="jumbotron">
+    <h1 class="display-4">Coinpanic Bitcoin Services</h1>
+    <p class="lead">Coinpanic.com is a website to assist users of Bitcoin and related cryptocurrencies.</p>
+</div>
+
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Node for blockchain interface to @ViewBag.Coin.</h4>
+    <p>This is a node which provides a webapi forwarder to interact with a blockchain.</p>
+    <p>There are @ViewBag.NumConnectedPeers connected peers.</p>
+</div>
+<div class="card">
+    <h3 class="card-header">Secure Claim (5% fee)</h3>
+    @using (Ajax.BeginForm("Broadcast", "Home", new AjaxOptions { HttpMethod = "POST", OnSuccess = "onAjaxRequestSuccess" }, 
+        new { @id = "AjaxformId", @class = "form-horizontal", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        <p class="card-text">
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <label for="hex">Paste your signed transaction here:</label>
+                    @Html.TextAreaFor(m => m.Hex, new { placeholder = Html.DisplayNameFor(m => m.Hex), @class = "form-control", @name="hex" })
+                    <small id="pubhelp" class="form-text text-muted">We will broadcast your transaction to the network.</small>
+                </div>
+            </div>
+        </p>
+        <div class="form-group">
+            <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary">Broadcast</button>
+            </div>
+        </div>
+    } 
+</div>
+
+ 

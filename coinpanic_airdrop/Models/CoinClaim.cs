@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CoinpanicLib.NodeConnection;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -7,6 +8,32 @@ using System.Web;
 
 namespace coinpanic_airdrop.Models
 {
+    
+
+    
+
+    public class TxSubmitted
+    {
+        [Key]
+        public int txsId { get; set; }
+        public string Coin { get; set; }
+        public string TransactionHash { get; set; }
+        public bool IsError { get; set; }
+        public bool IsTransmitted { get; set; }
+        public string ResultMessage { get; set; }
+        public string ClaimId { get; set; }
+        public string SignedTx { get; set; } //copy since user can update ClaimId
+    }
+
+    public class NodeLog
+    {
+        [Key]
+        public int NodeLogId { get; set; }
+        public DateTime EventTime { get; set; }
+        public string EventName { get; set; }
+        public string EventMessage { get; set; }
+    }
+
     public class CoinClaim
     {
         [Key]
@@ -15,9 +42,6 @@ namespace coinpanic_airdrop.Models
         public String Name { get; set; }
         public String RequestIP { get; set; }
 
-        //[Required]
-        //[DataType(DataType.EmailAddress)]
-        //[DisplayName("Email")]
         public String Email { get; set; }
 
         public string DepositAddress { get; set; }
@@ -39,20 +63,7 @@ namespace coinpanic_airdrop.Models
         public string BlockData { get; set; }
     }
 
-    //Information on connecting to the P2P networks
-    public class SeedNode
-    {
-        [Key]
-        public int SeedNodeId { get; set; }
-
-        public string Coin { get; set; }
-
-        public string IP { get; set; }
-
-        public int Port { get; set; }
-
-        public bool Enabled { get; set; }
-    }
+    
 
     public class InputAddress
     {

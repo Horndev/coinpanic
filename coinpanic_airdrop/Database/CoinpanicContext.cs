@@ -5,6 +5,7 @@ using System.Web;
 using coinpanic_airdrop.Models;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using CoinpanicLib.Models;
 
 namespace coinpanic_airdrop.Database
 {
@@ -19,6 +20,10 @@ namespace coinpanic_airdrop.Database
         public DbSet<CoinClaim> Claims { get; set; }
         public DbSet<InputAddress> Addresses { get; set; }
         public DbSet<SeedNode> SeedNodes { get; set; }
+        public DbSet<NodeLog> NodeLogs { get; set; }
+        public DbSet<TxSubmitted> TxSubmitted { get; set; }
+        public DbSet<NodeServices> NodeServices { get; set; }
+        public DbSet<IndexCoinInfo> IndexCoinInfo { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

@@ -189,6 +189,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ClaimController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\NodesController.cs" />
     <Compile Include="Database\CoinpanicContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -221,8 +222,26 @@
     <Compile Include="Migrations\201801202255123_AddSeedNodeWithInt.Designer.cs">
       <DependentUpon>201801202255123_AddSeedNodeWithInt.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801222333297_AddNodeLog.cs" />
+    <Compile Include="Migrations\201801222333297_AddNodeLog.Designer.cs">
+      <DependentUpon>201801222333297_AddNodeLog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801230042570_AddTxSubmitted.cs" />
+    <Compile Include="Migrations\201801230042570_AddTxSubmitted.Designer.cs">
+      <DependentUpon>201801230042570_AddTxSubmitted.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801290212407_AddNodeServices.cs" />
+    <Compile Include="Migrations\201801290212407_AddNodeServices.Designer.cs">
+      <DependentUpon>201801290212407_AddNodeServices.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801300208252_AddIndexCoinInfo.cs" />
+    <Compile Include="Migrations\201801300208252_AddIndexCoinInfo.Designer.cs">
+      <DependentUpon>201801300208252_AddIndexCoinInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\CoinClaim.cs" />
+    <Compile Include="Models\IndexModel.cs" />
+    <Compile Include="Models\NodesInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -1228,6 +1247,8 @@
     <Content Include="Views\Claim\TransmitTransaction.cshtml" />
     <Content Include="Views\Home\Legal.cshtml" />
     <Content Include="Views\Claim\CheckNode.cshtml" />
+    <Content Include="Tools\CoinPanicSignTxUI.zip" />
+    <Content Include="Views\Nodes\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1254,6 +1275,10 @@
       <Project>{8b85a6c9-e4ca-4fc0-ad09-c475faf193a8}</Project>
       <Name>CoinController</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CoinpanicLib\CoinpanicLib.csproj">
+      <Project>{1500a165-f8c4-415c-9ac7-9166c8b1ff0e}</Project>
+      <Name>CoinpanicLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201801151332054_InitialCreate.resx">
@@ -1276,6 +1301,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801202255123_AddSeedNodeWithInt.resx">
       <DependentUpon>201801202255123_AddSeedNodeWithInt.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801222333297_AddNodeLog.resx">
+      <DependentUpon>201801222333297_AddNodeLog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801230042570_AddTxSubmitted.resx">
+      <DependentUpon>201801230042570_AddTxSubmitted.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801290212407_AddNodeServices.resx">
+      <DependentUpon>201801290212407_AddNodeServices.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801300208252_AddIndexCoinInfo.resx">
+      <DependentUpon>201801300208252_AddIndexCoinInfo.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -1,1 +1,1 @@
-﻿Select * from CoinClaim where [CoinShortName] = 'B2X' and TotalValue > 1;
+﻿Select * from CoinClaim where [CoinShortName] = 'B2X' and WasTransmitted > 0 order by ClaimId;

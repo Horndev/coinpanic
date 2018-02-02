@@ -33,7 +33,7 @@ namespace CoinController
             return BitcoinAddress.Create(addresses, Network.Main);
         }
 
-        public static string GenerateUnsignedTX(List<ICoin> UTXOs, List<Money> amounts, BitcoinAddress clientDepAddr, BitcoinAddress MyDepositAddr, Forks.ForkCode forkCode)
+        public static string GenerateUnsignedTX(List<ICoin> UTXOs, List<Money> amounts, BitcoinAddress clientDepAddr, BitcoinAddress MyDepositAddr, string forkShortName)
         {
             var builder = new TransactionBuilder();
 
@@ -45,11 +45,11 @@ namespace CoinController
                 .SendFees(amounts[2])
                 .BuildTransaction(sign: false);
 
-            if (forkCode == Forks.ForkCode.SBTC || forkCode == Forks.ForkCode.BTF)
+            if (forkShortName == "SBTC" || forkShortName == "BTF")
             {
                 utx.Version = 2;
             }
-            else if (forkCode == Forks.ForkCode.BCD)
+            else if (forkShortName == "BCD")
             {
                 utx.Version = 12;
             }

@@ -24,7 +24,7 @@ namespace CoinController
 
         public double amount { get; set; }
 
-        public int satoshis { get; set; }
+        public long satoshis { get; set; }
 
         public uint height { get; set; }
 
@@ -49,7 +49,7 @@ namespace CoinController
             return bytes;
         }
 
-        public Tuple<List<ICoin>, Dictionary<string, double>> GetUnspentTransactionOutputs(List<BitcoinAddress> clientAddresses, Forks.ForkCode forkCode)
+        public Tuple<List<ICoin>, Dictionary<string, double>> GetUnspentTransactionOutputs(List<BitcoinAddress> clientAddresses, string forkShortName)
         {
             List<ICoin> UTXOs = new List<ICoin>();
             List<ICoin> receivedCoins = new List<ICoin>();
@@ -69,7 +69,7 @@ namespace CoinController
                 {
                     isSW = true;
                 }
-                if (forkCode == Forks.ForkCode.SBTC && !isSW)
+                if (forkShortName == "SBTC" && !isSW)
                 {
                     List<UTXO> addressUTXOs;
                     //Superbitcoin
@@ -82,15 +82,25 @@ namespace CoinController
                     IRestResponse<List<UTXO>> response = iclient.Execute<List<UTXO>>(utxoRequest);
                     //list of unspent transactions
                     addressUTXOs = response.Data;
-                    foreach (var utxo in addressUTXOs)
+                    if (addressUTXOs != null)
                     {
-                        //create coin
-                        var cOutPoint = new OutPoint(uint256.Parse(utxo.txid), (uint)utxo.vout);
-                        var txout = new TxOut(new Money(satoshis: utxo.satoshis), new Script(StringToByteArray(utxo.scriptPubKey)));
-                        ICoin coin = new Coin(fromOutpoint: cOutPoint, fromTxOut: txout);// //Coin(fromTxHash: uint256.Parse(utxo.txid), fromOutputIndex: utxo.vout, amount: new Money(satoshis: utxo.satoshis), scriptPubKey: new Script(utxo.scriptPubKey));
-                        unspentCoins.Add(coin);
+                        foreach (var utxo in addressUTXOs)
+                        {
+                            try
+                            {
+                                //create coin
+                                var cOutPoint = new OutPoint(uint256.Parse(utxo.txid), (uint)utxo.vout);
+                                var txout = new TxOut(new Money(satoshis: utxo.satoshis), new Script(StringToByteArray(utxo.scriptPubKey)));
+                                ICoin coin = new Coin(fromOutpoint: cOutPoint, fromTxOut: txout);// //Coin(fromTxHash: uint256.Parse(utxo.txid), fromOutputIndex: utxo.vout, amount: new Money(satoshis: utxo.satoshis), scriptPubKey: new Script(utxo.scriptPubKey));
+                                unspentCoins.Add(coin);
+                            }
+                            catch (Exception e)
+                            {
+                                int z = 1;
+                            }
+                        }
+                        UTXOs.AddRange(unspentCoins);
                     }
-                    UTXOs.AddRange(unspentCoins);
                 }
                 //if bech32, need to use QBitNinjaClient.  Otherwise, we can read the chain directly...
                 else
@@ -98,7 +108,7 @@ namespace CoinController
                 {
                     BalanceModel AddressTxs = client.GetBalance(ca).Result;
                     //Select those operations which are before the fork (i.e. have a balance)
-                    int blockheight = Forks.ForkBlock[forkCode];
+                    int blockheight = NBitcoin.Forks.BitcoinForks.ForkByShortName[forkShortName].Height;//Forks.ForkBlock[forkCode];
 
                     List<BalanceOperation> B2XValid_Operations = AddressTxs.Operations.Where(o => o.Height < blockheight).ToList();
 

@@ -38,3 +38,6 @@ packages/
 /coinpanic_airdrop/Database.config
 /coinpanic_airdrop/Tools/CoinpanicSignTx.exe.old2
 /coinpanic_airdrop/Tools/CoinpanicSignTx.exe.old
+/NodeInterface/AppSettings.config
+/NodeInterface/Database.config
+/CoinpanicSignTx

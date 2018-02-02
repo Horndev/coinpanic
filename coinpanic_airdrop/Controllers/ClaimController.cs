@@ -1,11 +1,15 @@
 ﻿using CoinController;
 using coinpanic_airdrop.Database;
 using coinpanic_airdrop.Models;
+using CoinpanicLib.Models;
+using CoinpanicLib.NodeConnection;
 using NBitcoin;
+using NBitcoin.Forks;
 using RestSharp;
 using shortid;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,7 +42,7 @@ namespace coinpanic_airdrop.Controllers
             });
             var res = await db.SaveChangesAsync();
 
-            if (Forks.ForkShortName.Values.Contains(coin))
+            if (BitcoinForks.ForkByShortName.Keys.Contains(coin))
             {
                 var NewClaim = new CoinClaim { CoinShortName = coin, ClaimId = claimId };
 
@@ -83,14 +87,14 @@ namespace coinpanic_airdrop.Controllers
             Tuple<List<ICoin>, Dictionary<string, double>> claimcoins;
             try
             { 
-                claimcoins = scanner.GetUnspentTransactionOutputs(claimAddresses, Forks.ForkShortNameCode[userclaim.CoinShortName]);
+                claimcoins = scanner.GetUnspentTransactionOutputs(claimAddresses, userclaim.CoinShortName);
             }
-            catch
+            catch (Exception e)
             {
                 return RedirectToAction("ClaimError", new { message = "Error searching for your addresses in the blockchain", claimId = claimId });
             }
 
-            var amounts = scanner.CalculateOutputAmounts_Their_My_Fee(claimcoins.Item1, 0.05, 0.0001 * claimcoins.Item1.Count);
+            var amounts = scanner.CalculateOutputAmounts_Their_My_Fee(claimcoins.Item1, 0.05, 0.0003 * claimcoins.Item1.Count);
             var balances = claimcoins.Item2;
 
             List<InputAddress> inputs = list.Select(li => new InputAddress()
@@ -111,11 +115,11 @@ namespace coinpanic_airdrop.Controllers
             userclaim.TotalValue = userclaim.Deposited + userclaim.MyFee + userclaim.MinerFee;
 
             // Generate unsigned tx
-            var mydepaddr = System.Configuration.ConfigurationManager.AppSettings[userclaim.CoinShortName + "Deposit"];
+            var mydepaddr = ConfigurationManager.AppSettings[userclaim.CoinShortName + "Deposit"];
 
             var utx = Bitcoin.GenerateUnsignedTX(claimcoins.Item1, amounts, Bitcoin.ParseAddress(userclaim.DepositAddress),
                 Bitcoin.ParseAddress(mydepaddr),
-                Forks.ForkShortNameCode[userclaim.CoinShortName]);
+                userclaim.CoinShortName);
 
             userclaim.UnsignedTX = utx;
 
@@ -128,6 +132,8 @@ namespace coinpanic_airdrop.Controllers
 
             MonitoringService.SendMessage("New " + userclaim.CoinShortName + " claim", "new claim Initialized. https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName);
 
+            ViewBag.NumConnectedNodes = CoinPanicServer.GetNumNodes(userclaim.CoinShortName);
+
             return RedirectToAction("ClaimConfirm", new { claimId = claimId });
         }
 
@@ -136,6 +142,7 @@ namespace coinpanic_airdrop.Controllers
             try
             {
                 var userclaim = db.Claims.Where(c => c.ClaimId == claimId).Include(c => c.InputAddresses).First();
+                ViewBag.NumConnectedNodes = CoinPanicServer.GetNumNodes(userclaim.CoinShortName);
                 return View(userclaim);
             }
             catch
@@ -180,113 +187,223 @@ namespace coinpanic_airdrop.Controllers
 
         [AllowAnonymous]
         [HttpGet]
+        public ActionResult RefreshNode(string coin)
+        {
+            if (coin == null)
+                return RedirectToAction("ClaimError", new { message = "Provide a coin parameter", claimId = "" });
+
+            if (!CoinPanicServer.IsInitialized)
+            {
+                InitializeNodes();
+            }
+            else
+            {
+                // List of seed nodes
+                var seedNodesFromDb = db.SeedNodes.Where(n => n.Coin == coin).ToList();
+
+                var seednodes = seedNodesFromDb.Select(n => new NodeDetails()
+                {
+                    coin = n.Coin,
+                    ip = n.IP,
+                    port = n.Port,
+                    use = n.Enabled,
+                }).ToList();
+
+                CoinPanicServer.emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
+                CoinPanicServer.emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"]);
+                CoinPanicServer.emailuser = System.Configuration.ConfigurationManager.AppSettings["EmailUser"];
+                CoinPanicServer.emailpass = System.Configuration.ConfigurationManager.AppSettings["EmailPass"];
+
+                CoinPanicServer.InitializeNodes(seednodes);
+            }
+            
+            return RedirectToAction("CheckNode", new { coin = coin });
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
         public ActionResult CheckNode(string coin)
         {
-            // List of seed nodes
-            var userclaim = db.SeedNodes.Where(n => n.Coin == coin);
+            if (coin == null)
+                return RedirectToAction("ClaimError", new { message = "Provide a coin parameter", claimId = "" });
 
-
-            var nodes = CoinPanicNodes.GetNodes(coin: coin);
-            string nstatus = "";
-            string connectedtimes = "";
-            string nodestates = "";
-            int numnodes = 0;
-            foreach(var n in nodes)
+            if (!CoinPanicServer.IsInitialized)
             {
-                if (n != null)
-                {
-                    if (n.IsConnected)
-                    {
-                        numnodes += 1;
-                        nstatus += n.Peer.Endpoint.Address.ToString() + (n.IsConnected ? " is connected." : " is disconnected.  ");
-                        connectedtimes += n.Peer.Endpoint.Address.ToString() + ":" + n.ConnectedAt.ToUniversalTime().ToString();
-                        nodestates += n.Peer.Endpoint.Address.ToString() + ":" + n.State.ToString();
-                    }
-                }
+                InitializeNodes();
             }
-            ViewBag.result = nstatus;
-            ViewBag.connectedTime = connectedtimes;
-            ViewBag.nodeState = nodestates;
-            ViewBag.numnodes = Convert.ToString(numnodes);
-            return View();
+
+            var svr = CoinPanicServer.GetNodeServer(coin);
+            List<NodeStatus> nodestatus = new List<NodeStatus>();
+
+            foreach(var n in svr.ConnectedNodes)
+            {
+                nodestatus.Add(new NodeStatus()
+                {
+                
+                    IP = (n.State == NBitcoin.Protocol.NodeState.HandShaked || n.State == NBitcoin.Protocol.NodeState.Connected) ? n.Peer.Endpoint.Address.ToString(): "",
+                    name = (n.State == NBitcoin.Protocol.NodeState.HandShaked || n.State == NBitcoin.Protocol.NodeState.Connected) ? n.PeerVersion.UserAgent : "",
+                    port = (n.State == NBitcoin.Protocol.NodeState.HandShaked || n.State == NBitcoin.Protocol.NodeState.Connected) ? Convert.ToString(n.Peer.Endpoint.Port) : "",
+                    Status = n.State.ToString(),
+                    uptime = (n.State == NBitcoin.Protocol.NodeState.HandShaked || n.State == NBitcoin.Protocol.NodeState.Connected) ? n.Peer.Ago.ToString() : "",//n.Counter.Start.ToUniversalTime().ToShortDateString() + " " +n.Counter.Start.ToUniversalTime().ToLongTimeString(): "",
+                    version = n.State == NBitcoin.Protocol.NodeState.HandShaked ? Convert.ToString(n.PeerVersion.Version) : "",
+                });
+            }
+            NodesStatus res = new NodesStatus() { Nodes = nodestatus };
+
+            return View(res);
+        }
+
+        private void InitializeNodes()
+        {
+            // List of seed nodes
+            var seedNodesFromDb = db.SeedNodes.ToList();
+
+            var seednodes = seedNodesFromDb.Select(n => new NodeDetails()
+            {
+                coin = n.Coin,
+                ip = n.IP,
+                port = n.Port,
+                use = n.Enabled,
+            }).ToList();
+
+            CoinPanicServer.emailhost = System.Configuration.ConfigurationManager.AppSettings["EmailSMTPHost"];
+            CoinPanicServer.emailport = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["EmailSMTPPort"]);
+            CoinPanicServer.emailuser = System.Configuration.ConfigurationManager.AppSettings["EmailUser"];
+            CoinPanicServer.emailpass = System.Configuration.ConfigurationManager.AppSettings["EmailPass"];
+
+            CoinPanicServer.InitializeNodes(seednodes);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public ActionResult AddServerNode(string coin, string ip, int port)
+        {
+            if (!CoinPanicServer.IsInitialized)
+            {
+                InitializeNodes();
+            }
+
+            var newsn = new SeedNode()
+            {
+                Coin = coin,
+                IP = ip,
+                Enabled = true,
+                Port = port,
+            };
+
+            if (!db.SeedNodes.Any(n => (n.IP == ip) && (n.Coin == coin)))
+            {
+                db.SeedNodes.Add(newsn);
+                db.SaveChanges();
+            }
+
+            List<SeedNode> sn = new List<SeedNode>() { newsn };
+            
+            //map to server format
+            var initnodes = sn.Select(n => new NodeDetails()
+            {
+                coin = n.Coin,
+                ip = n.IP,
+                port = n.Port,
+                use = n.Enabled,
+            }).ToList();
+
+            CoinPanicServer.InitializeNodes(initnodes);
+
+            return RedirectToAction("CheckNode", new { coin = coin });
         }
 
         [AllowAnonymous]
         [HttpPost]
         public ActionResult TransmitTransaction(string claimId, string signedTransaction)
         {
+            if (!CoinPanicServer.IsInitialized)
+            {
+                InitializeNodes();
+            }
+
             var userclaim = db.Claims.Where(c => c.ClaimId == claimId).First();
             ViewBag.content = userclaim.CoinShortName + " not currently supported.";
             ViewBag.ClaimId = claimId;
-            userclaim.SignedTX = signedTransaction.Trim(' ');
+            signedTransaction = signedTransaction.Replace("\n", String.Empty);
+            signedTransaction = signedTransaction.Replace("\r", String.Empty);
+            signedTransaction = signedTransaction.Replace("\t", String.Empty);
+            userclaim.SignedTX = signedTransaction.Trim().Replace(" ", "");
+            db.SaveChanges();
+
+            if (userclaim.UnsignedTX == userclaim.SignedTX)
+            {
+                return RedirectToAction("ClaimError", new { message = "Transaction was not signed.  Check that you have the newest BlockChainData.txt and correct private keys.", claimId = claimId });
+            }
+
             Transaction t;
             try
             { 
-                t = Transaction.Parse(signedTransaction.Trim(' '));
+                t = Transaction.Parse(signedTransaction.Trim().Replace(" ", ""));
             }
-            catch
+            catch (Exception e)
             {
-                MonitoringService.SendMessage("Invalid tx " + userclaim.CoinShortName + " submitted " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName);
-                return RedirectToAction("ClaimError", new { message = "Unable to parse signed transaction: \r\n" + signedTransaction, claimId = claimId });
+                MonitoringService.SendMessage("Invalid tx " + userclaim.CoinShortName + " submitted " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                return RedirectToAction("ClaimError", new { message = e.Message + ". Unable to parse signed transaction: \r\n" + signedTransaction, claimId = claimId });
             }
             string txid = t.GetHash().ToString();
             userclaim.TransactionHash = txid;
             db.SaveChanges();
             
-            if (userclaim.CoinShortName == "B2X")
-            {
-                userclaim.SignedTX = signedTransaction;
-                var client = new RestClient("http://explorer.b2x-segwit.io/b2x-insight-api/");
-                var request = new RestRequest("tx/send/", Method.POST);
-                request.AddJsonBody(new { rawtx = signedTransaction });
-                //request.AddParameter("rawtx", signedTransaction);
+            if (true)
+            //if (userclaim.CoinShortName == "B2X")
+            //{
+            //    userclaim.SignedTX = signedTransaction;
+            //    var client = new RestClient("http://explorer.b2x-segwit.io/b2x-insight-api/");
+            //    var request = new RestRequest("tx/send/", Method.POST);
+            //    request.AddJsonBody(new { rawtx = signedTransaction });
+            //    //request.AddParameter("rawtx", signedTransaction);
 
-                IRestResponse response = client.Execute(request);
-                var content = response.Content; // raw content as string
-                ViewBag.content = content;
-                userclaim.TransactionHash = content;
-                userclaim.WasTransmitted = true;
-                MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
+            //    IRestResponse response = client.Execute(request);
+            //    var content = response.Content; // raw content as string
+            //    ViewBag.content = content;
+            //    userclaim.TransactionHash = content;
+            //    userclaim.WasTransmitted = true;
+            //    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
 
-                db.SaveChanges();
-            }
-            else if (userclaim.CoinShortName == "BTG")
-            {
-                userclaim.SignedTX = signedTransaction;
-                var client = new RestClient(" https://btgexplorer.com/api/");
-                var request = new RestRequest("tx/send", Method.POST);
-                request.AddJsonBody(new { rawtx = signedTransaction });
+            //    db.SaveChanges();
+            //}
+            //else if (userclaim.CoinShortName == "BTG")
+            //{
+            //    userclaim.SignedTX = signedTransaction;
+            //    var client = new RestClient(" https://btgexplorer.com/api/");
+            //    var request = new RestRequest("tx/send", Method.POST);
+            //    request.AddJsonBody(new { rawtx = signedTransaction });
 
-                IRestResponse response = client.Execute(request);
-                var content = response.Content; // raw content as string
-                ViewBag.content = content;
-                userclaim.TransactionHash = content;
-                userclaim.WasTransmitted = true;
-                MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
+            //    IRestResponse response = client.Execute(request);
+            //    var content = response.Content; // raw content as string
+            //    ViewBag.content = content;
+            //    userclaim.TransactionHash = content;
+            //    userclaim.WasTransmitted = true;
+            //    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
 
-                db.SaveChanges();
-            }
-            else
+            //    db.SaveChanges();
+            //}
+            //else
             {
                 //broadcast it directly to a node
-                var txed = CoinPanicNodes.BroadcastTransaction(coin: userclaim.CoinShortName, transaction: t);
-                if (txed > 0)
+                var txed = CoinPanicServer.BroadcastTransaction(coin: userclaim.CoinShortName, transaction: t);
+                if (!txed.IsError)
                 {
                     //broadcasted
-                    ViewBag.content = "Transaction was broadcast to " + Convert.ToString(txed) + "node(s).  Your transaction id is: " + txid;
+                    ViewBag.content = txed.Result + " your transaction id is: " + txid;
                     userclaim.TransactionHash = txid;
                     userclaim.WasTransmitted = true;
                     userclaim.SignedTX = signedTransaction;
-                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid + "\r\nResult: " + txed.Result);
 
                 }
                 else
                 {
-                    ViewBag.content = "Error broadcasting your transaction.";
+                    ViewBag.content = "Error: " + txed.Result;
                     userclaim.WasTransmitted = false;
                     userclaim.SignedTX = signedTransaction;
-                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " error broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid);
-
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " error broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid + "\r\nResult: " + txed.Result);
                 }
                 db.SaveChanges();
             }
@@ -461,6 +578,8 @@ namespace coinpanic_airdrop.Controllers
 
             return View();
         }
+
+        
     }
 }
 

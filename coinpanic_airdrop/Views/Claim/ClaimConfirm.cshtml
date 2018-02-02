@@ -15,6 +15,10 @@ else if (Model.CoinShortName == "BCD")
 {
     @(Model.Deposited * 10.0)
 }
+else if (Model.CoinShortName == "BTW")
+{
+    @(Model.Deposited * 10000.0)
+}
 else
 {
     @Model.Deposited
@@ -38,6 +42,10 @@ else
                 else if (Model.CoinShortName == "BCD")
                 {
                     @(d.ClaimValue * 10.0)
+                }
+                else if (Model.CoinShortName == "BTW")
+                {
+                    @(d.ClaimValue * 10000.0)
                 }
                 else
                 {
@@ -65,6 +73,10 @@ else
         {
             @(Model.TotalValue * 10.0)
         }
+        else if (Model.CoinShortName == "BTW")
+        {
+            @(Model.TotalValue * 10000.0)
+        }
         else
         {
             @Model.TotalValue
@@ -78,6 +90,10 @@ else
         else if (Model.CoinShortName == "BCD")
         {
             @(Model.Deposited * 10.0)
+        }
+        else if (Model.CoinShortName == "BTW")
+        {
+            @(Model.Deposited * 10000.0)
         }
         else
         {
@@ -93,6 +109,10 @@ else
         {
             @(Model.MyFee * 10.0)
         }
+        else if (Model.CoinShortName == "BTW")
+        {
+            @(Model.MyFee * 10000.0)
+        }
         else
         {
             @Model.MyFee
@@ -106,6 +126,10 @@ else
             else if (Model.CoinShortName == "BCD")
             {
                 @(Model.MinerFee * 10.0)
+            }
+            else if (Model.CoinShortName == "BTW")
+            {
+                @(Model.MinerFee * 10000.0)
             }
             else
             {
@@ -125,6 +149,8 @@ else
         This tool implements the signing algorithms used by the various forked coins.  You can use this tool without any connection to the internet.  You will need only your private keys.
         <br />
         The tool is updated frequently to support new coins and patch bugs.  It is recommended to download the latest copy here if you have an older version.
+        <br />
+        <b>New!</b> Try the new graphical signing tool <a href="~/Tools/CoinPanicSignTxUI.zip" aria-pressed="true"> Download <i class="fa fa-windows" aria-hidden="true"></i></a>
     </li>
     <li class="list-group-item justify-content-between">
         <a href="DownloadTransactionFile/?claimId=@Model.ClaimId" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-download"></span> Download </a> your custom BlockChainData.txt and <b>save it to the same folder you saved the signing tool.</b>
@@ -153,31 +179,30 @@ else
 <p class="card-text">
     <div class="form-group">
         <div class="col-sm-10">
-            <textarea type="text" class="form-control" rows="7" name="SignedTX" id="SignedTX" aria-describedby="pubhelp" placeholder="Copy your unsigned transaction from here">
-            @Model.UnsignedTX
-        </textarea>
+            <textarea type="text" class="form-control" rows="7" name="SignedTX" id="SignedTX" aria-describedby="pubhelp" placeholder="Copy your unsigned transaction from here">@Model.UnsignedTX</textarea>
         </div>
     </div>
 </p>
 <h2>Once you have run CoinpanicSignTx.exe with your private keys, proceed to the step below.</h2>
+
 <form action="/Claim/TransmitTransaction" method="post">
     <input type="hidden" name="claimId" value="@Model.ClaimId" />
     <p class="card-text">
         <div class="form-group">
             <div class="col-sm-10">
                 <label for="SignedTX">Paste your signed transaction here:</label>
-                <textarea type="text" class="form-control" rows="5" name="signedTransaction" id="signedTransaction" aria-describedby="pubhelp" placeholder="Paste your signed transaction here after running CoinpanicSignTx.exe.  It should look different than the unsigned transaction if it was successful.">
-                    @Model.SignedTX
-                </textarea>
+                <textarea type="text" class="form-control" rows="5" name="signedTransaction" id="signedTransaction" aria-describedby="pubhelp" placeholder="Paste your signed transaction here after running CoinpanicSignTx.exe.  It should look different than the unsigned transaction if it was successful.">@Model.SignedTX</textarea>
                 <small id="pubhelp" class="form-text text-muted">We will broadcast your transaction to the network.</small>
             </div>
         </div>
     </p>
     <div class="form-group">
         <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary">Transmit</button>
+            <button type="submit" class="btn btn-primary">Transmit</button> There are @ViewBag.NumConnectedNodes @Model.CoinShortName connected  nodes.  If there are no connected nodes, then there could be a problem with the network and your transmission may not broadcast.  Contact claims@coinpanic.com for assistance, or wait until nodes are connected before transmitting.
         </div>
     </div>
 </form>
+<br />
+<br />
 
 <p> Your Coinpanic.com claim identifier is <a href="#" class="badge badge-secondary">@Model.ClaimId</a>. </p>

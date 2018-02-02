@@ -1,11 +1,29 @@
-﻿
+﻿@model CoinpanicLib.NodeConnection.NodesStatus
+
 @{
     ViewBag.Title = "CheckNode";
 }
 
 <h2>Check Nodes</h2>
 
-<h3>Connected to @ViewBag.numnodes nodes.</h3>
-<p>@ViewBag.result</p>
-<p>@ViewBag.connectedTime</p>
-<p>@ViewBag.nodeState</p>
+<table class="table table-bordered table-responsive table-hover">
+    <tr>
+        <th>IP</th>
+        <th>Port</th>
+        <th>User Agent</th>
+        <th>Version</th>
+        <th>Status</th>
+        <th>uptime</th>
+    </tr>
+    @foreach (var d in Model.Nodes)
+    {
+        <tr>
+            <td>@d.IP</td>
+            <td>@d.port</td>
+            <td>@d.name</td>
+            <td>@d.version</td>
+            <td>@d.Status</td>
+            <td>@d.uptime</td>
+        </tr>
+    }
+</table>
