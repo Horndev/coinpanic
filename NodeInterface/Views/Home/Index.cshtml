@@ -102,9 +102,9 @@
                         <td>@p.uptime</td>
                         <td>@p.status</td>
                         <td>
-                            <a href='@Url.Action("EnableDisable", "Home", routeValues: new { nid = p.Id })' class="btn btn-xs btn-block btn-info"><i class="fa fa-power-off"></i> </a>
-                            <a @(p.status == "Disabled" ? "disabled" : String.Empty) href='@Url.Action("Connect", "Home", routeValues: new { nid = p.Id })' class="btn btn-xs btn-block btn-success"><i class="fa fa-link"></i> </a>
-                            <a @(p.status == "Disabled" ? "disabled" : String.Empty) href='@Url.Action("Disconnect", "Home", routeValues: new { nid = p.Id })' class="btn btn-xs btn-block btn-warning"><i class="fa fa-unlink"></i> </a>
+                            <a href='@Url.Action("EnableDisable", "Home", new { nid = p.Id })' class="btn btn-xs btn-block btn-info"><i class="fa fa-power-off"></i> </a>
+                            <a @(p.status == "Disabled" ? "disabled" : String.Empty) href='@Url.Action("Connect", "Home", new { nid = p.Id })' class="btn btn-xs btn-block btn-success"><i class="fa fa-link"></i> </a>
+                            <a @(p.status == "Disabled" ? "disabled" : String.Empty) href='@Url.Action("Disconnect", "Home", new { nid = p.Id })' class="btn btn-xs btn-block btn-warning"><i class="fa fa-unlink"></i> </a>
                             <a href='@Url.Action("Delete", "Home", new { nid = p.Id }, Request.Url.Scheme)' class="btn btn-xs btn-block btn-danger"><i class="fa fa-trash"></i> </a>
                         </td>
                     </tr>

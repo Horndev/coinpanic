@@ -481,6 +481,13 @@
             </summary>
             <param name="documentPath">The physical path to XML document.</param>
         </member>
+        <member name="M:NodeInterface.Controllers.HomeController.EnableDisable(System.Nullable{System.Int32})">
+            <summary>
+            
+            </summary>
+            <param name="nid">Node Id</param>
+            <returns></returns>
+        </member>
         <member name="M:NodeInterface.Controllers.NodeController.Connect(System.String)">
             <summary>
             Connect to specified node id

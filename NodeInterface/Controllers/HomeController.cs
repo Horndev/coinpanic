@@ -84,6 +84,25 @@ namespace NodeInterface.Controllers
             return View(vm);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nid">Node Id</param>
+        /// <returns></returns>
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult EnableDisable(int? nid)
+        {
+            using (var db = new CoinpanicContext())
+            {
+                var sn = db.SeedNodes.FirstOrDefault(n => n.SeedNodeId == nid);
+                sn.Enabled = !sn.Enabled;   //toggle.
+                db.SaveChanges();
+            }
+            return RedirectToAction("Index");
+        }
+
+
         [HttpPost]
         [AllowAnonymous]
         public ActionResult AddNode(string label, string ip, int? port)
