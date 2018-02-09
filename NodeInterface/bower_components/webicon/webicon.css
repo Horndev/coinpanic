@@ -1,0 +1,10 @@
+/* Include this file in your html if you are using lazy javascript sources loading. */
+
+@charset "UTF-8";
+
+webicon, [webicon], [data-webicon], .webicon {
+  display: inline-block;
+}
+.svg-webicon svg {
+  fill: currentColor;
+}

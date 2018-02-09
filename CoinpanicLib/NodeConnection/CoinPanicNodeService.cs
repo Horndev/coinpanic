@@ -1,4 +1,5 @@
 ﻿using NBitcoin;
+using NBitcoin.DataEncoders;
 using NBitcoin.Forks;
 using NBitcoin.Protocol;
 using System;
@@ -45,8 +46,18 @@ namespace CoinpanicLib.NodeConnection
         //Our NodeServer
         private NodeServer nodeServer = null;
 
-        private ConcurrentDictionary<string, TxDetails> txSent = new ConcurrentDictionary<string, TxDetails>();
-        private ConcurrentDictionary<string, TxDetails> txRecv = new ConcurrentDictionary<string, TxDetails>();
+        private static ConcurrentDictionary<string, TxDetails> txSent = new ConcurrentDictionary<string, TxDetails>();
+        private static ConcurrentDictionary<string, TxDetails> txRecv = new ConcurrentDictionary<string, TxDetails>();
+        private static ConcurrentDictionary<string, IPAddress> epCache = new ConcurrentDictionary<string, IPAddress>();
+
+        public static ConcurrentQueue<IPEndPoint> advertisedPeers = new ConcurrentQueue<IPEndPoint>();
+
+        private static string externalip = new WebClient().DownloadString("http://icanhazip.com").Trim('\n');
+
+        private static RejectPayload lastReject = null;
+        private static DateTime lastRejectTime = DateTime.Now;
+
+        private ConcurrentDictionary<IPEndPoint, DateTime> LastConnectAttempt = new ConcurrentDictionary<IPEndPoint, DateTime>();
 
         private string coin;
         private string emailhost;
@@ -78,8 +89,6 @@ namespace CoinpanicLib.NodeConnection
             emailpass = System.Configuration.ConfigurationManager.AppSettings["EmailPass"];
 
             Debug.Print("Launching Node Service");
-
-            string externalip = new WebClient().DownloadString("http://icanhazip.com").Trim('\n');
 
             NodeConnectionParameters p = new NodeConnectionParameters()
             {
@@ -127,7 +136,7 @@ namespace CoinpanicLib.NodeConnection
                 if (donebroadcasting)
                 {
                     Debug.WriteLine("donebroadcasting: " + txhash);
-                    txSent.TryRemove(txhash, out result); //Remove if it was there (clear the queue)
+                    //txSent.TryRemove(txhash, out result); //Remove if it was there (clear the queue)
                     result = txRecv.TryGet(txhash);
                     break;
                 }
@@ -136,16 +145,23 @@ namespace CoinpanicLib.NodeConnection
                     var sw = Stopwatch.StartNew();
                     sw.Start();
                     //if the has is already sent, don't send again.
-                    if (!txSent.TryAdd(txhash, result))
+                    if (!txSent.ContainsKey(txhash))
                     {
                         Debug.WriteLine("Broadcasting: " + txhash);
-                        n.SendMessageAsync(new InvPayload(t));
-                        n.SendMessageAsync(new TxPayload(t));
+                        if (!txSent.TryAdd(txhash, result))
+                        {
+                            //Error adding to mempool
+                            Debug.Write("Error adding to mempool: " + txhash);
+                            result.Result = "Error inserting transaction into mempool.";
+                            result.IsError = true;
+                        }
+                        //n.SendMessageAsync(new InvPayload(t));  // Let the node know it is in our mempool
+                        n.SendMessageAsync(new TxPayload(t));   // Broadcast the tx to the node
                         n.PingPong();
+                        result.Result = "Broadcast";
+                        result.NumBroadcasts += 1;
+                        
                     }
-
-                    result.Result = "Broadcast";
-                    result.NumBroadcasts += 1;
 
                     //The transaction has been sent - wait up to 10 seconds until not in
                     while (txSent.ContainsKey(txhash) && sw.ElapsedMilliseconds < 10000)
@@ -156,13 +172,13 @@ namespace CoinpanicLib.NodeConnection
 
                     //Did it get picked up?
                     TxDetails response = null;
-                    if (txSent.ContainsKey(txhash))
+                    if (!txRecv.ContainsKey(txhash))
                     {
                         Debug.WriteLine("Still not confirmed: " + txhash);
                         //no
                         result.Result = "Broadcast, no errors returned, not confirmed.";
                         // Can't declare it an error
-
+                        SendMail(result.Coin + " transaction no response " + t.TotalOut.ToString(), result.Result);
                         //timed out - ask again if it was received (give 5 seconds)
                         n.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_TX, t.GetHash())));
                         sw.Restart();
@@ -173,6 +189,7 @@ namespace CoinpanicLib.NodeConnection
                         }
                         if (response != null)
                         {
+                            SendMail(result.Coin + " transaction confirmed " + t.TotalOut.ToString(), result.Result);
                             donebroadcasting = true;
                         }
                     }
@@ -181,6 +198,7 @@ namespace CoinpanicLib.NodeConnection
                         Debug.WriteLine("Confirmed: " + txhash);
                         if (txRecv.ContainsKey(txhash))
                         {
+                            SendMail(result.Coin + " transaction confirmed " + t.TotalOut.ToString(), result.Result);
                             donebroadcasting = true;
                         }
                     }
@@ -189,6 +207,7 @@ namespace CoinpanicLib.NodeConnection
                 {
                     txSent.TryRemove(txhash, out result); //Remove if it was there
                     Debug.WriteLine("Broadcast failed: " + txhash);
+                    result.IsError = true;
                     //we'll loop around and try another node.
                 }
             }
@@ -219,6 +238,26 @@ namespace CoinpanicLib.NodeConnection
             }
         }
 
+        public Node TryGetNode(string ip, int port)
+        {
+            try
+            {
+                IPAddress endpoint = null;
+                if (!epCache.TryGetValue(ip, out endpoint))
+                {
+                    endpoint = Dns.GetHostEntry(ip).AddressList[0];
+                    epCache.TryAdd(ip, endpoint);
+                }
+                var ep = new IPEndPoint(endpoint.MapToIPv6Ex(), port);
+                var node = nodeServer.ConnectedNodes.FindByEndpoint(ep);
+                return node;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public void ConnectNodes(List<NodeDetails> seedNodes, int maxnodes = 3)
         {
             if (seedNodes == null)
@@ -237,11 +276,47 @@ namespace CoinpanicLib.NodeConnection
                     {
                         try
                         {
-                            var endpoint = Dns.GetHostEntry(sn.ip).AddressList[0];
+                            IPAddress endpoint = null;
+                            if (!epCache.TryGetValue(sn.ip, out endpoint))
+                            {
+                                if (!IPAddress.TryParse(sn.ip, out IPAddress addr))
+                                {
+                                    //try to resolve a host name
+                                    try
+                                    {
+                                        endpoint = Dns.GetHostEntry(sn.ip).AddressList[0];
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Debug.Write(e.Message);
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    endpoint = addr;
+                                }
+                                epCache.TryAdd(sn.ip, endpoint);
+                            }
+                            
+                            var ep = new IPEndPoint(endpoint.MapToIPv6Ex(), sn.port);
+                            if (LastConnectAttempt.TryGetValue(ep, out DateTime lasttime))
+                            {
+                                if (DateTime.Now - lasttime < TimeSpan.FromMinutes(5))
+                                {
+                                    Debug.Write("Don't hammer by trying to connect too often.");
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                LastConnectAttempt.AddOrUpdate(ep, DateTime.Now, (key, oldval) => DateTime.Now );
+                            }
                             Debug.WriteLine("Connecting (" + coin + ") to " + endpoint + ":" + Convert.ToString(sn.port));
-                            var node = nodeServer.FindOrConnect(new IPEndPoint(endpoint.MapToIPv6Ex(), sn.port));
+                            LastConnectAttempt[ep] = DateTime.Now;
+                            var node = nodeServer.FindOrConnect(ep);
                             Thread.Sleep(0); //Don't underestimate thread preemption... 
-                            Thread.Sleep(300);
+                            Thread.Sleep(100);
                             if (!node.IsConnected)
                             {
                                 Debug.WriteLine("node connection failed");
@@ -296,6 +371,13 @@ namespace CoinpanicLib.NodeConnection
 
         #region MessageHandlers
 
+        /*Broadcasting: 7ddf70a172fcb15a4960ba295ddb6dce5781457fd7ec70cce6e8d447f34acb24
+::ffff:52.179.80.73:getdata  : GetDataPayload
+::ffff:52.179.80.73:getdata  : GetDataPayload
+::ffff:52.179.80.73:pong  : PongPayload : 6439942432647925556
+Still not confirmed: 7ddf70a172fcb15a4960ba295ddb6dce5781457fd7ec70cce6e8d447f34acb24
+::ffff:52.179.80.73:notfound  : Count: 1*/
+
         /// <summary>
         /// Event handler for dropped nodes
         /// </summary>
@@ -315,28 +397,39 @@ namespace CoinpanicLib.NodeConnection
 
             if (message.Message.Command == "notfound")
             {
-                //var data = (NotFoundPayload)message.Message.Payload;
-                //foreach (var i in data)
-                //{
-                //    //if (i.Hash == txhash) //received message
-                //    Debug.WriteLine(i.Type.ToString());
-                //    Debug.WriteLine(i.Hash.ToString());
-                //    if (i.Type == InventoryType.MSG_TX)
-                //    {
-                //        //Received a transaction
-                //        if (txSent.ContainsKey(i.Hash.ToString()))
-                //        {
-                //            if (txSent.TryRemove(i.Hash.ToString(), out TxDetails txInfo))
-                //            {
-                //                txInfo.Result = "Transaction was broadcast to the network, but confirmation was not received.  Check your balance.";
-                //                txInfo.IsError = true;
+                var data = (NotFoundPayload)message.Message.Payload;
+                foreach (var i in data)
+                {
+                    Debug.WriteLine(i.Type.ToString());
+                    Debug.WriteLine(i.Hash.ToString());
+                    //    //if (i.Hash == txhash) //received message
 
-                //                //add it to the list of completed transactions
-                //                txRecv.TryAdd(i.Hash.ToString(), txInfo);
-                //            }
-                //        }
-                //    }
-                //}
+                    if (i.Type == InventoryType.MSG_TX)
+                    {
+                        //Received a transaction
+                        if (txSent.ContainsKey(i.Hash.ToString()))
+                        {
+                            if (txSent.TryRemove(i.Hash.ToString(), out TxDetails txInfo))
+                            {
+                                if (DateTime.Now - lastRejectTime < TimeSpan.FromSeconds(20))
+                                {
+                                    txInfo.Result = "Rejected: " + lastReject.Message + ", Reason: " + lastReject.Reason + ", Code: " + lastReject.Code.ToString();
+                                    txInfo.IsError = true;
+                                    //add it to the list of completed transactions
+                                    txRecv.TryAdd(i.Hash.ToString(), txInfo);
+                                }
+                                else
+                                {
+                                    txInfo.Result = "Transaction was rejected.  This is often caused when the coins are already spent, or if the transaction inputs were not found in the blockchain.";
+                                    txInfo.IsError = true;
+
+                                    //add it to the list of completed transactions
+                                    txRecv.TryAdd(i.Hash.ToString(), txInfo);
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else if (message.Message.Command == "reject")
             {
@@ -347,18 +440,19 @@ namespace CoinpanicLib.NodeConnection
 
                 //var subject = "transaction rejected";
                 //var messagetx = "Reject message: " + rejectmessage.Message + "Reject reason : " + rejectmessage.Reason + "Reject code   : " + rejectmessage.Code.ToString();
-
-                //if (txSent.ContainsKey(rejectmessage.Hash.ToString()))
-                //{
-                //    //We sent this
-                //    if (txSent.TryRemove(rejectmessage.Hash.ToString(), out TxDetails txInfo))
-                //    {
-                //        txInfo.Result = "Rejected: " + rejectmessage.Message + ", " + rejectmessage.Reason + " Code " + rejectmessage.Code.ToString();
-                //        txInfo.IsError = true;
-                //        //add it to the list of completed transactions
-                //        txRecv.TryAdd(rejectmessage.Hash.ToString(), txInfo);
-                //    }
-                //}
+                lastReject = rejectmessage;
+                lastRejectTime = DateTime.Now;
+                if (txSent.ContainsKey(rejectmessage.Hash.ToString()))
+                {
+                    //We sent this
+                    if (txSent.TryRemove(rejectmessage.Hash.ToString(), out TxDetails txInfo))
+                    {
+                        txInfo.Result = "Rejected: " + rejectmessage.Message + ", " + rejectmessage.Reason + " Code " + rejectmessage.Code.ToString();
+                        txInfo.IsError = true;
+                        //add it to the list of completed transactions
+                        txRecv.TryAdd(rejectmessage.Hash.ToString(), txInfo);
+                    }
+                }
                 //else
                 //{
                 //    Debug.WriteLine("Rejected tx not found in mempool.");
@@ -376,6 +470,7 @@ namespace CoinpanicLib.NodeConnection
                 Debug.WriteLine("Recieved addresses: ");
                 foreach (var a in addrmessage.Addresses)
                 {
+                    advertisedPeers.Enqueue(a.Endpoint);
                     Debug.WriteLine(a.Endpoint.Address.ToString());
                 }
             }
@@ -385,34 +480,34 @@ namespace CoinpanicLib.NodeConnection
             }
             else if (message.Message.Command == "inv")
             {
-                //// Sent when 
-                //var data = (InvPayload)message.Message.Payload;
-                //foreach (var i in data)
-                //{
-                //    //if (i.Hash == txhash) //received message
-                //    Debug.WriteLine(i.Type.ToString());
-                //    Debug.WriteLine(i.Hash.ToString());
-                //    if (i.Type == InventoryType.MSG_TX)
-                //    {
-                //        //Received a transaction
-                //        if (txSent.ContainsKey(i.Hash.ToString()))
-                //        {
-                //            //We sent this
-                //            if (txSent.TryRemove(i.Hash.ToString(), out TxDetails txInfo))
-                //            {
-                //                txInfo.Result = "Success";
-                //                txInfo.IsError = false;
+                // Sent when 
+                var data = (InvPayload)message.Message.Payload;
+                foreach (var i in data)
+                {
+                    //if (i.Hash == txhash) //received message
+                    Debug.WriteLine(i.Type.ToString());
+                    Debug.WriteLine(i.Hash.ToString());
+                    if (i.Type == InventoryType.MSG_TX)
+                    {
+                        //Received a transaction
+                        if (txSent.ContainsKey(i.Hash.ToString()))
+                        {
+                            //We sent this
+                            if (txSent.TryRemove(i.Hash.ToString(), out TxDetails txInfo))
+                            {
+                                txInfo.Result = "Success";
+                                txInfo.IsError = false;
 
-                //                //add it to the list of completed transactions
-                //                txRecv.TryAdd(i.Hash.ToString(), txInfo);
-                //            }
-                //        }
-                //        if (txRecv.ContainsKey(i.Hash.ToString()))
-                //        {
-                //            Debug.WriteLine("We already got a response for " + i.Hash.ToString());
-                //        }
-                //    }
-                //}
+                                //add it to the list of completed transactions
+                                txRecv.TryAdd(i.Hash.ToString(), txInfo);
+                            }
+                        }
+                        if (txRecv.ContainsKey(i.Hash.ToString()))
+                        {
+                            Debug.WriteLine("We already got a response for " + i.Hash.ToString());
+                        }
+                    }
+                }
             }
             else if (message.Message.Command == "sendcmpct")
             {
@@ -420,32 +515,32 @@ namespace CoinpanicLib.NodeConnection
             }
             else if (message.Message.Command == "getdata")
             {
-                //var h = new HexEncoder();
-                //var data = (GetDataPayload)message.Message.Payload;
-                //foreach (var i in data.Inventory)
-                //{
-                //    Debug.WriteLine(i.Type.ToString());
-                //    Debug.WriteLine(i.Hash.ToString());
-                //    if (i.Type == InventoryType.MSG_TX)
-                //    {
-                //        //Received a transaction
-                //        if (txSent.ContainsKey(i.Hash.ToString()))
-                //        {
-                //            //They are asking to see our transaction.  Show them our papers.
-                //            if (txSent.TryGetValue(i.Hash.ToString(), out TxDetails txInfo))
-                //            {
-                //                Debug.WriteLine("Rebroadcast transaction by request.");
-                //                txInfo.n.SendMessageAsync(new TxPayload(txInfo.tx));
-                //            }
+                var h = new HexEncoder();
+                var data = (GetDataPayload)message.Message.Payload;
+                foreach (var i in data.Inventory)
+                {
+                    Debug.WriteLine(i.Type.ToString());
+                    Debug.WriteLine(i.Hash.ToString());
+                    if (i.Type == InventoryType.MSG_TX)
+                    {
+                        //Received a transaction
+                        if (txSent.ContainsKey(i.Hash.ToString()))
+                        {
+                            //They are asking to see our transaction.  Show them our papers.
+                            if (txSent.TryGetValue(i.Hash.ToString(), out TxDetails txInfo))
+                            {
+                                Debug.WriteLine("Rebroadcast transaction by request.");
+                                txInfo.node.SendMessageAsync(new TxPayload(txInfo.transaction));
+                            }
 
-                //        }
-                //        else
-                //        {
-                //            Debug.WriteLine("Sending notfound");
-                //            message.Node.SendMessageAsync(new NotFoundPayload(i));
-                //        }
-                //    }
-                //}
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Sending notfound");
+                            message.Node.SendMessageAsync(new NotFoundPayload(i));
+                        }
+                    }
+                }
 
             }
         }
@@ -456,7 +551,6 @@ namespace CoinpanicLib.NodeConnection
 
         public string Val { get => val; set => val = value; }
 
-        
 
         public void Test()
         {

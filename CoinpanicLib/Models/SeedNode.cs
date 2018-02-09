@@ -19,5 +19,11 @@ namespace CoinpanicLib.Models
         public int Port { get; set; }
 
         public bool Enabled { get; set; }
+
+        public DateTime? LastDisconnect { get; set; }
+
+        public DateTime? LastConnect { get; set; }
+
+        public string Label { get; set; }
     }
 }

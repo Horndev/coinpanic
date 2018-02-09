@@ -238,8 +238,11 @@
     <Compile Include="Migrations\201801300208252_AddIndexCoinInfo.Designer.cs">
       <DependentUpon>201801300208252_AddIndexCoinInfo.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201802060229179_AddLabelAndTimeToSeedNode.cs" />
+    <Compile Include="Migrations\201802060229179_AddLabelAndTimeToSeedNode.Designer.cs">
+      <DependentUpon>201802060229179_AddLabelAndTimeToSeedNode.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="Models\CoinClaim.cs" />
     <Compile Include="Models\IndexModel.cs" />
     <Compile Include="Models\NodesInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -249,7 +252,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Services\CreateTransactionService.cs" />
-    <Compile Include="Services\MailingService.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -1313,6 +1315,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801300208252_AddIndexCoinInfo.resx">
       <DependentUpon>201801300208252_AddIndexCoinInfo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201802060229179_AddLabelAndTimeToSeedNode.resx">
+      <DependentUpon>201802060229179_AddLabelAndTimeToSeedNode.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

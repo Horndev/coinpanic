@@ -134,12 +134,18 @@ namespace CoinController
 
         public List<Money> CalculateOutputAmounts_Their_My_Fee(List<ICoin> UTXOs, double myfee_percent, double miner_txfee)
         {
+            if (miner_txfee > 0.1)
+            {
+                miner_txfee = 0.09; //Set maximum fee
+            }
+
             var total_input_amount = UTXOs.Sum(o => ((Money)o.Amount).ToDecimal(MoneyUnit.BTC));
             var output_myfee_amount = Convert.ToDouble(total_input_amount) * myfee_percent;
             var output_client_amount = Convert.ToDouble(total_input_amount) - output_myfee_amount - miner_txfee;
 
             var theirMoney = Money.Coins(Convert.ToDecimal(output_client_amount));
             var myMoney = Money.Coins(Convert.ToDecimal(output_myfee_amount));
+            
             var txFees = Money.Coins(Convert.ToDecimal(miner_txfee));
 
             List<Money> result = new List<Money>()

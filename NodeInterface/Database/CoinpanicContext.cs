@@ -17,6 +17,7 @@ namespace NodeInterface.Database
         }
 
         public DbSet<SeedNode> SeedNodes { get; set; }
+        public DbSet<CoinClaim> Claims { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

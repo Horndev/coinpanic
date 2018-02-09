@@ -7,6 +7,7 @@
     "font-awesome": "fontawesome#v4.7.0",
     "webicon": "v0.10.7",
     "jquery-validation": "1.17.0",
-    "bitcore-lib": "v0.15.0"
+    "jquery-validation-unobtrusive": "v3.2.6",
+    "jquery-ajax-unobtrusive": "v3.2.4"
   }
 }

@@ -1,4 +1,5 @@
 ﻿using NBitcoin;
+using NBitcoin.Forks;
 using QBitNinja.Client;
 using System;
 using System.Collections.Generic;
@@ -45,15 +46,7 @@ namespace CoinController
                 .SendFees(amounts[2])
                 .BuildTransaction(sign: false);
 
-            if (forkShortName == "SBTC" || forkShortName == "BTF")
-            {
-                utx.Version = 2;
-            }
-            else if (forkShortName == "BCD")
-            {
-                utx.Version = 12;
-            }
-
+            utx.Version = BitcoinForks.ForkByShortName[forkShortName].TransactionVersion;
             return utx.ToHex();
         }
 

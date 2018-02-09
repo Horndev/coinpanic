@@ -8,6 +8,7 @@ using NodeInterface.Models;
 using NodeInterface.Database;
 using CoinpanicLib.NodeConnection;
 using System.Diagnostics;
+using System.Web.Http.Cors;
 
 namespace NodeInterface.Controllers
 {
@@ -15,6 +16,7 @@ namespace NodeInterface.Controllers
     /// Manages interface to node peer connections.
     /// </summary>
     [RoutePrefix("api/peers")]
+    [EnableCors(origins: "https://www.coinpanic.com", headers: "*", methods: "*", SupportsCredentials = true)]
     public class PeersController : ApiController
     {
         private CoinpanicContext db = new CoinpanicContext();

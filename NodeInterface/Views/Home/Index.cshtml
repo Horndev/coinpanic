@@ -1,5 +1,5 @@
 ﻿@using NodeInterface.Models
-@model NodeInterface.Models.BroadcastModel 
+@model NodeInterface.Models.IndexViewModel 
 
 <div class="jumbotron">
     <h1 class="display-4">Coinpanic Bitcoin Services</h1>
@@ -12,26 +12,117 @@
     <p>There are @ViewBag.NumConnectedPeers connected peers.</p>
 </div>
 <div class="card">
-    <h3 class="card-header">Secure Claim (5% fee)</h3>
-    @using (Ajax.BeginForm("Broadcast", "Home", new AjaxOptions { HttpMethod = "POST", OnSuccess = "onAjaxRequestSuccess" }, 
-        new { @id = "AjaxformId", @class = "form-horizontal", role = "form" }))
-    {
-        @Html.AntiForgeryToken()
-        <p class="card-text">
-            <div class="form-group">
-                <div class="col-sm-10">
-                    <label for="hex">Paste your signed transaction here:</label>
-                    @Html.TextAreaFor(m => m.Hex, new { placeholder = Html.DisplayNameFor(m => m.Hex), @class = "form-control", @name="hex" })
-                    <small id="pubhelp" class="form-text text-muted">We will broadcast your transaction to the network.</small>
-                </div>
-            </div>
-        </p>
-        <div class="form-group">
+    <div class="card-text">
+        <div class="form-group row">
             <div class="col-sm-10">
-                <button type="submit" class="btn btn-primary">Broadcast</button>
+                <label for="hex">Paste your signed transaction here:</label>
+                <textarea type="text" name="hex" id="hex" class="form-control" style="min-width: 100%" name="hex" rows="5" cols="40" aria-describedby="pubhelp" placeholder="Paste your signed transaction here after running CoinpanicSignTx.exe.  It should look different than the unsigned transaction if it was successful."></textarea>
+                <small id="pubhelp" class="form-text text-muted">We will broadcast your transaction to the network.</small>
             </div>
         </div>
-    } 
+        <div class="form-group row">
+            <div class="col-sm-1">
+                <input type="button" id="broadcastBtn" class="btn btn-primary" value="Broadcast">
+            </div>
+            <div id="spinner" class="fa-3x text-center col-md-1 pull-left" style="display:none">
+                <i class="fa fa-spinner fa-pulse"></i>
+            </div>
+            <div class="col-sm-9 text-left align-middle" id="broadcastResult">
+                
+            </div>
+        </div>
+    </div>
 </div>
 
- 
+@section scripts
+{
+<script>
+    $(function () {
+        $("#broadcastBtn").click(function () {
+            var msg = '{Hex: "' + $("#hex").val() + '",ClaimId: "' + "test" + '" }';
+            $("#spinner").show();
+            $.ajax({
+                type: "POST",
+                url: "https://www.metabittrader.com" + "/@ViewBag.Coin/api/tx",
+                data: msg,
+                xhrFields: {
+                    withCredentials: true
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    $("#spinner").hide();
+                    $('#broadcastResult').html(response.Result);
+                },
+                failure: function (response) {
+                    $("#spinner").hide();
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    $("#spinner").hide();
+                    alert(response.responseText);
+                }
+            });
+        });
+    });
+     
+</script>
+}
+
+<div class="card">
+    <h3 class="card-header">Nodes</h3>
+    @*<form action="/Home/AddNode" method="post">*@
+    @using (@Html.BeginForm("AddNode", "Home", FormMethod.Post))
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Label</th>
+                    <th>IP</th>
+                    <th>Port</th>
+                    <th>Date Connnected</th>
+                    <th>Date Disconnected</th>
+                    <th>Uptime</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (PeerModel p in Model.Peers)
+                {
+                    <tr style="@(p.IsConnected ? "background-color:LightGreen" : p.status == "Disabled" ? "background-color:LightGray" : String.Empty)">
+                        <th scope="row">@p.Id</th>
+                        <td>@p.Label</td>
+                        <td>@p.IP</td>
+                        <td>@p.port</td>
+                        <td>@p.DateLastConnect</td>
+                        <td>@p.DateLastDisconnect</td>
+                        <td>@p.uptime</td>
+                        <td>@p.status</td>
+                        <td>
+                            <a href='@Url.Action("EnableDisable", "Home", routeValues: new { nid = p.Id })' class="btn btn-xs btn-block btn-info"><i class="fa fa-power-off"></i> </a>
+                            <a @(p.status == "Disabled" ? "disabled" : String.Empty) href='@Url.Action("Connect", "Home", routeValues: new { nid = p.Id })' class="btn btn-xs btn-block btn-success"><i class="fa fa-link"></i> </a>
+                            <a @(p.status == "Disabled" ? "disabled" : String.Empty) href='@Url.Action("Disconnect", "Home", routeValues: new { nid = p.Id })' class="btn btn-xs btn-block btn-warning"><i class="fa fa-unlink"></i> </a>
+                            <a href='@Url.Action("Delete", "Home", new { nid = p.Id }, Request.Url.Scheme)' class="btn btn-xs btn-block btn-danger"><i class="fa fa-trash"></i> </a>
+                        </td>
+                    </tr>
+                }
+
+                <tr>
+                    <th scope="row">New:</th>
+                    <td><input placeholder="Label" type="text" class="form-control" id="label" name="label"></td>
+                    <td><input placeholder="IP/address" type="text" class="form-control" id="IP" name="IP"></td>
+                    <td><input placeholder="port" type="text" class="form-control" id="port" name="port"></td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td><button type="submit" class="btn btn-primary">Add</button></td>
+                </tr>
+            </tbody>
+        </table>
+    }
+    @*</form>*@
+</div>

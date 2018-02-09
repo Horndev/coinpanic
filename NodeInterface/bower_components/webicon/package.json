@@ -1,0 +1,26 @@
+{
+  "name": "webicon",
+  "description": "Icon library",
+  "homepage": "https://icons8.github.io/webicon/",
+  "version": "0.10.7",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/icons8/webicon-bower.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "icons8",
+    "i8",
+    "icon",
+    "icon set",
+    "svg icon",
+    "svg set",
+    "svg sprite",
+    "jquery-plugin",
+    "angular module"
+  ],
+  "bugs": {
+    "url": "https://github.com/icons8/webicon/issues"
+  }
+}

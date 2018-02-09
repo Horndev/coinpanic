@@ -1,0 +1,11 @@
+{
+  "name": "webicon",
+  "version": "0.10.7",
+  "main": [
+    "angular-webicon.js",
+    "jquery-webicon.js"
+  ],
+  "ignore": [],
+  "dependencies": {
+  }
+}

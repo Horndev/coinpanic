@@ -1,4 +1,5 @@
 ﻿using NBitcoin;
+using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace CoinpanicLib.NodeConnection
         TxDetails BroadcastTransaction(Transaction t, bool force);
 
         void ConnectNodes(List<NodeDetails> seedNodes, int maxnodes = 3);
+
+        Node TryGetNode(string ip, int port);
 
         // Debugging stuff (delete)
         string Val { get; set; }

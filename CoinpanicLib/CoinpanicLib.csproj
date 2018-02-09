@@ -49,9 +49,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Models\CoinClaim.cs" />
+    <Compile Include="Models\TxSubmitted.cs" />
+    <Compile Include="Services\MailingService.cs" />
     <Compile Include="Models\NodeServiceInfo.cs" />
     <Compile Include="Models\SeedNode.cs" />
     <Compile Include="Models\TxInfo.cs" />
+    <Compile Include="Models\TxResult.cs" />
+    <Compile Include="NodeConnection\Api\BroadcastResponse.cs" />
     <Compile Include="NodeConnection\CoinPanicNodeService.cs" />
     <Compile Include="NodeConnection\INodeService.cs" />
     <Compile Include="NodeConnection\NodeStatus.cs" />

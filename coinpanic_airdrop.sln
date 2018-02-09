@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NodeInterface", "NodeInterf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinpanicLib", "CoinpanicLib\CoinpanicLib.csproj", "{1500A165-F8C4-415C-9AC7-9166C8B1FF0E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coinpanic.Tests", "Coinpanic.Tests\Coinpanic.Tests.csproj", "{1795185D-0ED7-4589-80DE-FA2F2A036DCC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{1500A165-F8C4-415C-9AC7-9166C8B1FF0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1500A165-F8C4-415C-9AC7-9166C8B1FF0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1500A165-F8C4-415C-9AC7-9166C8B1FF0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1795185D-0ED7-4589-80DE-FA2F2A036DCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1795185D-0ED7-4589-80DE-FA2F2A036DCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1795185D-0ED7-4589-80DE-FA2F2A036DCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1795185D-0ED7-4589-80DE-FA2F2A036DCC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

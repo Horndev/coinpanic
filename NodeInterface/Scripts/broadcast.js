@@ -1,6 +1,7 @@
 ﻿$(document).ready(function () {
     $("#AjaxformId").submit(function (event) {
         var dataString;
+        $("#spinner").show();
         event.preventDefault();
         event.stopImmediatePropagation();
         var action = $("#AjaxformId").attr("action");
@@ -21,7 +22,7 @@
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 //do your own thing  
-                alert("fail");
+                //alert("fail");
             }
         });
     }); //end .submit()  
@@ -33,8 +34,10 @@ var onAjaxRequestSuccess = function (result) {
         alert(result.ErrorMsg);
     } else if (result.EnableSuccess) {
         // Setting.  
-        alert(result.SuccessMsg);
+        //alert(result.SuccessMsg);
         // Resetting form.  
+        $("#spinner").hide();
+        $('#broadcastResult').html(result.SuccessMsg);
         $('#AjaxformId').get(0).reset();
     }
 }  

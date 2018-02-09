@@ -15,7 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using static coinpanic_airdrop.Services.MailingService;
+using static CoinpanicLib.Services.MailingService;
 
 namespace coinpanic_airdrop.Controllers
 {
@@ -60,6 +60,12 @@ namespace coinpanic_airdrop.Controllers
         public ActionResult InitializeClaim(string claimId, string PublicKeys, string depositAddress, string emailAddress)
         {
             var userclaim = db.Claims.Where(c => c.ClaimId == claimId).Include(c => c.InputAddresses).First();
+
+            //clean up
+            depositAddress = depositAddress.Replace("\n", String.Empty);
+            depositAddress = depositAddress.Replace("\r", String.Empty);
+            depositAddress = depositAddress.Replace("\t", String.Empty);
+            depositAddress = depositAddress.Trim().Replace(" ", "");
 
             userclaim.DepositAddress = depositAddress;
             userclaim.Email = emailAddress;
@@ -396,7 +402,6 @@ namespace coinpanic_airdrop.Controllers
                     userclaim.WasTransmitted = true;
                     userclaim.SignedTX = signedTransaction;
                     MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName + "\r\n txid: " + txid + "\r\nResult: " + txed.Result);
-
                 }
                 else
                 {

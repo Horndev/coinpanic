@@ -1,4 +1,4 @@
-﻿@model coinpanic_airdrop.Models.CoinClaim
+﻿@model CoinpanicLib.Models.CoinClaim
 
 @{
     ViewBag.Title = "ClaimConfirm";
@@ -185,7 +185,7 @@ else
 </p>
 <h2>Once you have run CoinpanicSignTx.exe with your private keys, proceed to the step below.</h2>
 
-<form action="/Claim/TransmitTransaction" method="post">
+@*<form action="/Claim/TransmitTransaction" method="post">
     <input type="hidden" name="claimId" value="@Model.ClaimId" />
     <p class="card-text">
         <div class="form-group">
@@ -201,8 +201,69 @@ else
             <button type="submit" class="btn btn-primary">Transmit</button> There are @ViewBag.NumConnectedNodes @Model.CoinShortName connected  nodes.  If there are no connected nodes, then there could be a problem with the network and your transmission may not broadcast.  Contact claims@coinpanic.com for assistance, or wait until nodes are connected before transmitting.
         </div>
     </div>
-</form>
+</form>*@
+
+    <div class="card-text">
+        <div class="form-group">
+            <div class="col-sm-10">
+                <textarea type="text" name="hex" id="hex" class="form-control" style="min-width: 100%" name="hex" rows="5" cols="40" aria-describedby="pubhelp" placeholder="Paste your signed transaction here after running CoinpanicSignTx.exe.">@Model.SignedTX</textarea>
+                <small id="pubhelp" class="form-text text-muted">We will broadcast your transaction to the network.</small>
+            </div>
+            
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-1">
+                <input type="button" id="broadcastBtn" class="btn btn-primary" value="Broadcast">
+            </div>
+            <div id="spinner" class="fa-3x text-center col-md-1 pull-left" style="display:none">
+                <i class="fa fa-spinner fa-pulse"></i>
+            </div>
+            <div class="col-sm-9 text-left align-middle" id="broadcastResult">
+
+            </div>
+        </div>
+        <b> If your transmission was not successful, or have any questions, please contact claims@coinpanic.com or /u/Zelgada on Reddit</b>
+        <p>
+            Please quote your ClaimId: @Model.ClaimId in your message.
+        </p>
+    </div>
+
+@section scripts
+{
+    <script>
+    $(function () {
+        $("#broadcastBtn").click(function () {
+            var msg = '{Hex: "' + $("#hex").val() + '",ClaimId: "' + "@Model.ClaimId" + '" }';
+            $("#spinner").show();
+            $.ajax({
+                type: "POST",
+                url: "https://www.metabittrader.com/" + "@Model.CoinShortName/api/tx",
+                data: msg,
+                xhrFields: {
+                    withCredentials: true
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+                    $("#spinner").hide();
+                    $('#broadcastResult').html(response.Result);
+                },
+                failure: function (response) {
+                    $("#spinner").hide();
+                    alert(response.responseText);
+                },
+                error: function (response) {
+                    $("#spinner").hide();
+                    alert(response.responseText);
+                }
+            });
+        });
+    });
+
+    </script>
+}
+
 <br />
 <br />
 
-<p> Your Coinpanic.com claim identifier is <a href="#" class="badge badge-secondary">@Model.ClaimId</a>. </p>
+@*<p> Your Coinpanic.com claim identifier is <a href="#" class="badge badge-secondary">@Model.ClaimId</a>. </p>*@

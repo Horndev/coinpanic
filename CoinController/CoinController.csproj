@@ -84,6 +84,10 @@
       <Project>{59f9feea-76be-466f-a264-2285c16ab7b3}</Project>
       <Name>NBitcoin</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CoinpanicLib\CoinpanicLib.csproj">
+      <Project>{1500a165-f8c4-415c-9ac7-9166c8b1ff0e}</Project>
+      <Name>CoinpanicLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

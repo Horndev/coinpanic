@@ -544,7 +544,7 @@
             Transactions Controller
             </summary>
         </member>
-        <member name="M:NodeInterface.Controllers.TxController.Post(System.String)">
+        <member name="M:NodeInterface.Controllers.TxController.Post(NodeInterface.Models.BroadcastModel)">
             <summary>
             Transmits a transaction to the network.
             </summary>

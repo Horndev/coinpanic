@@ -9,15 +9,15 @@ namespace NodeInterface
         public static void RegisterBundles(BundleCollection bundles)
         {
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-                        "~/Scripts/jquery-{version}.js"));
+                        "~/bower_components/jQuery/dist/jquery.js"));
 
             // Jquery validator & unobstrusive ajax  
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
-                "~/Scripts/jquery.unobtrusive-ajax.js", 
-                "~/Scripts/jquery.unobtrusive-ajax.min.js", 
-                "~/Scripts/jquery.validate*", 
-                "~/Scripts/jquery.validate.unobtrusive.js", 
-                "~/Scripts/jquery.validate.unobtrusive.min.js"));
+                "~/bower_components/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.js",
+                "~/bower_components/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js",
+                "~/bower_components/jquery-validation/jquery.validate.js",
+                "~/bower_components/jquery-validation/jquery.validate.unobtrusive.js",
+                "~/bower_components/jquery-validation/jquery.validate.unobtrusive.min.js"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at https://modernizr.com to pick only the tests you need.
@@ -29,8 +29,11 @@ namespace NodeInterface
                     "~/Scripts/broadcast.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
+                      "~/bower_components/bootstrap/dist/js/bootstrap.min.js",
                       "~/Scripts/respond.js"));
+
+            bundles.Add(new StyleBundle("~/bundles/fontawesome/css").Include(
+                      "~/bower_components/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",

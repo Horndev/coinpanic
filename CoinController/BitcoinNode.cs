@@ -1,4 +1,5 @@
-﻿using NBitcoin;
+﻿using CoinpanicLib.NodeConnection;
+using NBitcoin;
 using NBitcoin.DataEncoders;
 using NBitcoin.Forks;
 using NBitcoin.Protocol;
@@ -18,15 +19,15 @@ using System.Threading.Tasks;
 
 namespace CoinController
 {
-    public class NodeDetails
-    {
-        public string coin;                 //which coin
-        public string ip;                  // Where to connect:  "x.x.x.x:ppp"
-        public int port;
-        public int numDisconnects;         // Number of disconnects
-        public DateTime lastDisconnect;    // When last disconnected (to not spam connect)
-        public bool use;                   // If false, will not use
-    }
+    //public class NodeDetails
+    //{
+    //    public string coin;                 //which coin
+    //    public string ip;                  // Where to connect:  "x.x.x.x:ppp"
+    //    public int port;
+    //    public int numDisconnects;         // Number of disconnects
+    //    public DateTime lastDisconnect;    // When last disconnected (to not spam connect)
+    //    public bool use;                   // If false, will not use
+    //}
 
     public class TxDetails
     {
@@ -452,15 +453,22 @@ namespace CoinController
             //AddressManagerBehavior behavior = new AddressManagerBehavior(new AddressManager());
             //p.TemplateBehaviors.Add(behavior);
             Network n = BitcoinForks.ForkByShortName[coin].Network;
-            
             var svr = new NodeServer(n);
-            svr.NodeRemoved += Svr_NodeRemoved;
-            svr.MessageReceived += Svr_MessageReceived;
-            svr.InboundNodeConnectionParameters = p;
-            svr.AllowLocalPeers = true;
-            svr.ExternalEndpoint = new IPEndPoint(IPAddress.Parse(externalip).MapToIPv6Ex(), n.DefaultPort);
-            svr.LocalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), n.DefaultPort);
-            svr.Listen();
+            try
+            {
+                
+                svr.NodeRemoved += Svr_NodeRemoved;
+                svr.MessageReceived += Svr_MessageReceived;
+                svr.InboundNodeConnectionParameters = p;
+                svr.AllowLocalPeers = true;
+                svr.ExternalEndpoint = new IPEndPoint(IPAddress.Parse(externalip).MapToIPv6Ex(), n.DefaultPort);
+                svr.LocalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), n.DefaultPort);
+                svr.Listen();
+            }
+            catch (Exception e)
+            {
+                SendMail("error starting server " + coin, e.Message + "\r\n" + e.StackTrace);
+            }
             return svr;
         }
     }
