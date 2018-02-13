@@ -43,7 +43,7 @@
             $("#spinner").show();
             $.ajax({
                 type: "POST",
-                url: "https://www.metabittrader.com" + "/@ViewBag.Coin/api/tx",
+                url: "https://www.metabittrader.com" + "/@ViewBag.Coin" + "/api/tx",
                 data: msg,
                 xhrFields: {
                     withCredentials: true

@@ -23,13 +23,36 @@ namespace NodeInterface.Controllers
             nodeService = ns;
         }
 
+        [HttpGet]
+        [AllowAnonymous]
         public ActionResult Connect(int? nid)
         {
+            using (var db = new CoinpanicContext())
+            {
+                var sn = db.SeedNodes.AsNoTracking().FirstOrDefault(n => n.SeedNodeId == nid);
+                nodeService.ConnectNode(
+                    new NodeDetails()
+                    {
+                        coin = nodeService.Coin,
+                        ip = sn.IP,
+                        port = sn.Port,
+                        use = sn.Enabled,
+                    }, force:true);
+            }
             return RedirectToAction("Index");
         }
 
         public ActionResult Disconnect(int? nid)
         {
+            using (var db = new CoinpanicContext())
+            {
+                var sn = db.SeedNodes.AsNoTracking().FirstOrDefault(n => n.SeedNodeId == nid);
+                nodeService.DisconnectNode(new NodeDetails()
+                {
+                    ip = sn.IP,
+                    port = sn.Port
+                });
+            }
             return RedirectToAction("Index");
         }
 

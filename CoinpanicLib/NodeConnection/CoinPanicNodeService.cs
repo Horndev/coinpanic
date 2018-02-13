@@ -99,15 +99,15 @@ namespace CoinpanicLib.NodeConnection
             };
 
             Network n = BitcoinForks.ForkByShortName[coin].Network;
-
-            nodeServer = new NodeServer(n);
+            
+            nodeServer = new NodeServer(n, BitcoinForks.ForkByShortName[coin].ProtocolVersion);
             nodeServer.NodeRemoved += Svr_NodeRemoved;
             nodeServer.MessageReceived += Svr_MessageReceived;
             nodeServer.InboundNodeConnectionParameters = p;
             nodeServer.AllowLocalPeers = true;
             nodeServer.ExternalEndpoint = new IPEndPoint(IPAddress.Parse(externalip).MapToIPv6Ex(), n.DefaultPort);
             nodeServer.LocalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), n.DefaultPort);
-            nodeServer.Listen();
+            //nodeServer.Listen();
             Debug.WriteLine("Node Service Listening");
         }
 
@@ -258,6 +258,82 @@ namespace CoinpanicLib.NodeConnection
             }
         }
 
+        public void ConnectNode(NodeDetails sn, bool force = false)
+        {
+            if (sn.use || force)
+            {
+                try
+                {
+                    IPAddress endpoint = null;
+                    if (!epCache.TryGetValue(sn.ip, out endpoint))
+                    {
+                        if (!IPAddress.TryParse(sn.ip, out IPAddress addr))
+                        {
+                            //try to resolve a host name
+                            try
+                            {
+                                endpoint = Dns.GetHostEntry(sn.ip).AddressList[0];
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.Write(e.Message);
+                            }
+                        }
+                        else
+                        {
+                            endpoint = addr;
+                        }
+                        epCache.TryAdd(sn.ip, endpoint);
+                    }
+
+                    var ep = new IPEndPoint(endpoint.MapToIPv6Ex(), sn.port);
+                    if (!force && LastConnectAttempt.TryGetValue(ep, out DateTime lasttime))
+                    {
+                        if (DateTime.Now - lasttime < TimeSpan.FromMinutes(5))
+                        {
+                            Debug.Write("Don't hammer by trying to connect too often.");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        LastConnectAttempt.AddOrUpdate(ep, DateTime.Now, (key, oldval) => DateTime.Now);
+                    }
+                    Debug.WriteLine("Connecting (" + coin + ") to " + endpoint + ":" + Convert.ToString(sn.port));
+                    LastConnectAttempt[ep] = DateTime.Now;
+                    var node = nodeServer.FindOrConnect(ep);
+                    Thread.Sleep(0); //Don't underestimate thread preemption... 
+                    Thread.Sleep(100);
+                    if (!node.IsConnected)
+                    {
+                        Debug.WriteLine("node connection failed");
+                    }
+                    if (node.State != NodeState.HandShaked)
+                    {
+                        Debug.WriteLine("Handshaking (" + coin + ") to " + sn.ip + ":" + Convert.ToString(sn.port));
+                        node.VersionHandshake(
+                            new NodeRequirement()
+                            {
+                                MinVersion = ProtocolVersion.INIT_PROTO_VERSION,
+                                RequiredServices = NodeServices.Nothing,
+                                SupportSPV = false,
+                            }
+                        );
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Failed Connecting (" + coin + ") to " + sn.ip + ":" + Convert.ToString(sn.port) + " " + e.Message);
+                }
+            }
+        }
+
+        public void DisconnectNode(NodeDetails n)
+        {
+            Node mynode = TryGetNode(n.ip, n.port);
+            mynode.Disconnect("Disconnect requested");
+        }
+
         public void ConnectNodes(List<NodeDetails> seedNodes, int maxnodes = 3)
         {
             if (seedNodes == null)
@@ -314,6 +390,7 @@ namespace CoinpanicLib.NodeConnection
                             }
                             Debug.WriteLine("Connecting (" + coin + ") to " + endpoint + ":" + Convert.ToString(sn.port));
                             LastConnectAttempt[ep] = DateTime.Now;
+                            
                             var node = nodeServer.FindOrConnect(ep);
                             Thread.Sleep(0); //Don't underestimate thread preemption... 
                             Thread.Sleep(100);
@@ -323,6 +400,7 @@ namespace CoinpanicLib.NodeConnection
                             }
                             if (node.State != NodeState.HandShaked)
                             {
+                                
                                 Debug.WriteLine("Handshaking (" + coin + ") to " + sn.ip + ":" + Convert.ToString(sn.port));
                                 node.VersionHandshake(
                                     new NodeRequirement()
@@ -473,6 +551,45 @@ Still not confirmed: 7ddf70a172fcb15a4960ba295ddb6dce5781457fd7ec70cce6e8d447f34
                     advertisedPeers.Enqueue(a.Endpoint);
                     Debug.WriteLine(a.Endpoint.Address.ToString());
                 }
+            }
+            else if (message.Message.Command == "tx")
+            {
+                var txmessage = message.Message.Payload as TxPayload;
+                if (txmessage != null)
+                {
+                    Debug.WriteLine("Recieved tx: ");
+                    var tx = txmessage.Object;
+                    if (tx != null)
+                    {
+                        var h = tx.GetHash();
+                        //Received a transaction
+                        if (txSent.ContainsKey(h.ToString()))
+                        {
+                            //We sent this
+                            if (txSent.TryRemove(h.ToString(), out TxDetails txInfo))
+                            {
+                                txInfo.Result = "Broadcast successful.  Transaction inserted into mempool.";
+                                txInfo.IsError = false;
+
+                                //add it to the list of completed transactions
+                                txRecv.TryAdd(h.ToString(), txInfo);
+                            }
+                        }
+                        if (txRecv.ContainsKey(h.ToString()))
+                        {
+                            Debug.WriteLine("We already got a response for " + h.ToString());
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Error decoding tx in message.");
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Error decoding tx message.");
+                }
+
             }
             else if (message.Message.Command == "feefilter")
             {

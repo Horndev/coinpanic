@@ -149,6 +149,7 @@ namespace coinpanic_airdrop.Controllers
             {
                 var userclaim = db.Claims.Where(c => c.ClaimId == claimId).Include(c => c.InputAddresses).First();
                 ViewBag.NumConnectedNodes = CoinPanicServer.GetNumNodes(userclaim.CoinShortName);
+                ViewBag.Multiplier = BitcoinForks.ForkByShortName[userclaim.CoinShortName].Multiplier;
                 return View(userclaim);
             }
             catch
@@ -184,7 +185,8 @@ namespace coinpanic_airdrop.Controllers
             Response.ContentType = "text/json";
 
             // Write all my data
-            Response.Write(userclaim.First().BlockData);
+            string blockdata = userclaim.First().BlockData;
+            Response.Write(blockdata);
             Response.End();
 
             // Not sure what else to do here

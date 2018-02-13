@@ -19,5 +19,27 @@ namespace coinpanic_airdrop
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
+
+        protected void Application_BeginRequest(object sender, EventArgs e)
+        {
+            if (!Request.Url.Host.StartsWith("www") && !Request.Url.IsLoopback)
+            {
+                UriBuilder builder = new UriBuilder(Request.Url);
+                builder.Host = "www." + Request.Url.Host;
+                Response.StatusCode = 301;
+                Response.AddHeader("Location", builder.ToString());
+                Response.End();
+            }
+        }
+
+        //protected void Page_Load(object sender, EventArgs e)
+        //{
+        //    // check is secure connection used
+        //    if (!Request.IsSecureConnection)
+        //    {
+        //        // redirect visitor to SSL connection
+        //        Response.Redirect(Request.Url.AbsoluteUri.Replace("http://", "https://"));
+        //    }
+        //}
     }
 }

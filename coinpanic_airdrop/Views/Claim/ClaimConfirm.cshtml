@@ -21,7 +21,7 @@ else if (Model.CoinShortName == "BTW")
 }
 else
 {
-    @Model.Deposited
+    @(Model.Deposited * ViewBag.Multiplier)
 } @Model.CoinShortName</b> will be deposited in your address <b>@Model.DepositAddress</b></p>
 <br />
 <div><b>@Model.CoinShortName found in submitted addresses:</b><br /></div>
@@ -49,7 +49,7 @@ else
                 }
                 else
                 {
-                    @d.ClaimValue
+                    @(d.ClaimValue * ViewBag.Multiplier)
                 }
             </td>
         </tr>
@@ -79,7 +79,7 @@ else
         }
         else
         {
-            @Model.TotalValue
+            @(Model.TotalValue * ViewBag.Multiplier)
         }
         </td>
         <td>
@@ -97,7 +97,7 @@ else
         }
         else
         {
-            @Model.Deposited
+            @(Model.Deposited * ViewBag.Multiplier)
         }
         </td>
         <td>
@@ -115,7 +115,7 @@ else
         }
         else
         {
-            @Model.MyFee
+            @(Model.MyFee *ViewBag.Multiplier)
         }
          (5%)</td>
         <td>
@@ -133,7 +133,7 @@ else
             }
             else
             {
-                @Model.MinerFee
+                @(Model.MinerFee*ViewBag.Multiplier)
             }
         </td>
     </tr>
@@ -148,7 +148,7 @@ else
         <a href="~/Tools/CoinpanicSignTx.exe" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-download"></span> Download</a> the offline signing tool.
         This tool implements the signing algorithms used by the various forked coins.  You can use this tool without any connection to the internet.  You will need only your private keys.
         <br />
-        The tool is updated frequently to support new coins and patch bugs.  It is recommended to download the latest copy here if you have an older version.
+        The tool is updated frequently updated to support new coins and patch bugs.  It is recommended to download the latest copy here if you have an older version.
         <br />
         <b>New!</b> Try the new graphical signing tool <a href="~/Tools/CoinPanicSignTxUI.zip" aria-pressed="true"> Download <i class="fa fa-windows" aria-hidden="true"></i></a>
     </li>
@@ -222,7 +222,7 @@ else
 
             </div>
         </div>
-        <b> If your transmission was not successful, or have any questions, please contact claims@coinpanic.com or /u/Zelgada on Reddit</b>
+        <b> If your transmission was not successful, or if you have any questions, please contact claims@coinpanic.com or /u/Zelgada on Reddit</b>
         <p>
             Please quote your ClaimId: @Model.ClaimId in your message.
         </p>
@@ -242,6 +242,7 @@ else
                 xhrFields: {
                     withCredentials: true
                 },
+                crossDomain: true,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {

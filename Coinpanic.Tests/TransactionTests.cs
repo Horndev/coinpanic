@@ -12,6 +12,58 @@ namespace Coinpanic.Tests
     public class TransactionTests
     {
         [TestMethod]
+        public void TestBPAutxP2PKH()
+        {
+            string coin = "BPA";
+            string fromAddr = "15Lo7GRtK7b8WaYQeynwRFU479FJBSyewr";
+            string toAddr = "PPu3XYFn8AhVvXjzrnjBCb5FTim8X3RX8u";
+            string expected = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a914a7eb01a363c1324eb38f04a3b138f8b6cc4ef40188ac00000000";
+            double fee = 0.0001;
+            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, "BTN");
+            Assert.AreEqual(expected, utx);
+        }
+
+        [TestMethod]
+        public void TestBPAstxP2PKH()
+        {
+            string coin = "BPA";
+            string utxTxt = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a914a7eb01a363c1324eb38f04a3b138f8b6cc4ef40188ac00000000";
+            string ustr = "[\r\n  {\r\n    \"transactionId\": \"3749e4b36586d9ad82b4b02b367c0b008bc0ade1517c901efcdf093ccdefa0bc\",\r\n    \"index\": 8,\r\n    \"value\": 231211,\r\n    \"scriptPubKey\": \"76a9142f9ee53cc09b3136a8c5bcf2b6fac9f81563a87288ac\",\r\n    \"redeemScript\": null\r\n  }\r\n]";
+            string privK = "5HsCbiMnMop1z8u4jmjGHziE8ne9R2mNCdizDgvKJiQyeY7EegW";
+            string expected = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e44937080000008b4830450221009bc6fc589f2e097c5b6eb50a77bd27c8ccedc8fab6a18ca561c1e0706e14968f0220395f016b6f7cd27cdc5feee0096ea0cc9b58de1084c28ade1bd35a0c7169c357214104ce9d21fcccea78c02182d7d6e20e87fc7f14920655ca98bc1deebb1bb0945d6a777c187e77cc5e29424a791a07494f457b0c7ebe343dd7cfc56de415a79c5ee9ffffffff011b600300000000001976a914a7eb01a363c1324eb38f04a3b138f8b6cc4ef40188ac00000000";
+            string stxStr = SignTransaction(coin, utxTxt, ustr, privK);
+            Console.WriteLine(expected);
+            Console.WriteLine(stxStr);
+            Assert.AreEqual(expected, stxStr);
+        }
+
+        [TestMethod]
+        public void TestBTPutxP2PKH()
+        {
+            string coin = "BTP";
+            string fromAddr = "15Lo7GRtK7b8WaYQeynwRFU479FJBSyewr";
+            string toAddr = "PbQdinKhh9pRKTfkJuhngfX8ctQiZ5cNvy";
+            string expected = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a914262cff1a005936ddc84344eee8469735e06b347688ac00000000";
+            double fee = 0.0001;
+            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, "BTN");
+            Assert.AreEqual(expected, utx);
+        }
+
+        [TestMethod]
+        public void TestBTPstxP2PKH()
+        {
+            string coin = "BTP";
+            string utxTxt = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a914262cff1a005936ddc84344eee8469735e06b347688ac00000000";
+            string ustr = "[\r\n  {\r\n    \"transactionId\": \"3749e4b36586d9ad82b4b02b367c0b008bc0ade1517c901efcdf093ccdefa0bc\",\r\n    \"index\": 8,\r\n    \"value\": 231211,\r\n    \"scriptPubKey\": \"76a9142f9ee53cc09b3136a8c5bcf2b6fac9f81563a87288ac\",\r\n    \"redeemScript\": null\r\n  }\r\n]";
+            string privK = "5HsCbiMnMop1z8u4jmjGHziE8ne9R2mNCdizDgvKJiQyeY7EegW";
+            string expected = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e44937080000008a47304402203844c35376d9dc4a9bfc8cd6463ad27992d17d1885517bcdd70f644eed9e15e00220697d7dc9943fff58b5af6b4c95e6e65340b45b82193d81c3e6dfd60d9f2bfe65414104ce9d21fcccea78c02182d7d6e20e87fc7f14920655ca98bc1deebb1bb0945d6a777c187e77cc5e29424a791a07494f457b0c7ebe343dd7cfc56de415a79c5ee9ffffffff011b600300000000001976a914262cff1a005936ddc84344eee8469735e06b347688ac00000000";
+            string stxStr = SignTransaction(coin, utxTxt, ustr, privK);
+            Console.WriteLine(expected);
+            Console.WriteLine(stxStr);
+            Assert.AreEqual(expected, stxStr);
+        }
+
+        [TestMethod]
         public void TestBTVutxP2PKH()
         {
             string coin = "BTV";

@@ -15,6 +15,7 @@ using System.Web.Http;
 using System.Web.Http.Cors;
 using System.Web.Http.Description;
 using static CoinpanicLib.Services.MailingService;
+using RestSharp;
 
 namespace NodeInterface.Controllers
 {
@@ -22,7 +23,7 @@ namespace NodeInterface.Controllers
     /// Transactions Controller
     /// </summary>
     [RoutePrefix("api/tx")]
-    [EnableCors(origins: "https://www.coinpanic.com", headers: "*", methods: "*", SupportsCredentials = true)]
+    [EnableCors(origins: "https://www.coinpanic.com,https://coinpanic.com", headers: "*", methods: "*", SupportsCredentials = true)]
     public class TxController : ApiController
     {
         //private CoinpanicContext db = new CoinpanicContext();
@@ -44,8 +45,9 @@ namespace NodeInterface.Controllers
         {
             using (CoinpanicContext db = new CoinpanicContext())
             {
+                MonitoringService.SendMessage("Received tx POST " + b.ClaimId, "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + b.ClaimId );
                 CoinClaim userclaim = db.Claims.Where(c => c.ClaimId == b.ClaimId).FirstOrDefault();
-
+                
                 if (userclaim == null)
                 {
                     userclaim = new CoinClaim();
@@ -56,7 +58,8 @@ namespace NodeInterface.Controllers
                 signedTransaction = signedTransaction.Replace("\n", String.Empty);
                 signedTransaction = signedTransaction.Replace("\r", String.Empty);
                 signedTransaction = signedTransaction.Replace("\t", String.Empty);
-                userclaim.SignedTX = signedTransaction.Trim().Replace(" ", "");
+                signedTransaction = signedTransaction.Trim().Replace(" ", "");
+                userclaim.SignedTX = signedTransaction;
                 db.SaveChanges();
 
                 BroadcastResponse response = new BroadcastResponse()
@@ -65,6 +68,65 @@ namespace NodeInterface.Controllers
                     Result = "Transaction successfully broadcast.",
                     Txid = "",
                 };
+                var tx = signedTransaction;
+
+                if (tx == "")
+                {
+                    response.Result = "Error: No signed transaction provided.";
+                    MonitoringService.SendMessage("Empty tx " + userclaim.CoinShortName + " submitted.", "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + b.ClaimId);
+                    return Ok(response);
+                }
+
+                Transaction t = null;
+                try
+                {
+                    t = Transaction.Parse(tx.Trim().Replace(" ", ""));
+                }
+                catch (Exception e)
+                {
+                    response.Error = true;
+                    response.Result = "Error parsing transaction";
+                    MonitoringService.SendMessage("Invalid tx " + userclaim.CoinShortName + " submitted " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + b.ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                    return Ok(response);
+                }
+
+                //BTP submit
+                if (nodeService.Coin == "BTP")
+                {
+                    var bitpieClient = new RestClient
+                    {
+                        BaseUrl = new Uri("https://bitpie.getcai.com/api/v1/")
+                    };
+                    var txRequest = new RestRequest("/btp/broadcast", Method.POST);
+
+                    string data = "{\"raw_tx\": \""+ userclaim.SignedTX + "\"}";
+                    txRequest.AddParameter("application/json; charset=utf-8", data, ParameterType.RequestBody);
+                    txRequest.RequestFormat = DataFormat.Json;
+                    try
+                    {
+                        var txresponse = bitpieClient.Execute(txRequest);
+                        if (txresponse.IsSuccessful)
+                        {
+                            if (txresponse.Content == "{\"result\": 0, \"error\": \"broadcast error\"}")
+                            {
+                                response.Result = "Transaction successfully broadcast.  No known errors identified.";
+                            }
+                            else
+                            { 
+                                response.Result = "Transaction successfully broadcast.  Result code: " + txresponse.Content;
+                            }
+                            response.Txid = t.GetHash().ToString();
+                        }
+                        Debug.Print(txresponse.StatusDescription);
+                    }
+                    catch (Exception e)
+                    {
+                        InternalServerError();
+                    }
+                    return Ok(response);
+                }
+
+                //Regular nodes
                 try
                 {
                     // If we don't have any connections, try to open them.
@@ -80,19 +142,8 @@ namespace NodeInterface.Controllers
                         }).ToList());
                     }
 
-                    var tx = b.Hex;
-                    Transaction t = null;
-                    try
-                    {
-                        t = Transaction.Parse(tx.Trim().Replace(" ", ""));
-                    }
-                    catch (Exception e)
-                    {
-                        response.Error = true;
-                        response.Result = "Error parsing transaction";
-                        MonitoringService.SendMessage("Invalid tx " + userclaim.CoinShortName + " submitted " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + b.ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
-                        return Ok(response);
-                    }
+                    
+                    
                     string txid = t.GetHash().ToString();
                     response.Txid = txid;
                     userclaim.TransactionHash = txid;

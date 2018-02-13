@@ -8,6 +8,7 @@
     "webicon": "v0.10.7",
     "jquery-validation": "1.17.0",
     "jquery-validation-unobtrusive": "v3.2.6",
-    "jquery-ajax-unobtrusive": "v3.2.4"
+    "jquery-ajax-unobtrusive": "v3.2.4",
+    "trezor-connect": "v3"
   }
 }

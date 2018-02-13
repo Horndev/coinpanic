@@ -11,7 +11,7 @@ namespace NodeInterface
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
-            var cors = new EnableCorsAttribute("www.coinpanic.com", "*", "*");
+            var cors = new EnableCorsAttribute("https://www.coinpanic.com,https://coinpanic.com", "*", "*");
             config.EnableCors(cors);
 
             // Web API routes

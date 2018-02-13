@@ -23,6 +23,10 @@ namespace CoinpanicLib.NodeConnection
 
         void ConnectNodes(List<NodeDetails> seedNodes, int maxnodes = 3);
 
+        void ConnectNode(NodeDetails n, bool force=false);
+
+        void DisconnectNode(NodeDetails n);
+
         Node TryGetNode(string ip, int port);
 
         // Debugging stuff (delete)
