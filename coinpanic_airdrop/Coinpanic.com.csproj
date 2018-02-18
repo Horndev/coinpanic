@@ -63,6 +63,9 @@
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
+    <Reference Include="QBitNinja.Client, Version=1.0.3.46, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QBitNinja.Client.1.0.3.46\lib\net461\QBitNinja.Client.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp, Version=106.2.1.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.106.2.1\lib\net452\RestSharp.dll</HintPath>
     </Reference>
@@ -75,8 +78,8 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Net.Http, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Net.Http.4.3.2\lib\net46\System.Net.Http.dll</HintPath>
+    <Reference Include="System.Net.Http, Version=4.1.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.3\lib\net46\System.Net.Http.dll</HintPath>
     </Reference>
     <Reference Include="System.Security.Cryptography.Algorithms, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net461\System.Security.Cryptography.Algorithms.dll</HintPath>
@@ -1226,7 +1229,9 @@
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Tools\Claim.mp4" />
     <Content Include="Tools\CoinpanicSignTx.exe" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -1252,6 +1257,8 @@
     <Content Include="Views\Claim\CheckNode.cshtml" />
     <Content Include="Tools\CoinPanicSignTxUI.zip" />
     <Content Include="Views\Nodes\Index.cshtml" />
+    <Content Include="Tools\CoinpanicSign.tar.gz" />
+    <Content Include="Tools\CoinpanicSignMac.tar.gz" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1271,13 +1278,9 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NBitcoin\NBitcoin\NBitcoin.csproj">
-      <Project>{59f9feea-76be-466f-a264-2285c16ab7b3}</Project>
+    <ProjectReference Include="..\..\CoinpanicSign\NBitcoin\NBitcoin\NBitcoin.csproj">
+      <Project>{a3a29f71-3ff4-4817-9cfb-ce4b59a2bd9b}</Project>
       <Name>NBitcoin</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CoinController\CoinController.csproj">
-      <Project>{8b85a6c9-e4ca-4fc0-ad09-c475faf193a8}</Project>
-      <Name>CoinController</Name>
     </ProjectReference>
     <ProjectReference Include="..\CoinpanicLib\CoinpanicLib.csproj">
       <Project>{1500a165-f8c4-415c-9ac7-9166c8b1ff0e}</Project>

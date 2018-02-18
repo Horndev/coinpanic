@@ -1049,8 +1049,8 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NBitcoin\NBitcoin\NBitcoin.csproj">
-      <Project>{59f9feea-76be-466f-a264-2285c16ab7b3}</Project>
+    <ProjectReference Include="..\..\CoinpanicSign\NBitcoin\NBitcoin\NBitcoin.csproj">
+      <Project>{a3a29f71-3ff4-4817-9cfb-ce4b59a2bd9b}</Project>
       <Name>NBitcoin</Name>
     </ProjectReference>
     <ProjectReference Include="..\CoinpanicLib\CoinpanicLib.csproj">

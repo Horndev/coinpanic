@@ -69,7 +69,7 @@ namespace Coinpanic.Tests
             string coin = "BTV";
             string fromAddr = "15Lo7GRtK7b8WaYQeynwRFU479FJBSyewr";
             string toAddr = "1FMjcQ1U1eUKPKpnSpM6ksTrB8sUBefokz";
-            string expected = "0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
+            string expected = "0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";//"0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
             double fee = 0.0001;
             string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, "BTN");
             Assert.AreEqual(expected, utx);
