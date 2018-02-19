@@ -71,6 +71,7 @@ namespace Coinpanic.Tests
             string toAddr = "1FMjcQ1U1eUKPKpnSpM6ksTrB8sUBefokz";
             string expected = "0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";//"0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
             double fee = 0.0001;
+            // This address doesn't have BTV coins, so I use BTN to generate UTX to build a transaction.
             string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, "BTN");
             Assert.AreEqual(expected, utx);
         }
@@ -120,7 +121,7 @@ namespace Coinpanic.Tests
             string utxTxt = "0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
             string ustr = "[\r\n  {\r\n    \"transactionId\": \"3749e4b36586d9ad82b4b02b367c0b008bc0ade1517c901efcdf093ccdefa0bc\",\r\n    \"index\": 8,\r\n    \"value\": 231211,\r\n    \"scriptPubKey\": \"76a9142f9ee53cc09b3136a8c5bcf2b6fac9f81563a87288ac\",\r\n    \"redeemScript\": null\r\n  }\r\n]";
             string privK = "5HsCbiMnMop1z8u4jmjGHziE8ne9R2mNCdizDgvKJiQyeY7EegW";
-            string expected = "0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e44937080000008a4730440220578835024178f0d45bd04604d709431b79a27bdeaad50a32fd4841b3fde3c86a02207a31f78a4ecb77c3274d212ea2e7b57294e61eacfb52701231cd7ebe7437d981654104ce9d21fcccea78c02182d7d6e20e87fc7f14920655ca98bc1deebb1bb0945d6a777c187e77cc5e29424a791a07494f457b0c7ebe343dd7cfc56de415a79c5ee9ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
+            string expected = "0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e44937080000008b483045022100bb8aad93c23ed609f3c734aefff15498a41b2f1cfce381c2087f5ac2968801ce02204a53c3495e4f6cb62421cd982a8819b46a38f26921da3508cdeb1b7c3be0989d414104ce9d21fcccea78c02182d7d6e20e87fc7f14920655ca98bc1deebb1bb0945d6a777c187e77cc5e29424a791a07494f457b0c7ebe343dd7cfc56de415a79c5ee9ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
             string stxStr = SignTransaction(coin, utxTxt, ustr, privK);
             Console.WriteLine(expected);
             Console.WriteLine(stxStr);
