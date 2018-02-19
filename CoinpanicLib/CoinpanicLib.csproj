@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="Models\BlockData.cs" />
     <Compile Include="Models\CoinClaim.cs" />
     <Compile Include="Models\TxSubmitted.cs" />
     <Compile Include="Services\MailingService.cs" />

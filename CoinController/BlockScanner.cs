@@ -49,7 +49,7 @@ namespace CoinController
             return bytes;
         }
 
-        public Tuple<List<ICoin>, Dictionary<string, double>> GetUnspentTransactionOutputs(List<BitcoinAddress> clientAddresses, string forkShortName)
+        public Tuple<List<ICoin>, Dictionary<string, double>> GetUnspentTransactionOutputs(List<BitcoinAddress> clientAddresses, string forkShortName, bool estimate = false)
         {
             List<ICoin> UTXOs = new List<ICoin>();
             List<ICoin> receivedCoins = new List<ICoin>();
@@ -70,6 +70,7 @@ namespace CoinController
                     isSW = true;
                 }
                 if (forkShortName == "BCH" && !isSW)
+                else if (forkShortName == "B2X" && !isSW && !estimate)
                 {
                     List<UTXO> addressUTXOs;
                     var iclient = new RestClient();
