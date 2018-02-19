@@ -44,8 +44,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Net.Http.4.3.2\lib\net46\System.Net.Http.dll</HintPath>
+    <Reference Include="System.Net.Http, Version=4.1.1.2, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.3\lib\net46\System.Net.Http.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
@@ -73,15 +73,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bitcoin.cs" />
-    <Compile Include="BitcoinNode.cs" />
-    <Compile Include="BlockScanner.cs" />
-    <Compile Include="Forks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NBitcoin\NBitcoin\NBitcoin.csproj">
-      <Project>{59f9feea-76be-466f-a264-2285c16ab7b3}</Project>
+    <ProjectReference Include="..\..\CoinpanicSign\NBitcoin\NBitcoin\NBitcoin.csproj">
+      <Project>{a3a29f71-3ff4-4817-9cfb-ce4b59a2bd9b}</Project>
       <Name>NBitcoin</Name>
     </ProjectReference>
     <ProjectReference Include="..\CoinpanicLib\CoinpanicLib.csproj">

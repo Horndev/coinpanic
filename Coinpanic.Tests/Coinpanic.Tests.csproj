@@ -53,18 +53,20 @@
     <Compile Include="AddressTests.cs" />
     <Compile Include="BIP39Tests.cs" />
     <Compile Include="CoinpanicSignDataTest.cs" />
+    <Compile Include="FBTCTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NBitcoin\NBitcoin\NBitcoin.csproj">
-      <Project>{59f9feea-76be-466f-a264-2285c16ab7b3}</Project>
+    <ProjectReference Include="..\..\CoinpanicSign\NBitcoin\NBitcoin\NBitcoin.csproj">
+      <Project>{a3a29f71-3ff4-4817-9cfb-ce4b59a2bd9b}</Project>
       <Name>NBitcoin</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CoinController\CoinController.csproj">
-      <Project>{8b85a6c9-e4ca-4fc0-ad09-c475faf193a8}</Project>
-      <Name>CoinController</Name>
+    <ProjectReference Include="..\CoinpanicLib\CoinpanicLib.csproj">
+      <Project>{1500a165-f8c4-415c-9ac7-9166c8b1ff0e}</Project>
+      <Name>CoinpanicLib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

@@ -41,3 +41,4 @@ packages/
 /NodeInterface/AppSettings.config
 /NodeInterface/Database.config
 /CoinpanicSignTx
+*/bower_components/*

@@ -107,7 +107,11 @@ namespace NodeInterface.Controllers
                         var txresponse = bitpieClient.Execute(txRequest);
                         if (txresponse.IsSuccessful)
                         {
-                            if (txresponse.Content == "{\"result\": 0, \"error\": \"broadcast error\"}")
+                            if (txresponse.Content == "{\"result\": 0, \"error\": \"\"}")
+                            {
+                                response.Result = "Transaction was broadcast.  Network reported unknown error.  Double check signatures and ensure coins not already claimed.";
+                            }
+                            else if (txresponse.Content == "{\"result\": 0, \"error\": \"broadcast error\"}")
                             {
                                 response.Result = "Transaction successfully broadcast.  No known errors identified.";
                             }
@@ -121,6 +125,7 @@ namespace NodeInterface.Controllers
                     }
                     catch (Exception e)
                     {
+                        MonitoringService.SendMessage("Tx server error", e.Message);
                         InternalServerError();
                     }
                     return Ok(response);
@@ -169,6 +174,7 @@ namespace NodeInterface.Controllers
                 }
                 catch (Exception e)
                 {
+                    MonitoringService.SendMessage("Tx server error", e.Message);
                     return InternalServerError();
                 }
             }
