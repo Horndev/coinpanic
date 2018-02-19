@@ -6,7 +6,9 @@ using System.Web;
 
 namespace coinpanic_airdrop.Models
 {
-    
+    /// <summary>
+    /// This is the model for the home-page description of available coins.
+    /// </summary>
     public class IndexCoinInfo
     {
         [Key]

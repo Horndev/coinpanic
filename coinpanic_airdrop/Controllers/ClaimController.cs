@@ -25,7 +25,7 @@ namespace coinpanic_airdrop.Controllers
         private CoinpanicContext db = new CoinpanicContext();
 
         // GET: NewClaim
-        public async Task<ActionResult> NewClaim(string coin)
+        public async Task<ActionResult> NewClaim(string coin, string coupon)
         {
             string claimId = ShortId.Generate(useNumbers: false, useSpecial: false, length: 10);
             string ip = Request.UserHostAddress;
@@ -76,7 +76,6 @@ namespace coinpanic_airdrop.Controllers
 
             if (list.Count < 1)
                 return RedirectToAction("ClaimError", new { message = "You must enter at least one address to claim", claimId = claimId });
-
             
             if (!Bitcoin.IsValidAddress(depositAddress))
                 return RedirectToAction("ClaimError", new { message = "Deposit Address not valid", claimId = claimId });
@@ -88,8 +87,8 @@ namespace coinpanic_airdrop.Controllers
             }
 
             var scanner = new BlockScanner();
-
             var claimAddresses = Bitcoin.ParseAddresses(list);
+
             Tuple<List<ICoin>, Dictionary<string, double>> claimcoins;
             try
             { 
@@ -113,11 +112,9 @@ namespace coinpanic_airdrop.Controllers
             }).ToList();
 
             userclaim.InputAddresses = inputs;
-
             userclaim.Deposited = Convert.ToDouble(amounts[0].ToDecimal(MoneyUnit.BTC));
             userclaim.MyFee = Convert.ToDouble(amounts[1].ToDecimal(MoneyUnit.BTC));
             userclaim.MinerFee = Convert.ToDouble(amounts[2].ToDecimal(MoneyUnit.BTC));
-
             userclaim.TotalValue = userclaim.Deposited + userclaim.MyFee + userclaim.MinerFee;
 
             // Generate unsigned tx
@@ -130,7 +127,6 @@ namespace coinpanic_airdrop.Controllers
             userclaim.UnsignedTX = utx;
 
             // Generate witness data
-
             var w = Bitcoin.GetBlockData(claimcoins.Item1);
             userclaim.BlockData = w;
 

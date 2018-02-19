@@ -247,6 +247,7 @@
       <DependentUpon>201802060229179_AddLabelAndTimeToSeedNode.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Coupon.cs" />
     <Compile Include="Models\IndexModel.cs" />
     <Compile Include="Models\NodesInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
