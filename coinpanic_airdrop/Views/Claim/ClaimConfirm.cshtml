@@ -145,31 +145,34 @@ else
 <p> </p>
 <ul class="list-group">
     <li class="list-group-item justify-content-between">
-        Download the offline signing tool. 
-        <a href="~/Tools/CoinpanicSignTx.exe" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-windows"></span> Windows</a> 
+        1: <a href="~/Tools/CoinpanicSignTx.exe" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-windows"></span> Windows</a> 
         <a href="~/Tools/CoinPanicSign.tar.gz" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-linux" aria-hidden="true"></span> Linux</a> 
         <a href="~/Tools/CoinPanicSignMac.tar.gz" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-apple" aria-hidden="true"></span> Mac</a> 
-        This tool implements the signing algorithms used by the various forked coins.  You can use this tool without any connection to the internet.  You will need only your private keys.
+        Download the offline signing tool. 
+        This tool implements the signing algorithms used by the various forked coins.  You can use this tool without any connection to the internet.
         <br />
         The tool is updated frequently updated to support new coins and patch bugs.  It is recommended to download the latest copy here if you have an older version.
-        <br />
-        <b>New!</b> Try the new graphical signing tool <a href="~/Tools/CoinPanicSignTxUI.zip" aria-pressed="true"> Download <i class="fa fa-windows" aria-hidden="true"></i></a>
     </li>
     <li class="list-group-item justify-content-between">
-        <a href="DownloadTransactionFile/?claimId=@Model.ClaimId" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-download"></span> Download </a> your custom BlockChainData.txt and <b>save it to the same folder you saved the signing tool.</b>
+        2: <a href="DownloadClaimDataFile/?claimId=@Model.ClaimId" class="btn btn-primary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-download"></span> Claim Data </a> your custom ClaimData.txt and <b>save it to the same folder you saved the signing tool.</b>
     </li>
     <li class="list-group-item justify-content-between">
-        At the command shell navigate to the folder containing CoinpanicSignTx.exe and BlockChainData.txt. Run the command: <br /><kbd>CoinpanicSignTx.exe -c @Model.CoinShortName -p PRIVATEKEY1 -p PRIVATEKEY2 -p [etc.] UNSIGNED_TRANSACTION</kbd> <br />
+        <h4>OPTION 1: Claiming using private keys</h4>
+        At the command shell navigate to the folder containing CoinpanicSignTx.exe and ClaimData.txt. Run the command: <br /><kbd>CoinpanicSignTx.exe -p PRIVATEKEY1 -p PRIVATEKEY2 -p [etc.]</kbd>
         Make sure to enter each of your private keys for the claimed addresses using the -p flag. <br />
-        You can find the content of <kbd>UNSIGNED_TRANSACTION</kbd> below.
         Your private keys will start with a'K' or 'L' and be 52 characters long (base 58 encoded). For example: KxX4edUCKiXWZh8TaB7zq9Lm2RCxSy5YgJL9VkRh5JH5G3wSKzdg.
     </li>
     <li class="list-group-item justify-content-between">
-        <a href="~/Tools/Claim.mp4" class="btn btn-secondary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-video-camera"></span> Watch </a> A video of the process is available.  
-        @*<p><a class="btn btn-default" href="http://www.coinpanic.com/Home/Claim">Learn more about how to obtain your private keys &raquo;</a></p>*@
+        <h4>OPTION 2: Claiming using seed words (i.e. From Trezor or Ledger)</h4>
+        At the command shell navigate to the folder containing CoinpanicSignTx.exe and ClaimData.txt. Run the command: <br /><kbd>CoinpanicSignTx.exe -s "put your seed words here" -d m/44'/0'/0</kbd> <br />
+        Replace m/44'/0'/0 with whatever derivation key you are using.<br />
+        If you use a seed passphrase, add the flag <kbd>-sp yourpassphrasehere</kbd> to provide your passphrase.
     </li>
+    @*<li class="list-group-item justify-content-between">
+        <a href="~/Tools/Claim.mp4" class="btn btn-secondary btn-sm active" role="button" aria-pressed="true"><span class="fa fa-video-camera"></span> Watch </a> A video of the process is available.*@  
+        @*<p><a class="btn btn-default" href="http://www.coinpanic.com/Home/Claim">Learn more about how to obtain your private keys &raquo;</a></p>*@
+    @*</li>*@
     <li class="list-group-item justify-content-between">
-        The program will return a signed transaction.  If the output is the same as the unsigned transaction, the signing process did not work.
         Copy the resulting signed transaction, and paste it into the form below.  
         @if (Model.CoinShortName == "B2X")
         {
@@ -178,14 +181,14 @@ else
     </li>
 </ul>
 <br />
-<h5> Your <kbd>UNSIGNED_TRANSACTION</kbd> is (copy from here):</h5>
+@*<h5> Your <kbd>UNSIGNED_TRANSACTION</kbd> is (copy from here):</h5>
 <p class="card-text">
     <div class="form-group">
         <div class="col-sm-10">
             <textarea type="text" class="form-control" rows="7" name="SignedTX" id="SignedTX" aria-describedby="pubhelp" placeholder="Copy your unsigned transaction from here">@Model.UnsignedTX</textarea>
         </div>
     </div>
-</p>
+</p>*@
 <h2>Once you have run CoinpanicSignTx.exe with your private keys, proceed to the step below.</h2>
 
 @*<form action="/Claim/TransmitTransaction" method="post">

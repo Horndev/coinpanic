@@ -14,6 +14,11 @@
     <p>Even though you may trust the person you sent them to, your keys have been revealed.  They can be stolen by malware, or a malicious actor.  Coinpanic.com, through the offline signing method, is able to split your coins without you having to provide anyone your private keys.  You can even sign your transaction without an internet connection.</p>
 </div>
 
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading"><i class="fa fa-exclamation-circle" aria-hidden="true"></i> New claiming tool update</h4>
+    <p>The claiming tool was greatly simplified.  You can now also claim using a BIP39 seed with optional passphrase instead of the private keys.  This will make claiming forks much easier for users of hardware wallets like Trezor and Ledger.</p>
+</div>
+
 @foreach (var d in Model.CoinInfo)
 {
     <div class="alert @d.Value.AlertClass" role="alert">

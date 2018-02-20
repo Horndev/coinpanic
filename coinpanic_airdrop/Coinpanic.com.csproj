@@ -246,6 +246,10 @@
     <Compile Include="Migrations\201802060229179_AddLabelAndTimeToSeedNode.Designer.cs">
       <DependentUpon>201802060229179_AddLabelAndTimeToSeedNode.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201802190145115_CouponAndBlockData.cs" />
+    <Compile Include="Migrations\201802190145115_CouponAndBlockData.Designer.cs">
+      <DependentUpon>201802190145115_CouponAndBlockData.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Coupon.cs" />
     <Compile Include="Models\IndexModel.cs" />
@@ -1324,6 +1328,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201802060229179_AddLabelAndTimeToSeedNode.resx">
       <DependentUpon>201802060229179_AddLabelAndTimeToSeedNode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201802190145115_CouponAndBlockData.resx">
+      <DependentUpon>201802190145115_CouponAndBlockData.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

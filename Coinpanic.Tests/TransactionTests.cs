@@ -19,7 +19,7 @@ namespace Coinpanic.Tests
             string toAddr = "PPu3XYFn8AhVvXjzrnjBCb5FTim8X3RX8u";
             string expected = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a914a7eb01a363c1324eb38f04a3b138f8b6cc4ef40188ac00000000";
             double fee = 0.0001;
-            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, "BTN");
+            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, out string utxos, "BTN");
             Assert.AreEqual(expected, utx);
         }
 
@@ -45,7 +45,7 @@ namespace Coinpanic.Tests
             string toAddr = "PbQdinKhh9pRKTfkJuhngfX8ctQiZ5cNvy";
             string expected = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a914262cff1a005936ddc84344eee8469735e06b347688ac00000000";
             double fee = 0.0001;
-            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, "BTN");
+            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, out string utxos, "BTN");
             Assert.AreEqual(expected, utx);
         }
 
@@ -72,7 +72,7 @@ namespace Coinpanic.Tests
             string expected = "0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";//"0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
             double fee = 0.0001;
             // This address doesn't have BTV coins, so I use BTN to generate UTX to build a transaction.
-            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, "BTN");
+            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, out string utxos, "BTN");
             Assert.AreEqual(expected, utx);
         }
 
@@ -84,7 +84,7 @@ namespace Coinpanic.Tests
             string toAddr = "1FMjcQ1U1eUKPKpnSpM6ksTrB8sUBefokz";
             string expected = "02000000065c9be01d9de24f668a8be964e4aa2f544690f5e73dd5b818d5812d69eb98227a0100000000ffffffffd7dc5c66aac944659dc11e7b68282af4fb5182451fff31a320e253d30908d59d0000000000ffffffff3bbe46f65214917b52b18370e0bb9ddaf134f6ee87304bba1e8bba48efd21aa50000000000ffffffff1c62addcda85a37dc9ef8c50fa92c391949d4d97bd17dded24a95dd898cdf64d2c00000000ffffffff8c64c798031f1f70d0e68be210887a95173c528a203fc63f620c59db2ed2d3980000000000ffffffff049978513769443705e355151f8d7d1ae821ae90aa150fa58456bb8047bd387a0600000000ffffffff01771af301000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
             double fee = 0.0001;
-            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, "BTN");
+            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, out string utxos, "BTN");
             Assert.AreEqual(expected, utx);
         }
 
@@ -96,7 +96,7 @@ namespace Coinpanic.Tests
             string toAddr = "1FMjcQ1U1eUKPKpnSpM6ksTrB8sUBefokz";
             string expected = "02000000013617cb17192501c8a4fcef74ec360930f05b5bc3f8bf128d9904d5056111bc7a0000000000ffffffff01104d4701000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
             double fee = 0.001;
-            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee);
+            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, out string utxos);
              //0200000007c9b995c8828868a800395f85733d2c72673a822dd889b4b603992f7a7edb8a9d0100000000ffffffff52e4552da0378b19a0c57ebc99637fc47bd21bbe5b4f4fa1bac82218d99fef3e0100000000ffffffffa06065e3d8767a3a143638bfc268603b7d1e27e9d3fb903b2b04a2b62e4326030100000000ffffffffbf5a3c37a0608d37e5ab490806f7b47fcc2a2f8fea0ed9ae2477214441cd722c0000000000ffffffff2e8bffbbc8883f270df425f1393ec91935681eb28317876dff99f34ad93632380000000000ffffffff1f08c14e5eb5d64d2b5ede3faf4cb43032c87355438eca81a38db0dc0afb6c320000000000fffffffff9fddefa48971fa2fa6a46c5a990640cd164351076c004662f8c476f8cdc75f90000000000ffffffff01cec3e003000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000
             Assert.AreEqual(expected, utx);
         }
@@ -160,7 +160,7 @@ namespace Coinpanic.Tests
             Assert.AreEqual(expected, stxStr);
         }
 
-        private static string createUnsignedTransaction(string coin, string fromAddr, string toAddr, double fee, string ForceCoin = "")
+        private static string createUnsignedTransaction(string coin, string fromAddr, string toAddr, double fee, out string utxos, string ForceCoin = "")
         {
             var n = BitcoinForks.ForkByShortName[coin].Network;
             var destination = BitcoinAddress.Create(toAddr, n);
@@ -189,6 +189,7 @@ namespace Coinpanic.Tests
             string utx = BCDtx.ToHex();
             var ustr = NBitcoin.JsonConverters.Serializer.ToString(autxos);
             Console.WriteLine("UTX: " + utx);
+            utxos = ustr;
             return utx;
         }
 
@@ -201,18 +202,135 @@ namespace Coinpanic.Tests
             var clientprivkey = new BitcoinSecret(privK, n);
             privatekeys.Add(clientprivkey);
             var sbcdbuilder = new TransactionBuilder();
+            utx.sigtype = coin;
+
             var stx = sbcdbuilder
                     .AddCoins(coins: autxos)
-                    .AddKeys(privatekeys.ToArray())
+                    //.AddKeys(privatekeys.ToArray())
                     .SignTransaction(
                         utx,
                         BitcoinForks.ForkByShortName[coin].SigHash | SigHash.All,
                         coin);
             stx.Version = BitcoinForks.ForkByShortName[coin].TransactionVersion;
+
+            bool isok = sbcdbuilder.Verify(stx, coin);
+
+            Assert.IsFalse(isok);
+
+            stx = sbcdbuilder
+                .AddKeys(privatekeys.ToArray())
+                .SignTransaction(
+                        stx,
+                        BitcoinForks.ForkByShortName[coin].SigHash | SigHash.All,
+                        coin);
+
+            isok = sbcdbuilder.Verify(stx, coin);
+            Assert.IsTrue(isok);
+
             Console.WriteLine("Signed Transaction:");
             Console.WriteLine(stx.ToHex());
             string stxStr = stx.ToHex();
             return stxStr;
+        }
+
+        [TestMethod]
+        public void TestBTPWithBIP39()
+        {
+            string fromAddr = "123qWRaufkCnUfh7WMAmJpKdFDw6zBQkn9";
+            string seed = "effort arena code feature pretty busy first end report book novel bless system energy silver right donor depth person spend spring industry wolf patrol";
+            string passphrase = "Bdcg$lns$138064";
+            string derivationPath = "m/44'/0'/0";
+            string toAddr = "PPu3XYFn8AhVvXjzrnjBCb5FTim8X3RX8u";
+            string coin = "BTP";
+
+            //generate UTX
+            double fee = 0.0001;
+            string utxos;
+            string utxTxt = createUnsignedTransaction(coin, fromAddr, toAddr, fee, out utxos, coin);
+            var autxos = NBitcoin.JsonConverters.Serializer.ToObject<List<ICoin>>(utxos);
+            var utx = Transaction.Parse(utxTxt);
+            utx.sigtype = coin;
+
+            //Sign with seed
+            int account = Convert.ToInt32(derivationPath.Split('/').Last());
+            var builder = new TransactionBuilder();
+            var stx = builder
+                .AddCoins(coins: autxos)
+                .SignTransaction(
+                        utx,
+                        BitcoinForks.ForkByShortName[coin].SigHash | SigHash.All,
+                        coin);
+            
+            for (int i = 0; i < 1000; ++i)
+            {
+                List<BitcoinSecret> privatekeys = new List<BitcoinSecret>()
+                {
+                    HDPrivKey(seed, account, i, passphrase, change: false, segwit: false, bech32: false),
+                    HDPrivKey(seed, account, i, passphrase, change: true,  segwit: false, bech32: false),
+                    HDPrivKey(seed, account, i, passphrase, change: false, segwit: true,  bech32: false),
+                    HDPrivKey(seed, account, i, passphrase, change: true,  segwit: true,  bech32: false),
+                    HDPrivKey(seed, account, i, passphrase, change: false, segwit: false, bech32: true),
+                    HDPrivKey(seed, account, i, passphrase, change: true,  segwit: false, bech32: true),
+                };
+
+                stx = builder
+                    .AddKeys(privatekeys.ToArray())
+                    .SignTransaction(
+                        stx,
+                        BitcoinForks.ForkByShortName[coin].SigHash | SigHash.All,
+                        coin);
+                if (builder.Verify(stx, coin))
+                {
+                    break;
+                }
+            }
+
+            Assert.IsTrue(builder.Verify(stx, coin));
+        }
+
+        [TestMethod]
+        public void TestSignWithBIP39()
+        {
+            string seed = "hero cruel end salad blood report ribbon donkey shoe undo salad cargo";
+            var addr = HDAddress(seed, 0, 0, change: false);
+        }
+
+        private string dpath(bool segwit = false, bool bech32 = false, int coinIx = 0)
+        {
+            string derivationpath = "m/" + ((bech32 || segwit) ? "49" : "44") 
+                + "'/" + Convert.ToString(coinIx) + "'/";
+            return derivationpath;
+        }
+
+        private BitcoinSecret HDPrivKey(string seed, int account, int n, string passphrase = null, bool change = false, bool segwit = false, bool bech32 = false)
+        {
+            var mnemonic = new Mnemonic(seed, Wordlist.English);
+            var masterKey = mnemonic.DeriveExtKey(passphrase); //this is the root key
+            string derivationpath = dpath(segwit, bech32);
+            KeyPath kp = KeyPath.Parse(derivationpath + Convert.ToString(account) + "'/" + (change ? "1" : "0") + "/" + Convert.ToString(n));
+            ExtKey key = masterKey.Derive(kp);
+            var p = key.PrivateKey.GetWif(Network.Main);
+            return p;
+        }
+
+        private BitcoinAddress HDAddress(string seed, int account, int n, string passphrase = null, bool change = false, bool segwit = false, bool bech32 = false)
+        {
+            var p = HDPrivKey(seed, account, n, passphrase, change, segwit, bech32);
+
+            BitcoinAddress res;
+            if (bech32)
+            {
+                res = p.PubKey.GetSegwitAddress(Network.Main);        //bech32
+            }
+            else if (segwit)
+            {
+                res = p.PubKey.GetSegwitAddress(Network.Main).GetScriptAddress();          //SH
+            }
+            else
+            {
+                res = p.PubKey.GetAddress(Network.Main);
+            }
+            return res;
         }
     }
 }

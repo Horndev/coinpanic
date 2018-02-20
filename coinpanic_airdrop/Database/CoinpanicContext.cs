@@ -24,6 +24,7 @@ namespace coinpanic_airdrop.Database
         public DbSet<TxSubmitted> TxSubmitted { get; set; }
         public DbSet<NodeServices> NodeServices { get; set; }
         public DbSet<IndexCoinInfo> IndexCoinInfo { get; set; }
+        public DbSet<Coupon> Coupons { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

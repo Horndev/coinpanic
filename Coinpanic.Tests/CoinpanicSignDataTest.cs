@@ -13,14 +13,14 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void TestGenerate()
         {
-            string coin = "B2X";
+            string coin = "BTP";
 
             //Create an unsigned transaction and encode 
             var scanner = new BlockScanner();
 
             List<string> addresslist = new List<string>()
             {
-                "14Z1kt7uUCB8rKwhauXmh5qFdv8cKK9fVj",
+                "123qWRaufkCnUfh7WMAmJpKdFDw6zBQkn9",
             };
             var mydepaddr = "15Lo7GRtK7b8WaYQeynwRFU479FJBSyewr";
 
@@ -45,7 +45,7 @@ namespace Coinpanic.Tests
             };
 
             string bdstr = NBitcoin.JsonConverters.Serializer.ToString(bd);
-
+            System.IO.File.WriteAllText("D:\\ClaimData.txt", bdstr);
             Console.WriteLine(bdstr);
         }
     }

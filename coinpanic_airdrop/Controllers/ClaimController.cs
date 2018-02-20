@@ -130,6 +130,16 @@ namespace coinpanic_airdrop.Controllers
             var w = Bitcoin.GetBlockData(claimcoins.Item1);
             userclaim.BlockData = w;
 
+            // New format of message
+            BlockData bd = new BlockData()
+            {
+                fork = userclaim.CoinShortName,
+                coins = claimcoins.Item1,
+                utx = utx,
+            };
+            string bdstr = NBitcoin.JsonConverters.Serializer.ToString(bd);
+            userclaim.ClaimData = bdstr;
+
             db.SaveChanges();
 
             MonitoringService.SendMessage("New " + userclaim.CoinShortName + " claim", "new claim Initialized. https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName);
@@ -182,6 +192,28 @@ namespace coinpanic_airdrop.Controllers
 
             // Write all my data
             string blockdata = userclaim.First().BlockData;
+            Response.Write(blockdata);
+            Response.End();
+
+            // Not sure what else to do here
+            return Content(String.Empty);
+        }
+
+        public ActionResult DownloadClaimDataFile(string claimId)
+        {
+            var userclaim = db.Claims.Where(c => c.ClaimId == claimId);
+
+            if (userclaim.Count() < 1)
+            {
+                return RedirectToAction("ClaimError", new { message = "Unable to find data for claim " + claimId });
+            }
+
+            Response.Clear();
+            Response.AddHeader("Content-Disposition", "attachment; filename=ClaimData.txt");
+            Response.ContentType = "text/json";
+
+            // Write all my data
+            string blockdata = userclaim.First().ClaimData;
             Response.Write(blockdata);
             Response.End();
 

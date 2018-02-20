@@ -46,6 +46,7 @@ namespace CoinpanicLib.Models
         public bool WasMined { get; set; }
 
         public string BlockData { get; set; }
+        public string ClaimData { get; set; }
     }
 
     
