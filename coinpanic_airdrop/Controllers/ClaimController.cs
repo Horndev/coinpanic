@@ -77,7 +77,7 @@ namespace coinpanic_airdrop.Controllers
             if (list.Count < 1)
                 return RedirectToAction("ClaimError", new { message = "You must enter at least one address to claim", claimId = claimId });
             
-            if (!Bitcoin.IsValidAddress(depositAddress))
+            if (!Bitcoin.IsValidAddress(depositAddress, userclaim.CoinShortName))
                 return RedirectToAction("ClaimError", new { message = "Deposit Address not valid", claimId = claimId });
 
             var invalid = list.Where(a => !Bitcoin.IsValidAddress(a));
@@ -116,12 +116,18 @@ namespace coinpanic_airdrop.Controllers
             userclaim.MyFee = Convert.ToDouble(amounts[1].ToDecimal(MoneyUnit.BTC));
             userclaim.MinerFee = Convert.ToDouble(amounts[2].ToDecimal(MoneyUnit.BTC));
             userclaim.TotalValue = userclaim.Deposited + userclaim.MyFee + userclaim.MinerFee;
+            userclaim.InitializeDate = DateTime.Now;
+
+            if (userclaim.Deposited < 0)
+                userclaim.Deposited = 0;
+            if (userclaim.MyFee < 0)
+                userclaim.MyFee = 0;
 
             // Generate unsigned tx
             var mydepaddr = ConfigurationManager.AppSettings[userclaim.CoinShortName + "Deposit"];
 
-            var utx = Bitcoin.GenerateUnsignedTX(claimcoins.Item1, amounts, Bitcoin.ParseAddress(userclaim.DepositAddress),
-                Bitcoin.ParseAddress(mydepaddr),
+            var utx = Bitcoin.GenerateUnsignedTX(claimcoins.Item1, amounts, Bitcoin.ParseAddress(userclaim.DepositAddress, userclaim.CoinShortName),
+                Bitcoin.ParseAddress(mydepaddr, userclaim.CoinShortName),
                 userclaim.CoinShortName);
 
             userclaim.UnsignedTX = utx;
@@ -136,6 +142,7 @@ namespace coinpanic_airdrop.Controllers
                 fork = userclaim.CoinShortName,
                 coins = claimcoins.Item1,
                 utx = utx,
+                addresses = list,
             };
             string bdstr = NBitcoin.JsonConverters.Serializer.ToString(bd);
             userclaim.ClaimData = bdstr;

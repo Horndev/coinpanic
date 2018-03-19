@@ -15,5 +15,10 @@ namespace CoinpanicLib.Models
         public string fork { get; set; }
         public List<ICoin> coins { get; set; }
         public string utx { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> addresses { get; set; }
     }
 }

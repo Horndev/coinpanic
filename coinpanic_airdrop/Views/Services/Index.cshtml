@@ -1,0 +1,19 @@
+﻿@model coinpanic_airdrop.Models.ServicesViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Services</h2>
+
+@foreach (var d in Model.Services)
+{
+    @d.Coin<text>:</text> @d.Peers.Count() <text>nodes connected</text>
+    <br />
+    foreach(var p in d.Peers)
+    {
+        @p.IP
+        <br />
+    }
+}
+

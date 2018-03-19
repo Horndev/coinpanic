@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>coinpanic_airdrop</name>
+    </assembly>
+    <members>
+        <member name="T:coinpanic_airdrop.Controllers.ServicesController">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:coinpanic_airdrop.Models.IndexCoinInfo">
+            <summary>
+            This is the model for the home-page description of available coins.
+            </summary>
+        </member>
+    </members>
+</doc>

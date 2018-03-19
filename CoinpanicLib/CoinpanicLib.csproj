@@ -36,8 +36,8 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="QBitNinja.Client, Version=1.0.3.46, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\QBitNinja.Client.1.0.3.46\lib\net461\QBitNinja.Client.dll</HintPath>
@@ -69,6 +69,7 @@
     <Compile Include="Class1.cs" />
     <Compile Include="Models\BlockData.cs" />
     <Compile Include="Models\CoinClaim.cs" />
+    <Compile Include="Models\PeerModels.cs" />
     <Compile Include="Models\TxSubmitted.cs" />
     <Compile Include="Services\MailingService.cs" />
     <Compile Include="Models\NodeServiceInfo.cs" />
@@ -82,7 +83,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

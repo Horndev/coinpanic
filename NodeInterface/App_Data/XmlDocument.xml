@@ -481,6 +481,11 @@
             </summary>
             <param name="documentPath">The physical path to XML document.</param>
         </member>
+        <member name="T:NodeInterface.Controllers.HomeController">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="M:NodeInterface.Controllers.HomeController.EnableDisable(System.Nullable{System.Int32})">
             <summary>
             
@@ -563,21 +568,6 @@
             </summary>
             <param name="txid">The transaction id.</param>
             <returns>Returns information about the requested transaction, or null if unknown.</returns>
-        </member>
-        <member name="T:NodeInterface.Models.PeerInfo">
-            <summary>
-            Information about a peer node.
-            </summary>
-        </member>
-        <member name="P:NodeInterface.Models.PeerInfo.ip">
-            <summary>
-            Public ip address
-            </summary>
-        </member>
-        <member name="P:NodeInterface.Models.PeerInfo.port">
-            <summary>
-            Port used to connect
-            </summary>
         </member>
     </members>
 </doc>

@@ -79,6 +79,17 @@ namespace CoinController
                     string baseURL = "https://explorer.b2x-segwit.io/b2x-insight-api";
                     unspentCoins = GetUTXOFromInsight(UTXOs, ca, baseURL);
                 }
+                if (forkShortName == "BTCP" && !isSW && !estimate)
+                {
+                    var btcpa = ca.Convert(Network.BTCP);
+                    string baseURL = "https://explorer.btcprivate.org/api";
+                    unspentCoins = GetUTXOFromInsight(UTXOs, btcpa, baseURL);
+                }
+                if (forkShortName == "BTX" && !isSW && !estimate)
+                {
+                    string baseURL = "http://insight.bitcore.cc/api";
+                    unspentCoins = GetUTXOFromInsight(UTXOs, ca, baseURL);
+                }
                 else if (forkShortName == "BCH" && !isSW)
                 {
                     List<UTXO> addressUTXOs;
@@ -193,7 +204,7 @@ namespace CoinController
             return res;
         }
 
-        private static List<ICoin> GetUTXOFromInsight(List<ICoin> UTXOs, BitcoinAddress ca, string baseURL)
+        public static List<ICoin> GetUTXOFromInsight(List<ICoin> UTXOs, BitcoinAddress ca, string baseURL)
         {
             List<UTXO> addressUTXOs;
             List<ICoin> unspentCoins = new List<ICoin>();
@@ -214,6 +225,10 @@ namespace CoinController
                     {
                         //create coin
                         var cOutPoint = new OutPoint(uint256.Parse(utxo.txid), (uint)utxo.vout);
+                        if (utxo.satoshis == 0 && utxo.amount > 0) //bug fix for bitcore
+                        {
+                            utxo.satoshis = Convert.ToInt64(utxo.amount * 100000000);
+                        }
                         var txout = new TxOut(new Money(satoshis: utxo.satoshis), new Script(StringToByteArray(utxo.scriptPubKey)));
                         ICoin coin = new Coin(fromOutpoint: cOutPoint, fromTxOut: txout);// //Coin(fromTxHash: uint256.Parse(utxo.txid), fromOutputIndex: utxo.vout, amount: new Money(satoshis: utxo.satoshis), scriptPubKey: new Script(utxo.scriptPubKey));
                         unspentCoins.Add(coin);

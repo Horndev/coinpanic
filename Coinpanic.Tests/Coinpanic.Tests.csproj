@@ -54,6 +54,7 @@
     <Compile Include="BIP39Tests.cs" />
     <Compile Include="CoinpanicSignDataTest.cs" />
     <Compile Include="FBTCTests.cs" />
+    <Compile Include="MultisigTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

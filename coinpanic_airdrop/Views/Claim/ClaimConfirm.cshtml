@@ -164,8 +164,8 @@ else
     </li>
     <li class="list-group-item justify-content-between">
         <h4>OPTION 2: Claiming using seed words (i.e. From Trezor or Ledger)</h4>
-        At the command shell navigate to the folder containing CoinpanicSignTx.exe and ClaimData.txt. Run the command: <br /><kbd>CoinpanicSignTx.exe -s "put your seed words here" -d m/44'/0'/0</kbd> <br />
-        Replace m/44'/0'/0 with whatever derivation key you are using.<br />
+        At the command shell navigate to the folder containing CoinpanicSignTx.exe and ClaimData.txt. Run the command: <br /><kbd>CoinpanicSignTx.exe -s "put your seed words here" -d m/44'/0'/0'</kbd> <br />
+        Replace m/44'/0'/0' with whatever derivation key you are using.  If you omit the derivation path, the tool will search the keyspace in the seed for your signing keys.<br />
         If you use a seed passphrase, add the flag <kbd>-sp yourpassphrasehere</kbd> to provide your passphrase.
     </li>
     @*<li class="list-group-item justify-content-between">

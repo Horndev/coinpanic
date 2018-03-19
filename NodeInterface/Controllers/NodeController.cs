@@ -12,7 +12,7 @@ using System.Web.Http.Cors;
 namespace NodeInterface.Controllers
 {
     [RoutePrefix("api/node")]
-    [EnableCors(origins: "https://www.coinpanic.com", headers: "*", methods: "*", SupportsCredentials = true)]
+    [EnableCors(origins: "https://www.coinpanic.com,https://coinpanic.com", headers: "*", methods: "*", SupportsCredentials = true)]
     public class NodeController : ApiController
     {
         private CoinpanicContext db = new CoinpanicContext();

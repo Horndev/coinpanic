@@ -11,11 +11,11 @@ namespace CoinController
 {
     public static class Bitcoin
     {
-        public static bool IsValidAddress(string addr)
+        public static bool IsValidAddress(string addr, string coin = "BTC")
         {
             try
             {
-                var address = BitcoinAddress.Create(addr, Network.Main);
+                var address = BitcoinAddress.Create(addr, coin == "BTCP" ? Network.BTCP : Network.Main);
             }
             catch
             {
@@ -29,14 +29,20 @@ namespace CoinController
             return addresses.Where(a => a.Length > 30).Select(a => BitcoinAddress.Create(a.Trim(' '), Network.Main)).ToList();
         }
 
-        public static BitcoinAddress ParseAddress(string addresses)
+        public static BitcoinAddress ParseAddress(string addresses, string coin = "BTC")
         {
-            return BitcoinAddress.Create(addresses, Network.Main);
+            return BitcoinAddress.Create(addresses, coin == "BTCP" ? Network.BTCP : Network.Main);
         }
 
         public static string GenerateUnsignedTX(List<ICoin> UTXOs, List<Money> amounts, BitcoinAddress clientDepAddr, BitcoinAddress MyDepositAddr, string forkShortName)
         {
             var builder = new TransactionBuilder();
+
+            if (amounts[2].Satoshi > amounts[0].Satoshi+ amounts[1].Satoshi)
+            {
+                //too small of a transaction
+                return "";
+            }
 
             Transaction utx = builder
                 .AddCoins(coins: UTXOs)

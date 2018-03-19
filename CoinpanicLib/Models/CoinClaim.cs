@@ -29,6 +29,9 @@ namespace CoinpanicLib.Models
 
         public String Email { get; set; }
 
+        public DateTime? InitializeDate { get; set; }
+        public DateTime? SubmitDate { get; set; }
+
         public string DepositAddress { get; set; }
         public virtual ICollection<InputAddress> InputAddresses { get; set; }
 
@@ -48,8 +51,6 @@ namespace CoinpanicLib.Models
         public string BlockData { get; set; }
         public string ClaimData { get; set; }
     }
-
-    
 
     public class InputAddress
     {

@@ -45,8 +45,8 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void TestBIP39_Passphrase()
         {
-            string seed24 = "effort arena code feature pretty busy first end report book novel bless system energy silver right donor depth person spend spring industry wolf patrol";
-            string password = "Bdcg$lns$138064";
+            string seed24 = "";
+            string password = "";
             var mnemonic = new Mnemonic(seed24);
             var masterKey = mnemonic.DeriveExtKey(password);
             string derivationpath = "m/44'/0'/0'/0/0";
@@ -54,9 +54,9 @@ namespace Coinpanic.Tests
             ExtKey key = masterKey.Derive(kp);
             var p = key.PrivateKey.GetWif(Network.Main);
             var PubAddr2 = p.PubKey.GetAddress(Network.Main).ToString();
-            //123qWRaufkCnUfh7WMAmJpKdFDw6zBQkn9
 
             Console.WriteLine(PubAddr2.ToString());
+            Assert.Inconclusive();
         }
 
         [TestMethod]
@@ -67,13 +67,14 @@ namespace Coinpanic.Tests
             var masterKey = mnemonic.DeriveExtKey(null); //this is the root key
             int numaccounts = 5;
             int numaddr = 20;
-            int coinIx = 1000;   //https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+            int coinIx = 0;   //https://github.com/satoshilabs/slips/blob/master/slip-0044.md
             for (int i = 0; i < numaccounts; i++)
             {   //                      bitcoin/account/change/addr
                 for (int j = 0; j < numaddr; j++)
                 {
-                    string derivationpath = "m/44'/" + Convert.ToString(coinIx) + "'/";
-                    KeyPath kp = KeyPath.Parse(derivationpath + Convert.ToString(i) + "'/0/" + Convert.ToString(j));
+                    string derivationpath = "m/49'/" + Convert.ToString(coinIx) + "'/";
+                    string fullpath = derivationpath + Convert.ToString(i) + "'/0/" + Convert.ToString(j);
+                    KeyPath kp = KeyPath.Parse(fullpath);
                     ExtKey key = masterKey.Derive(kp);
                     //Console.WriteLine("Key " + i + " : " + key.ToString(Network.Main));
                     
@@ -94,7 +95,7 @@ namespace Coinpanic.Tests
                     var PubAddr2 = p.PubKey.GetAddress(Network.Main).ToString();    //normal
                     var PubAddrSW = p.PubKey.GetSegwitAddress(Network.Main);	    //bech32
                     var PubP2SH = PubAddrSW.GetScriptAddress().ToString();          //SH
-                    if (PubAddr2.Substring(0, 4) == "1NPy")
+                    if (PubP2SH.Substring(0, 6) == "34xped")
                     {
                         int q = 1;
                     }

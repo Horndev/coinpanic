@@ -21,13 +21,17 @@
                          @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })
                     </li>
                     <li class="nav-item">
-                        @Html.ActionLink("Claim", "Claim", "Home", new { area = "" }, new { @class = "nav-link" })
+                        <a href="./blog/" class = "nav-link">Knowledge Base</a>
                     </li>
+                    @*<li class="nav-item">
+                        @Html.ActionLink("Claim", "Claim", "Home", new { area = "" }, new { @class = "nav-link" })
+                    </li>*@
                     <li class="nav-item">
                         @Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })
                     </li>
                     <li class="nav-item">
-                        @Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })
+                        <a href="./blog/contact" class="nav-link">Contact</a>
+                        @*@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })*@
                     </li>
                 </ul>
             </div>

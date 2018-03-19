@@ -24,14 +24,14 @@ namespace Coinpanic.Tests
             endpoint = Dns.GetHostEntry(serverURL).AddressList[0];
             var ep = new IPEndPoint(endpoint.MapToIPv6Ex(), port);
 
-            var nodeServer = new FBTCNodeServer(Network.FBTC, NBitcoin.Protocol.ProtocolVersion.INIT_PROTO_VERSION, 1, privateKey);
-            var n = nodeServer.FindOrConnect(ep);
+            //var nodeServer = new FBTCNodeServer(Network.FBTC, NBitcoin.Protocol.ProtocolVersion.INIT_PROTO_VERSION, 1, privateKey);
+            //var n = nodeServer.FindOrConnect(ep);
 
-            while(true)
-            {
-                Thread.Sleep(10);
-            }
-
+            //while(true)
+            //{
+            //    Thread.Sleep(10);
+            //}
+            Assert.Inconclusive();
         }
 
         [TestMethod]
@@ -42,6 +42,7 @@ namespace Coinpanic.Tests
             var AESkey = Hashes.SHA256(sharedsecret);
 
             int z = 1;
+            Assert.Inconclusive();
         }
     }
 }

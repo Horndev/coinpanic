@@ -9,10 +9,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Web;
+using System.Web.Http.Cors;
 using System.Web.Mvc;
 
 namespace NodeInterface.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    [EnableCors(origins: "https://www.coinpanic.com,https://coinpanic.com", headers: "*", methods: "*", SupportsCredentials = true)]
     public class HomeController : Controller
     {
         //private CoinpanicContext db = new CoinpanicContext();

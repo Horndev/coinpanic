@@ -16,7 +16,7 @@
 
 <div class="alert alert-success" role="alert">
     <h4 class="alert-heading"><i class="fa fa-exclamation-circle" aria-hidden="true"></i> New claiming tool update</h4>
-    <p>The claiming tool was greatly simplified.  You can now also claim using a BIP39 seed with optional passphrase instead of the private keys.  This will make claiming forks much easier for users of hardware wallets like Trezor and Ledger.</p>
+    <p>The claiming tool was greatly simplified.  You can now claim using a BIP39 seed with optional passphrase instead of the private keys.  This will make claiming forks much easier for users of hardware wallets like Trezor and Ledger.</p>
 </div>
 
 @foreach (var d in Model.CoinInfo)
@@ -27,7 +27,14 @@
             <div class="row">
                 <div class="col">
                     <p>
-                        @Html.ActionLink("Claim " + d.Key + " (5% fee)", "NewClaim", "Claim", new { coin = d.Key }, new { @class = "btn btn-primary btn-sm active", @role = "button" })
+                        @if (d.Value.Status == "offline")
+                        {
+
+                        }
+                        else
+                        {
+                            @Html.ActionLink("Claim " + d.Key + " (5% fee)", "NewClaim", "Claim", new { coin = d.Key }, new { @class = "btn btn-primary btn-sm active", @role = "button" })
+                        }
                     Exchange: <a href="@d.Value.ExchangeURL">@d.Value.Exchange</a>
                 </p>
                 </div>
@@ -40,6 +47,10 @@
                     @if (d.Value.Status == "online")
                     {
                         <span class="badge badge-success">@d.Value.Status</span>
+                    }
+                    else if (d.Value.Status == "offline")
+                    {
+                        <span class="badge badge-danger">@d.Value.Status</span>
                     }
                 </div>
             </div>
@@ -59,10 +70,10 @@
     <p><a href="~/Tools/CoinPanicSign.tar.gz" aria-pressed="true"> Download <i class="fa fa-linux" aria-hidden="true"></i></a></p>
 </div>
 
-<div class="alert alert-success" role="alert">
+@*<div class="alert alert-success" role="alert">
     <h4 class="alert-heading">New signing tool with graphical interface.</h4>
     <p>Try the new signing tool on your next claim.  <a href="~/Tools/CoinPanicSignTxUI.zip" aria-pressed="true"> Download <i class="fa fa-windows" aria-hidden="true"></i></a></p>
-</div>
+</div>*@
 <div class="alert alert-success" role="alert">
     <h4 class="alert-heading">Bech32 supported for SegWit enabled forks</h4>
     <p>We've successfully implemented claiming Bech32 addresses for our process (including electrum keys).</p>
@@ -75,6 +86,15 @@
             <h4 class="card-title">Bitcoin Atom</h4>
             <p>Homepage: <a href="https://bitcoinatom.io/">https://bitcoinatom.io/</a></p>
             <p>BTC holders will receive 1:1 Bitcoin Atom (BCA) at the time of the fork, approximately January 25-26 (block to be announced soon).</p>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-10">
+            <br />
+            <h4 class="card-title">United Bitcoin Phase 2</h4>
+            <p>Homepage: <a href="https://www.ub.com/">https://www.ub.com/</a></p>
+            <p>https://www.ub.com/news/detail?column=1&id=288 From UBTC: We are expediting the community airdrop and distributing the remainder of the airdrop at once. This means that instead of receiving vested final payments of your eligible UBTC monthly over 4 years, users who registered for the final snapshot will receive in one last airdrop, which can be withdrawn on UB.com in the same manner as previous months.
+            Community members who have not registered for the airdrop will also have one last chance to register on the the final snapshot dates of April 1st (HSR, QTUM), 11th (ETH, LTC), and 21st (INK) to claim their eligible UBTC.</p>
         </div>
     </div>
 </div>

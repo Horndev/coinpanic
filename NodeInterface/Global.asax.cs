@@ -48,7 +48,7 @@ namespace NodeInterface
                     try
                     {
                         var coin = ConfigurationManager.AppSettings["ServiceCoin"];
-                        refresh.UploadString("http://www.metabittrader.com/"+ coin +"/", string.Empty);
+                        refresh.UploadString("https://www.metabittrader.com/"+ coin +"/", string.Empty);
                     }
                     catch (Exception ex)
                     {

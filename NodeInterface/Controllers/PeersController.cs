@@ -16,7 +16,7 @@ namespace NodeInterface.Controllers
     /// Manages interface to node peer connections.
     /// </summary>
     [RoutePrefix("api/peers")]
-    [EnableCors(origins: "https://www.coinpanic.com", headers: "*", methods: "*", SupportsCredentials = true)]
+    [EnableCors(origins: "*", headers: "*", methods: "*", SupportsCredentials = true)]
     public class PeersController : ApiController
     {
         private CoinpanicContext db = new CoinpanicContext();

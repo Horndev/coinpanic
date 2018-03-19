@@ -160,13 +160,11 @@ namespace CoinpanicLib.NodeConnection
                         n.PingPong();
                         result.Result = "Broadcast";
                         result.NumBroadcasts += 1;
-                        
                     }
 
-                    //The transaction has been sent - wait up to 10 seconds until not in
-                    while (txSent.ContainsKey(txhash) && sw.ElapsedMilliseconds < 10000)
+                    //The transaction has been sent - wait up to 10 seconds
+                    while (txSent.ContainsKey(txhash) || sw.ElapsedMilliseconds < 10000)
                     {
-                        //Still hasn't been confirmed
                         Thread.Sleep(100);  //wait for it.
                     }
 
@@ -174,16 +172,16 @@ namespace CoinpanicLib.NodeConnection
                     TxDetails response = null;
                     if (!txRecv.ContainsKey(txhash))
                     {
+                        // No information returned
                         Debug.WriteLine("Still not confirmed: " + txhash);
-                        //no
-                        result.Result = "Broadcast, no errors returned, not confirmed.";
+                        result.Result = "Broadcast, no errors returned, not confirmed.  Txid: " + txhash;
                         // Can't declare it an error
                         SendMail(result.Coin + " transaction no response " + t.TotalOut.ToString(), result.Result);
                         //timed out - ask again if it was received (give 5 seconds)
                         n.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_TX, t.GetHash())));
                         sw.Restart();
                         
-                        while (sw.ElapsedMilliseconds < 5000 && !txRecv.TryGetValue(txhash, out response))
+                        while (sw.ElapsedMilliseconds < 5000 || !txRecv.TryGetValue(txhash, out response))
                         {
                             Thread.Sleep(100);  //wait for it.
                         }
@@ -568,7 +566,7 @@ Still not confirmed: 7ddf70a172fcb15a4960ba295ddb6dce5781457fd7ec70cce6e8d447f34
                             //We sent this
                             if (txSent.TryRemove(h.ToString(), out TxDetails txInfo))
                             {
-                                txInfo.Result = "Broadcast successful.  Transaction inserted into mempool.";
+                                txInfo.Result = "Broadcast successful.  Transaction inserted into mempool.  Txid: " + tx.GetHash().ToString();
                                 txInfo.IsError = false;
 
                                 //add it to the list of completed transactions
