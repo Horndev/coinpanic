@@ -102,14 +102,30 @@ namespace coinpanic_airdrop.Controllers
             var amounts = scanner.CalculateOutputAmounts_Their_My_Fee(claimcoins.Item1, 0.05, 0.0003 * claimcoins.Item1.Count);
             var balances = claimcoins.Item2;
 
-            List<InputAddress> inputs = list.Select(li => new InputAddress()
+            List<InputAddress> inputs;
+            if (userclaim.CoinShortName == "BTCP")
             {
-                AddressId = Guid.NewGuid(),
-                PublicAddress = li,
-                CoinShortName = userclaim.CoinShortName,
-                ClaimId = userclaim.ClaimId,
-                ClaimValue = balances[li],
-            }).ToList();
+                inputs = list.Select(li => new InputAddress()
+                {
+                    AddressId = Guid.NewGuid(),
+                    PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BTCP).ToString(),
+                    CoinShortName = userclaim.CoinShortName,
+                    ClaimId = userclaim.ClaimId,
+                    ClaimValue = balances[li],
+                }).ToList();
+            }
+            else
+            {
+                inputs = list.Select(li => new InputAddress()
+                    {
+                        AddressId = Guid.NewGuid(),
+                        PublicAddress = li,
+                        CoinShortName = userclaim.CoinShortName,
+                        ClaimId = userclaim.ClaimId,
+                        ClaimValue = balances[li],
+                    }).ToList();
+            }
+            
 
             userclaim.InputAddresses = inputs;
             userclaim.Deposited = Convert.ToDouble(amounts[0].ToDecimal(MoneyUnit.BTC));
@@ -142,7 +158,7 @@ namespace coinpanic_airdrop.Controllers
                 fork = userclaim.CoinShortName,
                 coins = claimcoins.Item1,
                 utx = utx,
-                addresses = list,
+                addresses = balances.Select(kvp => kvp.Key).ToList(),
             };
             string bdstr = NBitcoin.JsonConverters.Serializer.ToString(bd);
             userclaim.ClaimData = bdstr;

@@ -75,5 +75,7 @@ namespace Coinpanic.Tests
 
             Assert.AreEqual(BTCPaddr, add2.ToString());
         }
+
+
     }
 }

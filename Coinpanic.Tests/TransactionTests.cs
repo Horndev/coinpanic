@@ -249,11 +249,11 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void TestPK()
         {
-            string p = "";
+            string p = "KwQeegf86fW7iARDEtcW9DxadELHVyXdFTSmA8BDnPSMWLjbEqCb";
             var clientprivkey = new BitcoinSecret(p, Network.Main);
             var addr = clientprivkey.PubKey.GetAddress(Network.Main).ToString();    //normal
             Console.WriteLine(addr);
-            Assert.Inconclusive();
+            Assert.AreEqual("13kPnFYM2uDqk8553rycyyd6MMxy569N9e",addr);
         }
 
         private static string SignTransaction(string coin, string utxTxt, string ustr, string privK)

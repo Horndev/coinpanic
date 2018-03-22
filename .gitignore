@@ -43,3 +43,4 @@ packages/
 /CoinpanicSignTx
 */bower_components/*
 */bower_components/*
+/LightningNetworkTests/tls.cert

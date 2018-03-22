@@ -45,6 +45,7 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void TestBIP39_Passphrase()
         {
+            Assert.Inconclusive();
             string seed24 = "";
             string password = "";
             var mnemonic = new Mnemonic(seed24);
@@ -56,7 +57,6 @@ namespace Coinpanic.Tests
             var PubAddr2 = p.PubKey.GetAddress(Network.Main).ToString();
 
             Console.WriteLine(PubAddr2.ToString());
-            Assert.Inconclusive();
         }
 
         [TestMethod]

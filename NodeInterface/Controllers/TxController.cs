@@ -225,50 +225,72 @@ namespace NodeInterface.Controllers
                 }
                 if (nodeService.Coin == "BTP")
                 {
-                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " begin broadcasting via explorer " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + b.ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
-
-                    var bitpieClient = new RestClient
-                    {
-                        BaseUrl = new Uri("https://bitpie.getcai.com/api/v1/")
-                    };
-                    var txRequest = new RestRequest("/btp/broadcast", Method.POST);
-
-                    string data = "{\"raw_tx\": \""+ userclaim.SignedTX + "\"}";
-                    txRequest.AddParameter("application/json; charset=utf-8", data, ParameterType.RequestBody);
-                    txRequest.RequestFormat = DataFormat.Json;
                     try
                     {
-                        var txresponse = bitpieClient.Execute(txRequest);
-                        if (txresponse.IsSuccessful)
-                        {
-                            if (txresponse.Content == "{\"result\": 0, \"error\": \"\"}")
-                            {
-                                response.Result = "Transaction was broadcast.  Network reported unknown error.  Double check signatures and ensure coins not already claimed.";
-                            }
-                            else if (txresponse.Content == "{\"result\": 0, \"error\": \"broadcast error\"}")
-                            {
-                                response.Result = "Transaction successfully broadcast.  No known errors identified.";
-                            }
-                            else
-                            { 
-                                response.Result = "Transaction successfully broadcast.  Result code: " + txresponse.Content;
-                            }
-                            response.Txid = t.GetHash().ToString();
-                        }
-                        else
-                        {
-                            response.Result = "Error sending transactoin.  Node service unavailable.";
-                        }
-                        Debug.Print(txresponse.StatusDescription);
-                        MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcast via explorer " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + b.ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                        var client = new RestClient("http://exp.btceasypay.com/insight-api/");
+                        var request = new RestRequest("tx/send/", Method.POST);
+                        request.AddJsonBody(new { rawtx = signedTransaction });
+                        //request.AddParameter("rawtx", signedTransaction);
+
+                        IRestResponse restResponse = client.Execute(request);
+                        var content = restResponse.Content; // raw content as string
+                                                            //ViewBag.content = content;
+                        userclaim.TransactionHash = content;
+                        userclaim.WasTransmitted = true;
+                        userclaim.SubmitDate = DateTime.Now;
+                        db.SaveChanges();
+                        MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + b.ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                        response.Result = content;
+                        return Ok(response);
                     }
                     catch (Exception e)
                     {
-                        MonitoringService.SendMessage("Tx server error", e.Message);
-                        response.Result = "Transmission Error";
-                        return InternalServerError();
+                        MonitoringService.SendMessage("BTV explorer send failed", e.Message);
                     }
-                    return Ok(response);
+                    //MonitoringService.SendMessage("New " + userclaim.CoinShortName + " begin broadcasting via explorer " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + b.ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+
+                    //var bitpieClient = new RestClient
+                    //{
+                    //    BaseUrl = new Uri("https://bitpie.getcai.com/api/v1/")
+                    //};
+                    //var txRequest = new RestRequest("/btp/broadcast", Method.POST);
+
+                    //string data = "{\"raw_tx\": \""+ userclaim.SignedTX + "\"}";
+                    //txRequest.AddParameter("application/json; charset=utf-8", data, ParameterType.RequestBody);
+                    //txRequest.RequestFormat = DataFormat.Json;
+                    //try
+                    //{
+                    //    var txresponse = bitpieClient.Execute(txRequest);
+                    //    if (txresponse.IsSuccessful)
+                    //    {
+                    //        if (txresponse.Content == "{\"result\": 0, \"error\": \"\"}")
+                    //        {
+                    //            response.Result = "Transaction was broadcast.  Network reported unknown error.  Double check signatures and ensure coins not already claimed.";
+                    //        }
+                    //        else if (txresponse.Content == "{\"result\": 0, \"error\": \"broadcast error\"}")
+                    //        {
+                    //            response.Result = "Transaction successfully broadcast.  No known errors identified.";
+                    //        }
+                    //        else
+                    //        { 
+                    //            response.Result = "Transaction successfully broadcast.  Result code: " + txresponse.Content;
+                    //        }
+                    //        response.Txid = t.GetHash().ToString();
+                    //    }
+                    //    else
+                    //    {
+                    //        response.Result = "Error sending transactoin.  Node service unavailable.";
+                    //    }
+                    //    Debug.Print(txresponse.StatusDescription);
+                    //    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcast via explorer " + Convert.ToString(userclaim.TotalValue), "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + b.ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                    //}
+                    //catch (Exception e)
+                    //{
+                    //    MonitoringService.SendMessage("Tx server error", e.Message);
+                    //    response.Result = "Transmission Error";
+                    //    return InternalServerError();
+                    //}
+                    //return Ok(response);
                 }
 
                 //Regular nodes
