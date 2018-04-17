@@ -1,0 +1,294 @@
+﻿@model coinpanic_airdrop.Models.LnCJTransactions
+
+@{
+    ViewBag.Title = "Community Jar";
+}
+
+<div class="card">
+    <h3 class="card-header">Community Jar (Lightning Network)</h3>
+    <div class="card-body">
+        <p class="card-text">
+            <div class="form-group">
+                <div class="col-sm-10">
+                    The community jar is a way for users to test Lightning Network micro-transactions.
+                    <ul>
+                        <li>Deposit 1000 Satoshi (suggested amount)</li>
+                        <li>Take up to 150 Satoshi per transaction (free once per hour without deposit, or unlimited up to your deposit)</li>
+                    </ul>
+                </div>
+            </div>
+        </p>
+        <p>Node: @ViewBag.URI</p>
+        <h4 id="JarBalance" class="card-tile">Available Balance: @ViewBag.Balance Satoshi</h4>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card ">
+            <div class="card-body">
+                <h4 class="card-title">Contribute to Jar</h4>
+
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-primary" id="requestInvoiceBtn" type="button"><span class="fa fa-bolt"></span> Request Invoice</button>
+                    </div>
+                    <input type="text" id="depositValue" value="1000" class="form-control" placeholder="Amount" aria-label="Amount" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <span class="input-group-text">Satoshi</span>
+                    </div>
+                    <div id="spinner" class="fa-3x text-center col-md-1 pull-left" style="display:none">
+                        <i class="fa fa-spinner fa-pulse"></i>
+                    </div>
+                </div>
+                <div class="input-group mb-3" id="lnDepositInvoice" style="display:none">
+                    <div class="input-group-prepend">
+                        <a href="lightning:xxx" id="lnDepositInvoiceLink" class="btn btn-primary" role="button" aria-pressed="true"><span class="fa fa-bolt"></span></a>
+                    </div>
+                    <input type="text" id="lnDepositInvoiceInput" class="form-control" placeholder="invoice" aria-label="invoice" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" id="lnDepositInvoiceCopy" type="button"><span class="fa fa-copy"></span> Copy</button>
+                    </div>
+                    <br />
+                    <div class="input-group-text">
+                        <img id="lnDepositQR" class="img-fluid" src="/Lightning/GetQr?qr=test" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-info" id="lnDepositInvoiceResult" style="display:none">
+                Message for successful funding appears here.
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card ">
+            <div class="card-body">
+                <h4 class="card-title">Take from Jar (150 satoshi at a time)</h4>
+                <div class="input-group mb-3">
+                    <input type="text" id="withdrawInvoice" class="form-control" placeholder="Paste Invoice" aria-label="Paste Invoice" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" id="lnWithdrawInvoiceBtn"  type="button"><span class="fa fa-bolt"></span> Pay Invoice</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-success" id="lnWithdrawInvoiceResult"  style="display:none">
+                Message for successful withdraw goes here
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<div class="card ">
+    <div class="card-body">
+        <h4 class="card-title">Recent Transactions</h4>
+        <table id="RecentTransactions" class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Date (UTC)</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Amount (Satoshi)</th>
+                    <th scope="col">Memo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.Transactions)
+                {
+                    <tr>
+                        <td>@c.Timestamp</td>
+                        <td>@c.Type</td>
+                        <td>@c.Amount</td>
+                        <td>@c.Memo</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer">
+        <p class="card-text"><small class="text-muted">This service uses cookies to anonymously track your contributions.  If you do not make any deposits or withdrawals for a period of 7 days, your user history will be reset.</small></p>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Scripts/jquery.signalR-2.2.3.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            //Get Balance
+            var hub = $.connection.notificationHub;
+
+            hub.client.NotifyInvoicePaid = function (invoice) {
+                //alert(invoice);
+                if (invoice == $("#lnDepositInvoiceInput").val()) {
+                    $("#lnDepositInvoiceResult").html("Successfully received deposit.");
+                    $("#lnDepositInvoiceResult").removeClass("bg-error");
+                    $("#lnDepositInvoiceResult").removeClass("bg-info");
+                    $("#lnDepositInvoiceResult").addClass("bg-success");
+                    $("#lnDepositInvoiceCopy").html("<span class='fa fa-copy'></span> Copy");   //reset
+                    $("#lnDepositInvoiceResult").show();
+                    $("#lnDepositInvoice").hide();
+
+                    $.ajax({
+                        url: "/Lightning/GetJarBalances",
+                        dataType: "json",
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8', //define a contentType of your request
+                        cache: false,
+                        success: function (data) {
+                            $("#JarBalance").html("Jar Balance: " + data.Balance + " Satoshi");
+                        },
+                        error: function (xhr) {
+                            alert('error');
+                        }
+                    });
+                }
+            };
+
+            // All transactions notification handling
+            hub.client.NotifyNewTransaction = function (t) {
+                //alert(t.Memo);
+                var row = "<tr><td>"+t.Timestamp+"</td><td>"+t.Type+"</td><td>"+t.Amount+"</td><td>"+t.Memo+"</td></tr>";
+                $("#RecentTransactions tr:first").after(row);
+            };
+
+            $.connection.hub.start()
+                .done(function () {
+                    console.log("Hub Connected!");
+                })
+                .fail(function () {
+                    console.log("Could not Connect!");
+                });
+        });
+
+        $(function () {
+            $("#lnDepositInvoiceCopy").click(function () {
+                $("#lnDepositInvoiceInput").focus();
+                $("#lnDepositInvoiceInput").select();
+                try {
+                    var successful = document.execCommand('copy');
+                    var msg = successful ? 'successful' : 'unsuccessful';
+                    console.log('Copying text command was ' + msg);
+                    $("#lnDepositInvoiceCopy").html("<span class='fa fa-copy'></span> Copied");
+                } catch (err) {
+                    console.log('Oops, unable to copy');
+                }
+            });
+        });
+
+        $(function () {
+            $("#lnWithdrawInvoiceBtn").click(function () {
+
+                var invoice = $("#withdrawInvoice").val();
+                var msg = '{ request: "' + invoice.toString() + '" }';
+                $.ajax({
+                    type: "POST",
+                    url: "/Lightning/SubmitPaymentRequest",
+                    data: msg,
+                    //xhrFields: {
+                    //    withCredentials: true
+                    //},
+                    //crossDomain: true,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+
+                        if (response.Result == "success")
+                        {
+                            $("#lnWithdrawInvoiceResult").html("Payment successfully sent.  Paid " + response.Fees + " Satoshi in fees.");
+                            $("#lnWithdrawInvoiceResult").removeClass("bg-info");
+                            $("#lnWithdrawInvoiceResult").removeClass("bg-error");
+                            $("#lnWithdrawInvoiceResult").addClass("bg-success");
+                            $("#lnWithdrawInvoiceResult").show();
+
+                            $.ajax({
+                                url: "/Lightning/GetJarBalances",
+                                dataType: "json",
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8', //define a contentType of your request
+                                cache: false,
+                                success: function (data) {
+                                    $("#JarBalance").html("Jar Balance: " + data.Balance + " Satoshi");
+                                },
+                                error: function (xhr) {
+                                    alert('error');
+                                }
+                            });
+                        }
+                        else
+                        {
+                            $("#lnWithdrawInvoiceResult").html(response.Result);
+                            $("#lnWithdrawInvoiceResult").removeClass("bg-success");
+                            $("#lnWithdrawInvoiceResult").addClass("bg-error");
+                            $("#lnWithdrawInvoiceResult").show();
+                        }
+                    },
+                    failure: function (response) {
+                        //alert(response.Result);
+                        $("#lnWithdrawInvoiceResult").html("Failed to receive invoice");
+                        $("#lnWithdrawInvoiceResult").removeClass("bg-success");
+                        $("#lnWithdrawInvoiceResult").addClass("bg-error");
+                        $("#lnWithdrawInvoiceResult").show();
+                    },
+                    error: function (response) {
+                        //alert(response.Result);
+                        $("#lnWithdrawInvoiceResult").html("Error receiving invoice");
+                        $("#lnWithdrawInvoiceResult").removeClass("bg-success");
+                        $("#lnWithdrawInvoiceResult").removeClass("bg-info");
+                        $("#lnWithdrawInvoiceResult").addClass("bg-error");
+                        $("#lnWithdrawInvoiceResult").show();
+                    }
+                });
+            });
+        });
+
+        $(function () {
+            $("#requestInvoiceBtn").click(function () {
+            
+                var amount = $("#depositValue").val();
+                var msg = '{ amount: "' + amount.toString() + '" }';
+                //$("#spinner").show();
+                $.ajax({
+                    type: "POST",
+                    url: "/Lightning/GetJarDepositInvoice",
+                    data: msg,
+                    //xhrFields: {
+                    //    withCredentials: true
+                    //},
+                    //crossDomain: true,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (response) {
+                        //$("#spinner").hide();
+                        $("#lnDepositInvoiceInput").val(response.Invoice);
+                        $("#lnDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
+                        $("#lnDepositQR").attr("src", "/Lightning/GetQr?qr=" + encodeURI("lightning:" + response.Invoice));
+                        $("#lnDepositInvoice").show();
+                        $("#lnDepositInvoiceResult").removeClass("bg-success");
+                        $("#lnDepositInvoiceResult").removeClass("bg-error");
+                        $("#lnDepositInvoiceResult").addClass("bg-info");
+                        $("#lnDepositInvoiceResult").html("Please pay invoice to complete your deposit.");
+                        $("#lnDepositInvoiceResult").show();
+                    },
+                    failure: function (response) {
+                        //$("#spinner").hide();
+                        //alert(response.Result);
+                        $("#lnDepositInvoiceResult").html("Failed to generate invoice");
+                        $("#lnDepositInvoiceResult").removeClass("bg-success");
+                        $("#lnDepositInvoiceResult").addClass("bg-error");
+                        $("#lnDepositInvoiceResult").show();
+                    },
+                    error: function (response) {
+                        //$("#spinner").hide();
+                        //alert(response.Result);
+                        $("#lnDepositInvoiceResult").html("Error generating invoice");
+                        $("#lnDepositInvoiceResult").removeClass("bg-success");
+                        $("#lnDepositInvoiceResult").removeClass("bg-info");
+                        $("#lnDepositInvoiceResult").addClass("bg-error");
+                        $("#lnDepositInvoiceResult").show();
+                    }
+                });
+            });
+        });
+    </script>
+}

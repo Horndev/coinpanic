@@ -14,7 +14,7 @@ namespace coinpanic_airdrop.Database
 
         public CoinpanicContext() : base("name=Coinpanic")
         {
-            //Database.SetInitializer(new MigrateDatabaseToLatestVersion<CoinpanicContext, IoT_Service.Migrations.Configuration>("CleverMajigData"));
+            
         }
 
         public DbSet<CoinClaim> Claims { get; set; }
@@ -26,6 +26,15 @@ namespace coinpanic_airdrop.Database
         public DbSet<IndexCoinInfo> IndexCoinInfo { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
 
+        //Lightning Network
+        public DbSet<LnTransaction> LnTransactions { get; set; }
+        public DbSet<LnUser> LnCommunityUsers { get; set; }
+        public DbSet<LnCJUser> LnCommunityJarUsers { get; set; }
+        public DbSet<LnCommunityJar> LnCommunityJars { get; set; }
+        public DbSet<LnChannel> LnChannels { get; set; }
+        public DbSet<LnNode> LnNodes { get; set; }
+        public DbSet<LnChannelConnectionPoints> LnChannelHistory { get; set; }
+        
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();

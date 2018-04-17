@@ -11,6 +11,7 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void TestValidImport()
         {
+            //This is a throw-away.  There is nothing here.
             var mnemonic = new Mnemonic("turtle front uncle idea crush write shrug there lottery flower risk shell", Wordlist.English);
             Assert.IsTrue(mnemonic.IsValidChecksum);
         }
@@ -62,7 +63,8 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void TestBIP39_BIP32Keys()
         {
-            string seed12 = "hero cruel end salad blood report ribbon donkey shoe undo salad cargo";
+            // This is a throwaway.
+            string seed12 = "turtle front uncle idea crush write shrug there lottery flower risk shell";
             var mnemonic = new Mnemonic(seed12);
             var masterKey = mnemonic.DeriveExtKey(null); //this is the root key
             int numaccounts = 5;

@@ -8,6 +8,15 @@ namespace coinpanic_airdrop
         // For more information on bundling, visit https://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
+            bundles.Add(new ScriptBundle("~/bundles/signalr").Include(
+                        "~/Scripts/jquery.signalR-2.2.3.min.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/sparkline").Include(
+                        "~/Scripts/jquery.sparkline.min.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/jquery/unobtrusive").Include(
+                        "~/Scripts/jquery.unobtrusive-ajax.min.min.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/bower_components/jQuery/dist/jquery.js"));
 

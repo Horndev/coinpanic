@@ -14,5 +14,70 @@
             This is the model for the home-page description of available coins.
             </summary>
         </member>
+        <member name="T:coinpanic_airdrop.Models.LnChannelConnectionPoints">
+            <summary>
+            Record of channel uptime and activity
+            </summary>
+        </member>
+        <member name="T:coinpanic_airdrop.Models.LnNode">
+            <summary>
+            A lightning Node
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnUser.UserId">
+            <summary>
+            UniqueUserID for the LN wallet
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnUser.Balance">
+            <summary>
+            User current balance
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnUser.Transactions">
+            <summary>
+            Collection of transactions by user
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnCommunityJar.Balance">
+            <summary>
+            Jar Balance
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnCJUser.JarId">
+            <summary>
+            Foreign Key
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnCJUser.UserIP">
+            <summary>
+            IP address of user
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.UserId">
+            <summary>
+            Foreign Key
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.JarId">
+            <summary>
+            Foreign Key
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.TimestampSettled">
+            <summary>
+            When the transaction was executed
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.IsDeposit">
+            <summary>
+            Whether or not the transaction is incomming or outgoing
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.IsTestnet">
+            <summary>
+            Whether or not the transaction is on testnet
+            </summary>
+        </member>
     </members>
 </doc>

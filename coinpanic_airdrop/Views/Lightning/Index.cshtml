@@ -1,0 +1,100 @@
+﻿@model coinpanic_airdrop.Models.LnStatusViewModel
+
+<div class="card">
+    <h3 class="card-header">Lightning Network node information</h3>
+    <p class="card-text">
+        <div class="form-group">
+            <div class="col-sm-12">
+                @{
+                    var url = string.Format(
+                        "/Lightning/getQr?qr={0}",
+                        @Uri.EscapeDataString(ViewBag.URI.ToString()));
+                }
+                <div class="row justify-content-end">
+                    <div class="col-md-8">
+                        <h4>Node Name: @ViewBag.Alias</h4>
+                        <br />
+                        Connection URI: @ViewBag.URI
+                        <br />
+                        <p class="card-text">
+                            <div class="form-group">
+                                <div class="col-sm-10">
+                                    Number of Channels: @ViewBag.NumChannelsActive active / @ViewBag.NumChannels total
+                                    <br />
+                                    Total Capacity: @ViewBag.Capacity BTC (Local balance to send: @ViewBag.LocalCapacity BTC; Remote balace to receive: @ViewBag.RemoteCapacity BTC)
+                                    <br />
+                                    Active Capacity: @ViewBag.ActiveCapacity BTC (Local: @ViewBag.ActiveLocalCapacity BTC; Remote: @ViewBag.ActiveRemoteCapacity BTC)
+                                    <br />
+                                    This node routed: @ViewBag.TotalValueXfer BTC in @ViewBag.NumXfer payments for fees totalling just @ViewBag.TotalFees BTC.
+                                </div>
+                            </div>
+                        </p>
+                    </div>
+                    <div class="col-md-4 " style="padding-left: 0px;  padding-right: 0px;">
+                        <img src="@url" class="img-fluid" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </p>
+
+</div>
+<div class="card">
+    <h3 class="card-header">Connections</h3>
+    <table class="table table-bordered table-responsive table-hover">
+        <tr>
+            <th>Node Alias</th>
+            
+            <th>Capacity (Satoshi)</th>
+            <th>Local (Satoshi)</th>
+            <th>Remote (Satoshi)</th>
+            <th>Transferred (Satoshi)</th>
+            <th>Connection</th>
+            <th>Channel Id</th>
+            @*<th>Connected</th>*@
+        </tr>
+        @foreach (var c in Model.channels)
+        {
+            <tr style="@(!c.ChanInfo.active ? "background-color:LightGray" : String.Empty)">
+                <td>@c.RemoteNode.Alias</td>
+                <td>@c.ChanInfo.capacity</td>
+                <td>@c.ChanInfo.local_balance</td>
+                <td>@c.ChanInfo.remote_balance</td>
+                <td>@(Convert.ToString(Convert.ToInt64(c.ChanInfo.total_satoshis_received)+ Convert.ToInt64(c.ChanInfo.total_satoshis_sent))) </td>
+                <td><span class="inlinesparkline" style="display:none"> @(string.Join(",", c.History.Select(h => h.IsConnected ? "1" : "-1").ToList())) </span></td>
+                <td>@c.ChanInfo.chan_id</td>
+                @*<td>
+                    @if (c.ChanInfo.active)
+                    { <text>yes</text> }
+                    else
+                    { <text>no</text>  }
+                </td>*@
+            </tr>
+        }
+    </table>
+</div>
+
+@Scripts.Render("~/bundles/sparkline")
+@section scripts
+{
+    <script src="~/Scripts/jquery.signalR-2.2.3.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script type="text/javascript">
+        $(function () {
+            $(".inlinesparkline").show();
+            $('.inlinesparkline').sparkline('html', { type: 'tristate', posBarColor: 'green', negBarColor: 'red', tooltipFormat: "" } );
+        });
+
+        $(document).ready(function () {
+
+            var hub = $.connection.notificationHub;
+            $.connection.hub.start()
+                .done(function () {
+                    console.log("Hub Connected!");
+                })
+                .fail(function () {
+                    console.log("Could not Connect!");
+                });
+        });
+    </script>  
+}

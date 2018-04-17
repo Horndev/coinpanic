@@ -637,40 +637,5 @@ namespace coinpanic_airdrop.Controllers
             return View();
         }
 
-        
     }
 }
-
-/*
-.controller(
- "SendRawTransactionController",
- function($scope,$http,Api)
- {
-    $scope.transaction="",
-    $scope.status="ready",
-    $scope.txid="",
-    $scope.error=null,
-    $scope.formValid=function()
-    {
-        return!!$scope.transaction
-    },
-    $scope.send=function()
-    {
-        var postData={rawtx:$scope.transaction};
-        $scope.status="loading",
-        $http.post(Api.apiPrefix+"/tx/send",postData)
-            .success(
-                function(data,status,headers,config)
-                {
-                    return"string"!=typeof data.txid?($scope.status="error",void($scope.error="The transaction was sent but no transaction id was got back")):($scope.status="sent",void($scope.txid=data.txid))
-                })
-            .error(
-                function(data,status,headers,config)
-                {
-                    $scope.status="error",
-                    data?$scope.error=data:$scope.error="No error message given (connection error?)"
-                })
-    }
- })
-
-*/

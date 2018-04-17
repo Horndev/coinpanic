@@ -7,6 +7,7 @@
     @Styles.Render("~/Content/css")
     @Styles.Render("~/bundles/fontawesome/css")
     @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
 </head>
 <body>
     <div class="container">
@@ -21,16 +22,24 @@
                          @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })
                     </li>
                     <li class="nav-item">
-                        <a href="./blog/" class = "nav-link">Knowledge Base</a>
+                        <a href="https://www.coinpanic.com/blog/" class = "nav-link">Knowledge Base</a>
                     </li>
-                    @*<li class="nav-item">
-                        @Html.ActionLink("Claim", "Claim", "Home", new { area = "" }, new { @class = "nav-link" })
-                    </li>*@
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Lightning Network
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            @Html.ActionLink("Status", "Index", "Lightning", new { area = "" }, new { @class = "dropdown-item" })
+                            <div class="dropdown-divider"></div>
+                            @Html.ActionLink("Community Jar", "CommunityJar", "Lightning", new { area = "" }, new { @class = "dropdown-item" })
+                            @Html.ActionLink("Web Wallet", "WebWallet", "Lightning", new { area = "" }, new { @class = "dropdown-item" })
+                        </div>
+                    </li>
                     <li class="nav-item">
                         @Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })
                     </li>
                     <li class="nav-item">
-                        <a href="./blog/contact" class="nav-link">Contact</a>
+                        <a href="https://www.coinpanic.com/blog/contact" class="nav-link">Contact</a>
                         @*@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })*@
                     </li>
                 </ul>
@@ -79,7 +88,7 @@
         </div>
     </div>
 
-    @Scripts.Render("~/bundles/jquery")
+    
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/icons")
     @RenderSection("scripts", required: false)
