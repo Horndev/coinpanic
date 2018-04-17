@@ -44,3 +44,4 @@ packages/
 */bower_components/*
 */bower_components/*
 /LightningNetworkTests/tls.cert
+/LightningNetworkTests/TestData.config
