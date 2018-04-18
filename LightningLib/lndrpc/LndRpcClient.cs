@@ -83,15 +83,18 @@ namespace LightningLib.lndrpc
 
         private string _macaroonRead = "";
         private string _macaroonAdmin = "";
+        private string _macaroonInvoice = "";
 
         public string MacaroonAdmin { get => _macaroonAdmin; set => _macaroonAdmin = value; }
         public string MacaroonRead { get => _macaroonRead; set => _macaroonRead = value; }
+        public string MacaroonInvoice { get => _macaroonInvoice; set => _macaroonInvoice = value; }
 
-        public LndRpcClient(string host = "127.0.0.1", int port=8080, string macaroonAdmin="", string macaroonRead="")
+        public LndRpcClient(string host = "127.0.0.1", int port=8080, string macaroonAdmin="", string macaroonRead="", string macaroonInvoice = "")
         {
             _host = host;
             _macaroonAdmin = macaroonAdmin;
             _macaroonRead = macaroonRead;
+            _macaroonInvoice = macaroonInvoice;
             _port = port;
         }
 
@@ -163,7 +166,7 @@ namespace LightningLib.lndrpc
         public AddInvoiceResponse AddInvoice(Invoice invoice)
         {
             // Posting to the invoices endpoint creates a new invoice
-            return LndApiPost<AddInvoiceResponse>(_host, "/v1/invoices", invoice, adminMacaroon: _macaroonAdmin);
+            return LndApiPost<AddInvoiceResponse>(_host, "/v1/invoices", invoice, adminMacaroon: _macaroonInvoice);
         }
 
         public ForwardingEventsResponse GetForwardingEvents()

@@ -283,7 +283,8 @@ namespace coinpanic_airdrop.Controllers
             var lndClient = new LndRpcClient(
                     host: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetHost" : "LnMainnetHost"],
                     macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
-                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"]);
+                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"],
+                    macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonInvoice" : "LnMainnetMacaroonInvoice"]);
 
             var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo:memo);
 
@@ -564,7 +565,14 @@ namespace coinpanic_airdrop.Controllers
                             db.LnChannelHistory.Add(newChanHist);
                             db.SaveChanges();
                         }
-                        
+                        if (c.remote_balance is null)
+                        {
+                            c.remote_balance = "0";
+                        }
+                        if (c.local_balance is null)
+                        {
+                            c.local_balance = "0";
+                        }
                         channelViewModel.ChanInfo = c;
                         channelViewModel.RemoteNode = prevChanHist.RemoteNode;
                         LnStatusViewModel.channels.Add(channelViewModel);

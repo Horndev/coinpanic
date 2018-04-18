@@ -251,9 +251,10 @@ namespace LightningNetworkTests
         [TestMethod]
         public void TestReadMacaroon()
         {
-            var m = System.IO.File.ReadAllBytes("D:\\admin.macaroon");
             HexEncoder h = new HexEncoder();
-            string macaroon = h.EncodeData(m);
+            Console.WriteLine("admin: " + h.EncodeData(System.IO.File.ReadAllBytes("D:\\admin.macaroon")));
+            Console.WriteLine("invoice: " + h.EncodeData(System.IO.File.ReadAllBytes("D:\\invoice.macaroon")));
+            Console.WriteLine("readonly: " + h.EncodeData(System.IO.File.ReadAllBytes("D:\\readonly.macaroon")));
         }
 
         [TestMethod]
