@@ -32,6 +32,8 @@ namespace coinpanic_airdrop.Controllers
                     ExchangeConfirm = i.ExchangeConfirm,
                     //Nodes = CoinPanicServer.GetNumNodes(i.Coin),
                     CoinNotice = i.CoinNotice,
+                    ExplorerURL = i.ExplorerURL,
+                    ExplorerUsed = i.ExplorerUsed
                 };
                 viewModel.CoinInfo.Add(i.Coin, c);
             }

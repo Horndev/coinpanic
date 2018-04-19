@@ -89,22 +89,9 @@ namespace coinpanic_airdrop.Controllers
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(qr, QRCodeGenerator.ECCLevel.L);//, forceUtf8: true);
             QRCode qrCode = new QRCode(qrCodeData);
             Bitmap qrCodeImage = qrCode.GetGraphic(20);
-
-            //Response.Clear();
-            //Response.AddHeader("Content-Disposition", "attachment; filename=BlockChainData.txt");
-            //Response.ContentType = "image/png";
-
             MemoryStream ms = new MemoryStream();
             qrCodeImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
             return File(ms.ToArray(), "image/png");
-
-            // Write all my data
-            //string blockdata = qr;
-            //Response.Write(blockdata);
-            //Response.End();
-
-            // Not sure what else to do here
-            return Content(String.Empty);
         }
 
         [HttpPost]
@@ -138,17 +125,19 @@ namespace coinpanic_airdrop.Controllers
             try
             {
                 string userId = "";
-                //Check if user is returning
+                // Check if user is returning
                 if (HttpContext.Request.Cookies["CoinpanicCommunityJarUser"] != null)
                 {
+                    // Returning user - look up in database
                     var cookie = HttpContext.Request.Cookies.Get("CoinpanicCommunityJarUser");
-                    cookie.Expires = DateTime.Now.AddDays(7);   //update
+                    cookie.Expires = DateTime.Now.AddDays(7);   // update expiry
                     HttpContext.Response.Cookies.Remove("CoinpanicCommunityJarUser");
                     HttpContext.Response.SetCookie(cookie);
                     userId = cookie.Value;
                 }
                 else
                 {
+                    // Create new cookie
                     HttpCookie cookie = new HttpCookie("CoinpanicCommunityJarUser");
                     cookie.Value = Guid.NewGuid().ToString();
                     cookie.Expires = DateTime.Now.AddDays(7);
@@ -157,6 +146,7 @@ namespace coinpanic_airdrop.Controllers
                     userId = cookie.Value;
                 }
 
+                //check if payment request is ok
                 var decoded = lndClient.DecodePayment(request);
 
                 if (decoded.destination == null)
@@ -167,21 +157,20 @@ namespace coinpanic_airdrop.Controllers
                 {
                     return Json(new { Result = "Requested amount is greater than maximum allowed." });
                 }
+
                 Int64 balance;
                 LnCommunityJar jar;
                 using (CoinpanicContext db = new CoinpanicContext())
                 {
-                    jar = db.LnCommunityJars.Where(j => j.IsTestnet == useTestnet).First();
+                    jar = db.LnCommunityJars.Where(j => j.IsTestnet == useTestnet).AsNoTracking().First();
                     balance = jar.Balance;
                 }
-
                 if (Convert.ToInt64(decoded.num_satoshis) > balance)
                 {
                     return Json(new { Result = "Requested amount is greater than the available balance." });
                 }
 
                 //Check rate limits
-                
                 LnCJUser user;
                 using (CoinpanicContext db = new CoinpanicContext())
                 {
@@ -359,7 +348,7 @@ namespace coinpanic_airdrop.Controllers
 
             if (users.Count == 0)
             {
-                //new user
+                // new user
                 user = new LnCJUser()
                 {
                     LnCJUserId = userId,
@@ -376,7 +365,7 @@ namespace coinpanic_airdrop.Controllers
             }
             else if (users.Count > 1)
             {
-                //error
+                // error
                 throw new Exception("User database error: multiple users with same id.");
             }
             else
@@ -384,10 +373,10 @@ namespace coinpanic_airdrop.Controllers
                 user = users.First();
             }
 
-            //Ensure copy in usersDB
+            // Ensure copy in usersDB
             if (db.LnCommunityUsers.Where(u => u.UserId == user.LnCJUserId).Count() < 1)
             {
-                //need to add to db
+                // need to add to db
                 LnUser newu = new LnUser()
                 {
                     UserId = user.LnCJUserId,

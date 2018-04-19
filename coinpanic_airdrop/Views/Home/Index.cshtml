@@ -12,48 +12,61 @@
     <p>Future services include technical tutorials, block explorers, transaction monitoring, and lightning network services.</p>
 </div>
 
-
-
-@foreach (var d in Model.CoinInfo)
-{
-    <div class="alert @d.Value.AlertClass" role="alert">
-        <h4 class="alert-heading">@d.Value.CoinName @d.Value.CoinHeaderMessage</h4>
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <p>
-                        @if (d.Value.Status == "offline")
-                        {
-
-                        }
-                        else
-                        {
-                            @Html.ActionLink("Claim " + d.Key + " (5% fee)", "NewClaim", "Claim", new { coin = d.Key }, new { @class = "btn btn-primary btn-sm active", @role = "button" })
-                        }
-                    Exchange: <a href="@d.Value.ExchangeURL">@d.Value.Exchange</a>
-                </p>
-                </div>
-                <div class="col-12 col-md-auto">
-                    <p>
-                        @*@d.Value.Nodes Connected nodes*@
-                    </p>
-                </div>
-                <div class="col col-lg-1 pull-right">
-                    @if (d.Value.Status == "online")
+<div class="card">
+    <h5 class="card-header bg-dark text-light">Claim Bitcoin Forks (5% Fee)</h5>
+    <div class="card-body">
+        <table class="table table-responsive table-hover">
+            @*<tr>
+                <th></th>
+                <th></th>
+                <th>Exchanges</th>
+                <th>Status</th>
+            </tr>*@
+            @foreach (var i in Model.CoinInfo)
+            {
+            <tr class="@i.Value.AlertClass">
+                <td>
+                    @if (i.Value.Status == "offline")
                     {
-                        <span class="badge badge-success">@d.Value.Status</span>
+                        @Html.ActionLink("Claim " + i.Key, "NewClaim", "Claim", new { coin = i.Key }, new { @class = "btn btn-primary btn-sm btn-block disabled", @role = "button" })
                     }
-                    else if (d.Value.Status == "offline")
+                    else
                     {
-                        <span class="badge badge-danger">@d.Value.Status</span>
+                        @Html.ActionLink("Claim " + i.Key, "NewClaim", "Claim", new { coin = i.Key }, new { @class = "btn btn-primary btn-sm btn-block active", @role = "button" })
                     }
-                </div>
-            </div>
-        </div>
-        <p>@d.Value.CoinNotice</p>
-        
+                </td>
+                
+                <td>
+                    <a href="@i.Value.ExchangeURL">@i.Value.Exchange</a>
+                </td>
+                <td>
+                    @i.Value.CoinNotice
+                </td>
+                <td>
+                    @if (i.Value.ExplorerURL != null && i.Value.ExplorerURL != "")
+                    {
+                        <a href="@i.Value.ExplorerURL">Explorer</a>
+                    }
+                </td>
+                <td>
+                    @if (i.Value.Status == "online")
+                    {
+                        <span class="badge badge-success">@i.Value.Status</span>
+                    }
+                    else if (i.Value.Status == "offline")
+                    {
+                        <span class="badge badge-danger">@i.Value.Status</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning">@i.Value.Status</span>
+                    }
+                </td>
+            </tr>
+            }
+        </table>
     </div>
-}
+</div>
 
 <div class="alert alert-danger" role="alert">
     <h4 class="alert-heading">Do not provide your private keys or seed words to anyone.</h4>
@@ -69,7 +82,7 @@
     </p>
 </div>
 
-<div class="container">
+<div class="container text-center">
     <div class="col-md-12" style="padding-left: 0px;  padding-right: 0px;">
         <img src="~/Content/claim_process.png" class="img-fluid">
     </div>

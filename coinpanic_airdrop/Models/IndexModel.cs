@@ -23,6 +23,8 @@ namespace coinpanic_airdrop.Models
         public string Exchange { get; set; }
         public string ExchangeURL { get; set; }
         public string ExchangeConfirm { get; set; }
+        public string ExplorerURL { get; set; }
+        public string ExplorerUsed { get; set; }
     }
 
     public class IndexModel
