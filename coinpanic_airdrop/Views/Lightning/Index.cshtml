@@ -77,7 +77,7 @@
                 <td><a href="https://1ml.com/node/@c.ChanInfo.remote_pubkey">@c.RemoteNode.Alias</a></td>
                 <td>@c.ChanInfo.capacity</td>
                 @*<td>@c.ChanInfo.local_balance</td>*@
-                <td><span id="chanbal" class="inlinebullet" style="display:none">@c.ChanInfo.local_balance,@c.ChanInfo.capacity</span></td>
+                <td><span id="chanbal" class="inlinebullet" style="display:none">@c.ChanInfo.remote_balance,@c.ChanInfo.capacity</span></td>
                 @*<td>@c.ChanInfo.remote_balance</td>*@
                 <td>@(Convert.ToString(Convert.ToInt64(c.ChanInfo.total_satoshis_received)+ Convert.ToInt64(c.ChanInfo.total_satoshis_sent))) </td>
                 <td><span id="conn" class="inlinesparkline" style="display:none"> @(string.Join(",", c.History.Select(h => h.IsConnected ? "1" : "-1").ToList())) </span></td>
@@ -92,7 +92,7 @@
         }
     </table>
     <p>* All units are in Satoshi.</p>
-    <p>** L-R indicates balance between local-remote balance.</p>
+    <p>** L-R indicates balance between local-remote nodes.</p>
 </div>
 
 @Scripts.Render("~/bundles/sparkline")
