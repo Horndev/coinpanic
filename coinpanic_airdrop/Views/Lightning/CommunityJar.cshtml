@@ -178,7 +178,7 @@
 
         $(function () {
             $("#lnWithdrawInvoiceBtn").click(function () {
-
+                $("#lnWithdrawInvoiceBtn").attr("disabled", "disabled");
                 var invoice = $("#withdrawInvoice").val();
                 var msg = '{ request: "' + invoice.toString() + '" }';
                 $.ajax({
@@ -192,7 +192,7 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (response) {
-
+                        $("#lnWithdrawInvoiceBtn").removeAttr("disabled")
                         if (response.Result == "success")
                         {
                             $("#lnWithdrawInvoiceResult").html("Payment successfully sent.  Paid " + response.Fees + " Satoshi in fees.");
@@ -224,14 +224,14 @@
                         }
                     },
                     failure: function (response) {
-                        //alert(response.Result);
+                        $("#lnWithdrawInvoiceBtn").removeAttr("disabled")
                         $("#lnWithdrawInvoiceResult").html("Failed to receive invoice");
                         $("#lnWithdrawInvoiceResult").removeClass("bg-success");
                         $("#lnWithdrawInvoiceResult").addClass("bg-error");
                         $("#lnWithdrawInvoiceResult").show();
                     },
                     error: function (response) {
-                        //alert(response.Result);
+                        $("#lnWithdrawInvoiceBtn").removeAttr("disabled")
                         $("#lnWithdrawInvoiceResult").html("Error receiving invoice");
                         $("#lnWithdrawInvoiceResult").removeClass("bg-success");
                         $("#lnWithdrawInvoiceResult").removeClass("bg-info");

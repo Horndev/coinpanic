@@ -268,7 +268,7 @@ namespace coinpanic_airdrop.Controllers
                     {
                         UserId = user.LnCJUserId,
                         IsSettled = true,
-                        Memo = "Withdraw",
+                        Memo = decoded.description == null ? "Withdraw" : decoded.description,
                         Value = Convert.ToInt64(decoded.num_satoshis),
                         IsTestnet = GetUseTestnet(),
                         HashStr = decoded.payment_hash,
