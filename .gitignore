@@ -46,3 +46,4 @@ packages/
 /LightningNetworkTests/tls.cert
 /LightningNetworkTests/TestData.config
 /coinpanic_airdrop/bower_components
+/NodeInterface/bower_components
