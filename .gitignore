@@ -45,3 +45,4 @@ packages/
 */bower_components/*
 /LightningNetworkTests/tls.cert
 /LightningNetworkTests/TestData.config
+/coinpanic_airdrop/bower_components
