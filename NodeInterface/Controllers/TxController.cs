@@ -151,7 +151,7 @@ namespace NodeInterface.Controllers
                     try
                     {
                         var client = new RestClient("http://insight.bitcore.cc/api/");
-                        var request = new RestRequest("tx/send/", Method.POST);
+                        var request = new RestRequest("tx/send", Method.POST);
                         request.AddJsonBody(new { rawtx = signedTransaction });
                         //request.AddParameter("rawtx", signedTransaction);
 

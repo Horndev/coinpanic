@@ -108,8 +108,13 @@
     </div>
 </div>
 
+@section Styles
+{
+    @Styles.Render("~/bundles/datatables/css")
+}
 @section scripts
 {
+    @Scripts.Render("~/bundles/datatables")
     <script src="~/Scripts/jquery.signalR-2.2.3.min.js"></script>
     <script src="~/signalr/hubs"></script>
     <script type="text/javascript">

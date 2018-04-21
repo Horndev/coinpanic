@@ -14,6 +14,9 @@ namespace coinpanic_airdrop
             bundles.Add(new ScriptBundle("~/bundles/sparkline").Include(
                         "~/Scripts/jquery.sparkline.min.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
+                        "~/Scripts/DataTables/datatables.min.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/jquery/unobtrusive").Include(
                         "~/Scripts/jquery.unobtrusive-ajax.min.min.js"));
 
@@ -25,6 +28,9 @@ namespace coinpanic_airdrop
 
             bundles.Add(new ScriptBundle("~/bundles/icons").Include(
                         "~/bower_components/webicon/jquery-webicon.min.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/cryptolib").Include(
+                       "~/bower_components/bitcore-lib/bitcore-lib.js"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at https://modernizr.com to pick only the tests you need.
@@ -42,8 +48,10 @@ namespace coinpanic_airdrop
             bundles.Add(new StyleBundle("~/bundles/fontawesome/css").Include(
                       "~/bower_components/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));
 
-            bundles.Add(new ScriptBundle("~/bundles/cryptolib").Include(
-                       "~/bower_components/bitcore-lib/bitcore-lib.js"));
+            
+
+            bundles.Add(new ScriptBundle("~/bundles/datatables/css").Include(
+                       "~/Scripts/DataTables/datatables.min.css"));
         }
     }
 }
