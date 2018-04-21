@@ -153,12 +153,13 @@ namespace LightningLib.lndrpc
         /// <param name="amount">Invoice amount in satoshi</param>
         /// <param name="memo">Plain text memo for invoice (records)</param>
         /// <returns></returns>
-        public AddInvoiceResponse AddInvoice(Int64 amount_satoshi, string memo = "")
+        public AddInvoiceResponse AddInvoice(Int64 amount_satoshi, string memo = "", string expiry="3600")
         {
             var invoice = new Invoice()
             {
                 value = Convert.ToString(amount_satoshi),
                 memo = memo,
+                expiry = expiry,
             };
             return AddInvoice(invoice);
         }

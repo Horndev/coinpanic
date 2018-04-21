@@ -27,6 +27,12 @@ namespace LightningNetworkTests
             {false, ConfigurationManager.AppSettings["LnMainnetMacaroonAdmin"] },
         };
 
+        static Dictionary<bool, string> MacaroonInvoice = new Dictionary<bool, string>()
+        {
+            {true, ConfigurationManager.AppSettings["LnTestnetMacaroonInvoice"] },
+            {false, ConfigurationManager.AppSettings["LnTestnetMacaroonInvoice"] },
+        };
+
         // true=testnet
         static Dictionary<bool, string> MacaroonRead = new Dictionary<bool, string>()
         {
@@ -70,7 +76,7 @@ namespace LightningNetworkTests
         }
 
         [TestMethod]
-        public void Test_API_CallGetnodeinfoAsStringMainnet()
+        public void TestAPI_Mainnet_Node_CallGetnodeinfo_AsString()
         {
             string host = ConfigurationManager.AppSettings["LnMainnetHost"];
 
@@ -80,6 +86,45 @@ namespace LightningNetworkTests
             var ni = client.GetNodeInfo(pubkey);
 
             Console.WriteLine(ni.node.alias);
+        }
+
+        [TestMethod]
+        public void TestAPI_Mainnet_Invoice_CreateInvoice()
+        {
+            //request a new invoice
+            string host = ConfigurationManager.AppSettings["LnMainnetHost"];
+            string restpath = "/v1/invoices";
+            var invoice = new Invoice()
+            {
+                value = "1000",
+                memo = "Testing",
+                expiry = "432000",
+            };
+
+            //admin
+
+            string responseStr = LndRpcClient.LndApiPostStr(host, restpath, invoice, adminMacaroon: MacaroonAdmin[false]);
+            Console.WriteLine(responseStr);
+        }
+
+        [TestMethod]
+        public void TestAPI_Mainnet_Invoice_DecodeInvoice_AsString()
+        {
+            string host = ConfigurationManager.AppSettings["LnMainnetHost"];
+            string restpath = "/v1/payreq/{pay_req}";
+
+            // This one includes a memo
+            string payreq = "lnbc90n1pdd4xzqpp5j69daa4ep5nfzgx0pdfajcfn96ysjts7ekdhlcw4kt6g8w2ff79qdqc235xjueqd9ejqmteypkk2mt0cqzys2vk4ecwl0lf0dhwplrphvznpmkw6ehv6p3w5rtfux7u9963azu0hmg3fhn4w85qugxapecqf7dmehajxtk9c5zvxw22l77vr2j645qcqs8yrq6";
+
+            Dictionary<string, string> parameters = new Dictionary<string, string>()
+            {
+                {"pay_req",  payreq},
+            };
+
+            string responseStr = LndRpcClient.LndApiGetStr(host, restpath, urlParameters: parameters, adminMacaroon: MacaroonRead[false]);
+            Console.WriteLine(responseStr);
+            string expected = "{\"destination\":\"03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf\",\"payment_hash\":\"968adef6b90d269120cf0b53d961332e89092e1ecd9b7fe1d5b2f483b9494f8a\",\"num_satoshis\":\"9\",\"timestamp\":\"1524275264\",\"expiry\":\"3600\",\"description\":\"This is my memo\",\"cltv_expiry\":\"144\"}";
+            Assert.AreEqual(expected, responseStr);
         }
 
         [TestMethod]
@@ -99,6 +144,8 @@ namespace LightningNetworkTests
             Console.WriteLine(response);
         }
 
+
+
         #region testnet
 
         [TestMethod]
@@ -108,6 +155,8 @@ namespace LightningNetworkTests
             string restpath = "/v1/payreq/{pay_req}";
 
             string payreq = "lntb4m1pdv9jf4pp5dnk8sq4d0hg0rwwge4l09zjg7mwkz2kdy8z6qynq332l300405rsdqqcqzysz376stul9zuxersermhtedgga3dzq0pmzh7zddz3wvd0kuzsldmzl4aefcn6ph8d4hlfxlesgn9h4j0m2zl2kajc2kn4yv3nyv96n0cpfv2kuw";
+            //"lnbc90n1pdd4xzqpp5j69daa4ep5nfzgx0pdfajcfn96ysjts7ekdhlcw4kt6g8w2ff79qdqc235xjueqd9ejqmteypkk2mt0cqzys2vk4ecwl0lf0dhwplrphvznpmkw6ehv6p3w5rtfux7u9963azu0hmg3fhn4w85qugxapecqf7dmehajxtk9c5zvxw22l77vr2j645qcqs8yrq6";
+            //
 
             Dictionary<string, string> parameters = new Dictionary<string, string>()
             {
@@ -230,23 +279,7 @@ namespace LightningNetworkTests
             Console.WriteLine(responseStr);
         }
 
-        [TestMethod]
-        public void TestAPICreateInvoice()
-        {
-            //request a new invoice
-            string host = ConfigurationManager.AppSettings["LnMainnetHost"];
-            string restpath = "/v1/invoices";
-            var invoice = new Invoice()
-            {
-                value = "1000",
-                memo = "Testing",
-            };
-
-            //admin
-            
-            string responseStr = LndRpcClient.LndApiPostStr(host, restpath, invoice, adminMacaroon: MacaroonAdmin[false]);
-            Console.WriteLine(responseStr);
-        }
+        
 
         [TestMethod]
         public void TestReadMacaroon()

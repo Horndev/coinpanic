@@ -11,6 +11,7 @@ using System.Data.Entity;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -111,11 +112,19 @@ namespace coinpanic_airdrop.Controllers
             return Json(new { Balance = balance, Deposits = userDeposits, Withdraws=userWithdraws });
         }
 
+        //Used for rate limiting double withdraws
+        static ConcurrentDictionary<string, DateTime> WithdrawRequests = new ConcurrentDictionary<string, DateTime>();
+
         [HttpPost]
         public ActionResult SubmitPaymentRequest(string request)
         {
             int minwithdraw = 150;
             string ip = Request.UserHostAddress;
+            //if (ip == "99.43.41.3")
+            //{
+            //    return Json(new { Result = "Error: Bad behaviour detected from your IP" });
+            //}
+
             bool useTestnet = GetUseTestnet();
             var lndClient = new LndRpcClient(
                 host: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetHost" : "LnMainnetHost"],
@@ -147,8 +156,10 @@ namespace coinpanic_airdrop.Controllers
                 }
 
                 //check if payment request is ok
-                var decoded = lndClient.DecodePayment(request);
+                //Check if already paid
 
+                var decoded = lndClient.DecodePayment(request);
+                
                 if (decoded.destination == null)
                 {
                     return Json(new { Result = "Error decoding invoice." });
@@ -158,12 +169,14 @@ namespace coinpanic_airdrop.Controllers
                     return Json(new { Result = "Requested amount is greater than maximum allowed." });
                 }
 
+                // Check that there are funds in the Jar
                 Int64 balance;
                 LnCommunityJar jar;
                 using (CoinpanicContext db = new CoinpanicContext())
                 {
                     jar = db.LnCommunityJars.Where(j => j.IsTestnet == useTestnet).AsNoTracking().First();
                     balance = jar.Balance;
+                    
                 }
                 if (Convert.ToInt64(decoded.num_satoshis) > balance)
                 {
@@ -174,10 +187,12 @@ namespace coinpanic_airdrop.Controllers
                 LnCJUser user;
                 using (CoinpanicContext db = new CoinpanicContext())
                 {
+                    //Get user
                     user = GetUserFromDb(userId, db, jar, ip);
 
                     //check if new user
                     DateTime? LastWithdraw = user.TimesampLastWithdraw;
+                    //LastWithdraw = db.LnTransactions.Where(tx => tx.IsDeposit == false && tx.IsSettled == true && tx.UserId == user.LnCJUserId).OrderBy(tx => tx.TimestampCreated).AsNoTracking().First().TimestampCreated;
                     if (user.NumWithdraws == 0 && user.NumDeposits == 0)
                     {
                         //check ip (if someone is not using cookies to rob the site)
@@ -197,12 +212,42 @@ namespace coinpanic_airdrop.Controllers
                             return Json(new { Result = "You must wait another " + ((user.TimesampLastWithdraw+TimeSpan.FromHours(1))-DateTime.UtcNow).Value.TotalMinutes.ToString("0.0") + " minutes before withdrawing again, or make a deposit first." });
                         }
                     }
-                }
-                
-                //all ok - make the payment
-                var paymentresult = lndClient.PayInvoice(request);
 
-                //{"payment_preimage":"baPwwhW4mSn+4bQBhc3Qb2LT7pBW5G9cVgRhHBuEAhU=","payment_route":{"total_time_lock":1290215,"total_amt":"5","hops":[{"chan_id":"1417999464420278272","chan_capacity":"1000000","amt_to_forward":"5","expiry":1290215}]}}
+                    //Check if already paid
+                    if (db.LnTransactions.Where(tx => tx.PaymentRequest == request && tx.IsSettled).Count() > 0)
+                    {
+                        return Json(new { Result = "Invoice has already been paid." });
+                    }
+                }
+
+                SendPaymentResponse paymentresult;
+                //all ok - make the payment
+                if (WithdrawRequests.TryAdd(request, DateTime.UtcNow))
+                {
+                    paymentresult = lndClient.PayInvoice(request);
+                }
+                else
+                {
+                    //double request
+                    Thread.Sleep(1000);
+
+                    //Check if paid
+                    using (CoinpanicContext db = new CoinpanicContext())
+                    {
+                        var txs = db.LnTransactions.Where(t => t.PaymentRequest == request && t.IsSettled).OrderByDescending(t => t.TimestampSettled).AsNoTracking();
+                        if (txs.Count() > 0)
+                        {
+                            //var tx = txs.First();
+                            WithdrawRequests.TryRemove(request, out DateTime reqInitTimeA);
+                            return Json(new { Result = "success", Fees = "0" });
+                        }
+                        
+                        return Json(new { Result = "Please click only once.  Payment already in processing." });
+                    }
+                }
+                WithdrawRequests.TryRemove(request, out DateTime reqInitTime);
+                
+                
                 if (paymentresult.payment_error != null)
                 {
                     return Json(new { Result = "Payment Error: " + paymentresult.payment_error });
@@ -275,7 +320,7 @@ namespace coinpanic_airdrop.Controllers
                     macaroonRead: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"],
                     macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonInvoice" : "LnMainnetMacaroonInvoice"]);
 
-            var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo:memo);
+            var inv = lndClient.AddInvoice(Convert.ToInt64(amount), memo:memo, expiry:"432000");
 
             LnRequestInvoiceResponse resp = new LnRequestInvoiceResponse()
             {

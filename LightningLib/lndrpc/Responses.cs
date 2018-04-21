@@ -169,6 +169,7 @@ namespace LightningLib.lndrpc
         public string num_satoshis { get; set; }
         public string timestamp { get; set; }
         public string expiry { get; set; }
+        public string description { get; set; } // This is the memo
         public string cltv_expiry { get; set; }
     }
 
