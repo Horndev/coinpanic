@@ -21,7 +21,7 @@ namespace coinpanic_airdrop
                         "~/Scripts/jquery.unobtrusive-ajax.min.min.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
-                        "~/bower_components/jQuery/dist/jquery.js"));
+                        "~/bower_components/jQuery/dist/jquery.min.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/bower_components/jquery-validation/jquery.validate.js"));
