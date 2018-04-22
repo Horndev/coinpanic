@@ -120,10 +120,6 @@ namespace coinpanic_airdrop.Controllers
         {
             int minwithdraw = 150;
             string ip = Request.UserHostAddress;
-            //if (ip == "99.43.41.3")
-            //{
-            //    return Json(new { Result = "Error: Bad behaviour detected from your IP" });
-            //}
 
             bool useTestnet = GetUseTestnet();
             var lndClient = new LndRpcClient(
@@ -176,7 +172,6 @@ namespace coinpanic_airdrop.Controllers
                 {
                     jar = db.LnCommunityJars.Where(j => j.IsTestnet == useTestnet).AsNoTracking().First();
                     balance = jar.Balance;
-                    
                 }
                 if (Convert.ToInt64(decoded.num_satoshis) > balance)
                 {

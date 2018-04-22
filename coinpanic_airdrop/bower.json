@@ -9,7 +9,8 @@
     "jquery-validation": "1.17.0",
     "bitcore-lib": "v0.15.0",
     "DataTables": "RELEASE_1_9_4",
-    "jquery": "3.3.1"
+    "jquery": "3.3.1",
+    "popper.js": "v1.14.3"
   },
   "resolutions": {
     "jquery": "3.3.1"

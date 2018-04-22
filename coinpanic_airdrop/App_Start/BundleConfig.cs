@@ -38,12 +38,13 @@ namespace coinpanic_airdrop
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/bower_components/bootstrap/dist/js/bootstrap.min.js",
-                      "~/Scripts/respond.js"));
+                        "~/bower_components/popper.js/dist/umd/popper.min.js",
+                        "~/bower_components/bootstrap/dist/js/bootstrap.min.js",
+                        "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/bower_components/bootstrap/dist/css/bootstrap.min.css",
-                      "~/Content/site.css"));
+                        "~/bower_components/bootstrap/dist/css/bootstrap.min.css",
+                        "~/Content/site.css"));
 
             bundles.Add(new StyleBundle("~/bundles/fontawesome/css").Include(
                       "~/bower_components/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));

@@ -4,72 +4,50 @@
     ViewBag.Title = "";
 }
 
-@if (@Model.CoinShortName != "B2X")
-{ 
-    <div class="alert alert-info" role="alert">
-        <h4 class="alert-heading">Claim @Model.CoinShortName</h4>
-    </div>
-}
-
 <div class="card">
-    <h3 class="card-header">Secure Claim (5% fee)</h3>
-    <div class="form-group">
+    <h3 class="card-header">@Model.CoinShortName Secure Claim (5% fee)</h3>
+    <div class="card-body">
         <div class="col-sm-10">
-            <br />
-            <h4 class="card-title">You will sign the transaction without revealing your private keys</h4>
+            <h4 class="card-title">You will privately sign the transaction yourself</h4>
         </div>
+        <form action="/Claim/InitializeClaim" method="post">
+            <input type="hidden" name="claimId" value="@Model.ClaimId" />
+            <p class="card-text">
+                <div class="form-group">
+                    <div class="col-sm-10">
+                        <label for="PublicKeys">Insert your public Bitcoin addresses *</label>
+                        <textarea type="text" class="form-control" rows="5" name="PublicKeys" id="PublicKeys" aria-describedby="pubhelp" placeholder="Enter your addresses you wish to check (each on it's own line)"></textarea>
+                        <small id="pubhelp" class="form-text text-muted">We'll never share your information</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-7">
+                        <label for="depositAddress">Your @Model.CoinShortName deposit address (where your @Model.CoinShortName should be sent)</label>
+                        <input data-toggle="tooltip" data-placement="right" title="Warning: Please make sure the deposit address is correct.  Sending your coins to a cross-fork address, or incorrect address, could result in the unrecoverable loss of your coins." placeholder="Enter deposit address" type="text" class="form-control" id="depositAddress" name="depositAddress">
+                    </div>
+                </div>
+            </p>
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <p>Please note that there is a 5% fee added to your transaction for using our services.</p>
+                    <button type="submit" class="btn btn-primary">Next</button>
+                </div>
+            </div>
+        </form>
     </div>
-    <form action="/Claim/InitializeClaim" method="post">
-        <input type="hidden" name="claimId" value="@Model.ClaimId" />
-        <p class="card-text">
-            <div class="form-group">
-                <div class="col-sm-10">
-                    <label for="PublicKeys">Insert your public addresses (all types accepted including segwit P2SH*, starting with '3', and bech32, starting with 'bc1').  Include as many as you would like.</label>
-                    <textarea type="text" class="form-control" rows="5" name="PublicKeys" id="PublicKeys" aria-describedby="pubhelp" placeholder="Enter all of your addresses (each on it's own line)"></textarea>
-                    <small id="pubhelp" class="form-text text-muted">We'll never share your information</small>
-                </div>
-            </div>
-            @*<div class="form-group">
-                <div class="col-sm-10">
-                    <label for="emailAddress">Email Address (optional)</label>
-                    <input type="email" class="form-control" id="emailAddress" name="emailAddress" placeholder="your email" />
-                    <small id="emailhelp" class="form-text text-muted">Optional email to send your unsigned transaction and instructions.</small>
-                </div>
-            </div>*@
-            <div class="form-group">
-                <div class="col-sm-10">
-                    <h5>Warning: Please make sure the deposit address is correct.  Sending your coins to a cross-fork address, or incorrect address, could result in the unrecoverable loss of your coins.</h5>
-                    <label for="depositAddress">Your @Model.CoinShortName deposit address (where your @Model.CoinShortName should be sent)</label>
-                    <input placeholder="Enter deposit address" type="text" class="form-control" id="depositAddress" name="depositAddress">
-                </div>
-            </div>
-        </p>
-        
-        <div class="form-group">
-            <div class="col-sm-10">
-                <p>Please note that there is a 5% fee added to your transaction for using our services.</p>
-                <button type="submit" class="btn btn-primary">Next</button>
-                <p> Your Coinpanic.com claim identifier is <a href="#" class="badge badge-secondary">@Model.ClaimId</a>. </p>
-            </div>
-        </div>
-    </form>
+    <div class="card-footer">
+        <p class="card-text"><small class="text-muted"> * All address types including multi-sig, P2PKH, SegWit, etc. are accepted.</small></p>
+        @*<p class="card-text"><small class="text-muted">Your Coinpanic.com claim identifier is <a href="#" class="badge badge-secondary">@Model.ClaimId</a>.</small></p>*@
+    </div>
 </div>
 
-
-
-    @*@section scripts {
-                <script type="text/javascript">
-
-                $(document).ready(function(){
-
-                    $('depositAddress').click(function () {
-
-                            alert('You clicked '+ name +"!");
-
-                    });
-
-                });
-
-            </script>
-        }*@
-    @Scripts.Render("~/bundles/cryptolib")
+@section scripts 
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip({
+                container: 'body'
+            }); 
+        });
+    </script>
+}
