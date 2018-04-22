@@ -15,34 +15,41 @@ using System.Threading.Tasks;
 
 namespace LightningLib.lndrpc
 {
+    /* These are the event delegates used by the TransactionListener */
     public delegate void LnInvoicePaid(Invoice invoice);
     public delegate void LnStreamLost(TransactionListener sender);
 
+    /// <summary>
+    /// The Transaction Listener for /v1/invoices/subscribe
+    /// </summary>
     public class TransactionListener
     {
+        // This event is triggered when an invoice is paid 
         public event LnInvoicePaid InvoicePaid;
+
+        // This event is triggered when the HTTP stream is closed
         public event LnStreamLost StreamLost;
 
         public Guid ListenerId = Guid.NewGuid();
 
-        public string url;
-        public string macaroon;
+        public string url;      // full url to /v1/invoices/subscribe
+        public string macaroon; // used to call /v1/invoices/subscribe
 
         public async void Start()
         {
             using (var client = new HttpClient())
             {
+                // The HTTP stream should stay open until closed by either server or client
                 client.Timeout = TimeSpan.FromMilliseconds(Timeout.Infinite);
 
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
-                request.Headers.Add("Grpc-Metadata-macaroon", macaroon);
+                request.Headers.Add("Grpc-Metadata-macaroon", macaroon);    // macaroon should be provided from lnd
 
 //#if DEBUG
-                // This disables SSL
+                // This disables SSL certificate validation
                 ServicePointManager.ServerCertificateValidationCallback +=
                     (sender, cert, chain, sslPolicyErrors) => true;
 //#endif
-                //Console.WriteLine("Listening for invoices");
                 using (var response = await client.SendAsync(
                     request,
                     HttpCompletionOption.ResponseHeadersRead))
@@ -64,6 +71,7 @@ namespace LightningLib.lndrpc
                         }
                         catch (Exception e)
                         {
+                            // TODO: check that the exception type is actually from a closed stream.
                             Debug.WriteLine(e.Message);
                             StreamLost?.Invoke(this);
                         }
@@ -98,6 +106,10 @@ namespace LightningLib.lndrpc
             _port = port;
         }
 
+        /// <summary>
+        /// Sets up a streaming listener for /v1/invoices/subscribe, but does not yet start it.
+        /// </summary>
+        /// <returns></returns>
         public TransactionListener GetListener()
         {
             var l = new TransactionListener()
@@ -148,7 +160,7 @@ namespace LightningLib.lndrpc
         }
 
         /// <summary>
-        /// 
+        /// Create a new payment invoice.
         /// </summary>
         /// <param name="amount">Invoice amount in satoshi</param>
         /// <param name="memo">Plain text memo for invoice (records)</param>
@@ -170,12 +182,17 @@ namespace LightningLib.lndrpc
             return LndApiPost<AddInvoiceResponse>(_host, "/v1/invoices", invoice, adminMacaroon: _macaroonInvoice);
         }
 
+        /// <summary>
+        /// Return transaction routing events.  
+        /// TODO: Configure proper pagination, as there is a limit in lnd once the number of forwarding events is large.
+        /// </summary>
+        /// <returns></returns>
         public ForwardingEventsResponse GetForwardingEvents()
         {
             var reqObj = new FwdRequest()
             {
                 start_time = "0",
-                end_time = "999999999999",
+                end_time = "999999999999",  // Should be far enough in the future to get all of them up to the limit
                 index_offset = 0,
                 num_max_events = 1000,
             };
@@ -194,6 +211,8 @@ namespace LightningLib.lndrpc
             {
                 throw new Exception("No admin macaroon provided.");
             }
+
+            // TODO: put this into a .config file
             string tlscert = "2d2d2d2d2d424547494e2043455254494649434154452d2d2d2d2d0a4d494943417a434341617167417749424167494a4150486f4e765a39665942304d416f4743437147534d343942414d434d4430784c54417242674e5642414d4d0a4a474e766157357759573570597a45755a57467a6448567a4c6d4e736233566b595842774c6d463664584a6c4c6d4e766254454d4d416f4741315545436777440a6247356b4d434158445445344d444d794e4445354d5459774e6c6f59447a49784d5467774d6a49344d546b784e6a4132576a41394d5330774b775944565151440a4443526a62326c756347467561574d784c6d5668633352316379356a624739315a47467763433568656e56795a53356a623230784444414b42674e5642416f4d0a413278755a44425a4d424d4742797147534d34394167454743437147534d3439417745484130494142475169586c5970527766436648736e65694352627774430a4e774738656562437646786b344c6e4461584732684472305137394c465044376d34354271756f684937653531496f385073454c51644d4a2f2f686d6756616a0a675a41776759307744675944565230504151482f4241514441674b6b4d41384741315564457745422f7751464d414d4241663877616759445652305242474d770a5959496b59323970626e4268626d6c6a4d53356c59584e3064584d7559327876645752686348417559587031636d55755932397467676c7362324e68624768760a63335348424838414141474845414141414141414141414141414141414141414141474842416f4141415348455036414141414141414141416730362f2f34580a76344d77436759494b6f5a497a6a30454177494452774177524149674242735234374b592b6b777761456551565245634237703078472f41522b34446e7478770a6d794a633476454349446561797a6962437156357a795850392f624849485074637a51336c4148704b33546c62707932636c61410a2d2d2d2d2d454e442043455254494649434154452d2d2d2d2d0a";
             X509Certificate2 certificates = new X509Certificate2();
 
