@@ -4,6 +4,14 @@
         <name>coinpanic_airdrop</name>
     </assembly>
     <members>
+        <member name="M:coinpanic_airdrop.Controllers.ClaimController.ClaimConfirm(System.String)">
+            <summary>
+            Controller for the claim confirmation page, where users will
+            review the claim and get instructions for signing.
+            </summary>
+            <param name="claimId"></param>
+            <returns></returns>
+        </member>
         <member name="T:coinpanic_airdrop.Controllers.ServicesController">
             <summary>
             

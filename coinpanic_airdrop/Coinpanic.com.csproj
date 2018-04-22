@@ -1962,7 +1962,6 @@
     <Content Include="Views\Claim\ClaimConfirm.cshtml" />
     <Content Include="Views\Claim\TransmitTransaction.cshtml" />
     <Content Include="Views\Home\Legal.cshtml" />
-    <Content Include="Views\Claim\CheckNode.cshtml" />
     <Content Include="Tools\CoinPanicSignTxUI.zip" />
     <Content Include="Views\Nodes\Index.cshtml" />
     <Content Include="Tools\CoinpanicSign.tar.gz" />
