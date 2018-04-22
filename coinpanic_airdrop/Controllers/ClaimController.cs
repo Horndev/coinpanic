@@ -162,8 +162,6 @@ namespace coinpanic_airdrop.Controllers
 
             MonitoringService.SendMessage("New " + userclaim.CoinShortName + " claim", "new claim Initialized. https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName);
 
-            ViewBag.NumConnectedNodes = CoinPanicServer.GetNumNodes(userclaim.CoinShortName);
-
             return RedirectToAction("ClaimConfirm", new { claimId = claimId });
         }
 
@@ -178,7 +176,6 @@ namespace coinpanic_airdrop.Controllers
             try
             {
                 var userclaim = db.Claims.Where(c => c.ClaimId == claimId).Include(c => c.InputAddresses).First();
-                ViewBag.NumConnectedNodes = CoinPanicServer.GetNumNodes(userclaim.CoinShortName);
                 ViewBag.Multiplier = BitcoinForks.ForkByShortName[userclaim.CoinShortName].Multiplier;
                 return View(userclaim);
             }

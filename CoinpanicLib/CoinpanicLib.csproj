@@ -64,7 +64,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bitcoin.cs" />
-    <Compile Include="BitcoinNode.cs" />
     <Compile Include="BlockScanner.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="Models\BlockData.cs" />
