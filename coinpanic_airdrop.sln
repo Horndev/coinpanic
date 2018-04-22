@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinpanicSign", "..\Coinpan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignTxOffline.Tests", "..\CoinpanicSign\SignTxOffline.Tests\SignTxOffline.Tests.csproj", "{AD4DFD8A-0AF7-4BB7-A1F9-38EEAAB7E9C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightningNetwork.Tests", "LightningNetworkTests\LightningNetwork.Tests.csproj", "{1895BAE9-1828-46D1-895C-282199CA3B06}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightningLib.Tests", "LightningNetworkTests\LightningLib.Tests.csproj", "{1895BAE9-1828-46D1-895C-282199CA3B06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightningLib", "LightningLib\LightningLib.csproj", "{824D15C2-A623-46D0-A45E-CF152E97C025}"
 EndProject

@@ -308,10 +308,13 @@ namespace coinpanic_airdrop.Controllers
         }
 
         [HttpPost]
-        public ActionResult GetJarDepositInvoice(string amount)
+        public ActionResult GetJarDepositInvoice(string amount, string memo)
         {
             string ip = Request.UserHostAddress;
-            string memo = "Coinpanic Community Jar";
+            if (memo == null || memo == "")
+            {
+                memo = "Coinpanic Community Jar";
+            }
 
             bool useTestnet = GetUseTestnet();
             var lndClient = new LndRpcClient(
