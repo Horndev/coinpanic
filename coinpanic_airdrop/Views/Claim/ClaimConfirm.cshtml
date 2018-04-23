@@ -79,24 +79,33 @@
                     <textarea type="text" name="hex" id="hex" class="form-control" style="min-width: 100%" name="hex" rows="5" cols="40" aria-describedby="pubhelp" placeholder="Paste your signed transaction here after running CoinpanicSignTx.exe.">@Model.SignedTX</textarea>
                     <small id="pubhelp" class="form-text text-muted">We will broadcast your transaction to the network.</small>
                 </div>
-
             </div>
-            <div class="form-group row">
-                <div class="col-sm-1">
+            <div class="row">
+                <div class="col-sm-2">
                     <input type="button" id="broadcastBtn" class="btn btn-primary" value="Broadcast">
                 </div>
-                <div id="spinner" class="fa-3x text-center col-md-1 pull-left" style="display:none">
-                    <i class="fa fa-spinner fa-pulse"></i>
+                <div id="spinner" class="col-sm-8 text-center fa-2x" style="display:none">
+                    <div class="fa-2x" >
+                        <i class="fa fa-spinner fa-pulse"></i>
+                    </div>
                 </div>
-                <div class="col-sm-9 text-left align-middle" id="broadcastResult">
-
+                <div class="col-sm-8 text-center" id="broadcastResult" style="display:none">
+                    
                 </div>
             </div>
-            <b> If your transmission was not successful, or if you have any questions, please contact claims@coinpanic.com or /u/Zelgada on Reddit</b>
-            <p>
-                Please quote your ClaimId: @Model.ClaimId in your message.
-            </p>
         </div>
+    </div>
+    <div class="card-footer">
+        <p class="card-text">
+            <small class="text-muted">
+                If your transmission was not successful, or if you have any questions, please contact claims@coinpanic.com or /u/Zelgada on Reddit.  
+            </small>
+        </p>
+        <p class="card-text">
+            <small class="text-muted">
+                Please quote your ClaimId: @Model.ClaimId in your message.
+            </small>
+        </p>
     </div>
 </div>
 <br />
@@ -128,33 +137,12 @@
         <br />
     </div>
 </div>
-    @*<form action="/Claim/TransmitTransaction" method="post">
-            <input type="hidden" name="claimId" value="@Model.ClaimId" />
-            <p class="card-text">
-                <div class="form-group">
-                    <div class="col-sm-10">
-                        <label for="SignedTX">Paste your signed transaction here:</label>
-                        <textarea type="text" class="form-control" rows="5" name="signedTransaction" id="signedTransaction" aria-describedby="pubhelp" placeholder="Paste your signed transaction here after running CoinpanicSignTx.exe.  It should look different than the unsigned transaction if it was successful.">@Model.SignedTX</textarea>
-                        <small id="pubhelp" class="form-text text-muted">We will broadcast your transaction to the network.</small>
-                    </div>
-                </div>
-            </p>
-            <div class="form-group">
-                <div class="col-sm-10">
-                    <button type="submit" class="btn btn-primary">Transmit</button> There are @ViewBag.NumConnectedNodes @Model.CoinShortName connected  nodes.  If there are no connected nodes, then there could be a problem with the network and your transmission may not broadcast.  Contact claims@coinpanic.com for assistance, or wait until nodes are connected before transmitting.
-                </div>
-            </div>
-        </form>*@
 
-
-
-    
-
-    @section Styles
+@section Styles
 {
-        @Styles.Render("~/bundles/datatables/css")
-    }
-    @section scripts
+     @Styles.Render("~/bundles/datatables/css")
+}
+@section scripts
 {
         @Scripts.Render("~/bundles/datatables")
         <script type="text/javascript">
@@ -177,29 +165,35 @@
 
         $(function () {
             $("#broadcastBtn").click(function () {
-                var msg = '{Hex: "' + $("#hex").val() + '",ClaimId: "' + "@Model.ClaimId" + '" }';
+                // Disable once clicked to help prevent multiple triggers
+                $("#broadcastBtn").attr("disabled", "disabled");
+
+                var msg = '{Hex: "' + $("#hex").val() + '", ClaimId: "' + "@Model.ClaimId" + '" }';
                 $("#spinner").show();
                 $.ajax({
                     type: "POST",
-                    url: "https://www.metabittrader.com/" + "@Model.CoinShortName/api/tx",
+                    url: "/Claim/Broadcast", @*https://www.metabittrader.com/" + "@Model.CoinShortName/api/tx",*@
                     data: msg,
-                    xhrFields: {
-                        withCredentials: true
-                    },
-                    crossDomain: true,
+                    //xhrFields: {
+                    //    withCredentials: true
+                    //},
+                    //crossDomain: true,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (response) {
                         $("#spinner").hide();
+                        $("#broadcastResult").show();
                         $('#broadcastResult').html(response.Result);
                     },
                     failure: function (response) {
                         $("#spinner").hide();
-                        alert(response.responseText);
+                        $("#broadcastResult").show();
+                        $('#broadcastResult').html("Failure broadcasting.");
                     },
                     error: function (response) {
                         $("#spinner").hide();
-                        alert(response.responseText);
+                        $("#broadcastResult").show();
+                        $('#broadcastResult').html("Error broadcasting.");
                     }
                 });
             });

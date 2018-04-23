@@ -1,6 +1,7 @@
 ﻿using CoinController;
 using coinpanic_airdrop.Database;
 using CoinpanicLib.Models;
+using CoinpanicLib.NodeConnection.Api;
 using NBitcoin;
 using NBitcoin.Forks;
 using RestSharp;
@@ -183,6 +184,236 @@ namespace coinpanic_airdrop.Controllers
             {
                 return RedirectToAction("ClaimError", new { message = "claimId not valid", claimId = claimId });
             }
+        }
+
+        [HttpPost]
+        public ActionResult Broadcast(string ClaimId, string Hex)
+        {
+            CoinClaim userclaim = db.Claims.Where(c => c.ClaimId == ClaimId).FirstOrDefault();
+
+            if (userclaim == null)
+            {
+                userclaim = new CoinClaim();
+            }
+
+            //Clean up the signed transaction Hex
+            string signedTransaction = Hex;
+            signedTransaction = signedTransaction.Replace("\n", String.Empty);
+            signedTransaction = signedTransaction.Replace("\r", String.Empty);
+            signedTransaction = signedTransaction.Replace("\t", String.Empty);
+            signedTransaction = signedTransaction.Trim().Replace(" ", "");
+            userclaim.SignedTX = signedTransaction;
+            userclaim.SubmitDate = DateTime.Now;
+            if (signedTransaction != "")
+            {
+                db.SaveChanges();
+            }
+
+            BroadcastResponse response = new BroadcastResponse()
+            {
+                Error = false,
+                Result = "Transaction successfully broadcast.",
+                Txid = "",
+            };
+            var tx = signedTransaction;
+
+            if (tx == "")
+            {
+                response.Result = "Error: No signed transaction provided.";
+                MonitoringService.SendMessage("Empty tx " + userclaim.CoinShortName + " submitted.", 
+                    "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId);
+                return Json(response);
+            }
+
+            Transaction t = null;
+            try
+            {
+                t = Transaction.Parse(tx.Trim().Replace(" ", ""));
+            }
+            catch (Exception e)
+            {
+                response.Error = true;
+                response.Result = "Error parsing transaction";
+                MonitoringService.SendMessage("Invalid tx " + userclaim.CoinShortName + " submitted " + Convert.ToString(userclaim.TotalValue), 
+                    "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                return Json(response);
+            }
+
+            // Transmit via explorers
+            if (userclaim.CoinShortName == "B2X")
+            {
+                try
+                {
+                    var client = new RestClient("https://explorer.b2x-segwit.io/b2x-insight-api/");
+                    var request = new RestRequest("tx/send/", Method.POST);
+                    request.AddJsonBody(new { rawtx = signedTransaction });
+                    //request.AddParameter("rawtx", signedTransaction);
+
+                    IRestResponse restResponse = client.Execute(request);
+                    var content = restResponse.Content; // raw content as string
+                    userclaim.TransactionHash = content;
+                    userclaim.WasTransmitted = true;
+                    userclaim.SubmitDate = DateTime.Now;
+
+                    db.SaveChanges();
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue), 
+                        "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction
+                        + "\r\n Result: " + content);
+                    response.Result = content;
+                    return Json(response);
+                }
+                catch (Exception e)
+                {
+                    MonitoringService.SendMessage("B2X explorer send failed", e.Message);
+                }
+            }
+            if (userclaim.CoinShortName == "BTCP")
+            {
+                try
+                {
+                    var client = new RestClient("https://explorer.btcprivate.org/api/");
+                    var request = new RestRequest("tx/send/", Method.POST);
+                    request.AddJsonBody(new { rawtx = signedTransaction });
+                    IRestResponse restResponse = client.Execute(request);
+                    var content = restResponse.Content; // raw content as string
+                    userclaim.TransactionHash = content;
+                    userclaim.WasTransmitted = true;
+                    userclaim.SubmitDate = DateTime.Now;
+                    db.SaveChanges();
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue), 
+                        "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                    response.Result = content;
+                    return Json(response);
+                }
+                catch (Exception e)
+                {
+                    MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                }
+            }
+            if (userclaim.CoinShortName == "BTG")
+            {
+                try
+                {
+                    var client = new RestClient("https://explorer.bitcoingold.org/insight-api/");
+                    var request = new RestRequest("tx/send/", Method.POST);
+                    request.AddJsonBody(new { rawtx = signedTransaction });
+                    //request.AddParameter("rawtx", signedTransaction);
+
+                    IRestResponse restResponse = client.Execute(request);
+                    var content = restResponse.Content; // raw content as string
+                                                        //ViewBag.content = content;
+                    userclaim.TransactionHash = content;
+                    userclaim.WasTransmitted = true;
+                    userclaim.SubmitDate = DateTime.Now;
+                    db.SaveChanges();
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue), 
+                        "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                    response.Result = content;
+                    return Json(response);
+                }
+                catch (Exception e)
+                {
+                    MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                }
+            }
+            if (userclaim.CoinShortName == "BTX")
+            {
+                try
+                {
+                    var client = new RestClient("https://insight.bitcore.cc/api/");
+                    var request = new RestRequest("tx/send", Method.POST);
+                    //request.AddJsonBody(new { rawtx = signedTransaction });
+                    request.AddParameter("rawtx", signedTransaction);
+                    request.RequestFormat = DataFormat.Json;
+                    //request.AddUrlSegment("rawtx", signedTransaction);
+                    IRestResponse restResponse = client.Execute(request);
+                    var content = restResponse.Content; // raw content as string
+                                                        //ViewBag.content = content;
+                    userclaim.TransactionHash = content;
+                    userclaim.WasTransmitted = true;
+                    userclaim.SubmitDate = DateTime.Now;
+                    db.SaveChanges();
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue), 
+                        "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                    response.Result = content;
+                    return Json(response);
+                }
+                catch (Exception e)
+                {
+                    MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                }
+            }
+            if (userclaim.CoinShortName == "BTV")
+            {
+                //https://block.bitvote.one/tx/send   ps://block.bitvote.one/insight-api/
+                try
+                {
+                    var client = new RestClient("https://block.bitvote.one/insight-api/");
+                    var request = new RestRequest("tx/send/", Method.POST);
+                    request.AddJsonBody(new { rawtx = signedTransaction });
+                    //request.AddParameter("rawtx", signedTransaction);
+
+                    IRestResponse restResponse = client.Execute(request);
+                    var content = restResponse.Content; // raw content as string
+                                                        //ViewBag.content = content;
+                    userclaim.TransactionHash = content;
+                    userclaim.WasTransmitted = true;
+                    userclaim.SubmitDate = DateTime.Now;
+                    db.SaveChanges();
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue), 
+                        "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                    response.Result = content;
+                    return Json(response);
+                }
+                catch (Exception e)
+                {
+                    MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                }
+
+            }
+            if (userclaim.CoinShortName == "BTP")
+            {
+                try
+                {
+                    var client = new RestClient("http://exp.btceasypay.com/insight-api/");
+                    var request = new RestRequest("tx/send/", Method.POST);
+                    request.AddJsonBody(new { rawtx = signedTransaction });
+                    IRestResponse restResponse = client.Execute(request);
+                    var content = restResponse.Content; // raw content as string
+                    userclaim.TransactionHash = content;
+                    userclaim.WasTransmitted = true;
+                    userclaim.SubmitDate = DateTime.Now;
+                    db.SaveChanges();
+                    MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue), 
+                        "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                    response.Result = content;
+                    return Json(response);
+                }
+                catch (Exception e)
+                {
+                    MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                }
+            }
+
+            // Transmit via Full Node
+            try
+            {
+                string url = "https://www.metabittrader.com/" + userclaim.CoinShortName + "/";
+                var client = new RestClient(url);
+                var request = new RestRequest("api/tx/", Method.POST);
+                request.AddJsonBody(new { Hex = Hex, ClaimId = ClaimId });
+                IRestResponse<BroadcastResponse> restResponse = client.Execute<BroadcastResponse>(request);
+                var content = restResponse.Data;
+                // Forward result
+                return Json(content);
+            }
+            catch (Exception e)
+            {
+                MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+            }
+            response.Result = "Unknown error broadcasting.";
+            response.Error = true;
+            return Json(response);
         }
 
         public ActionResult ClaimError(string message, string claimId)

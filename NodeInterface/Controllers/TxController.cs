@@ -309,8 +309,6 @@ namespace NodeInterface.Controllers
                         }).ToList());
                     }
 
-                    
-                    
                     string txid = t.GetHash().ToString();
                     response.Txid = txid;
                     userclaim.TransactionHash = txid;
