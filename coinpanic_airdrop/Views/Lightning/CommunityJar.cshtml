@@ -66,7 +66,7 @@
     <div class="col-sm-6">
         <div class="card ">
             <div class="card-body">
-                <h4 class="card-title">Take from Jar (150 satoshi at a time)</h4>
+                <h4 class="card-title">Take from Jar (150 Satoshi at a time)</h4>
                 <div class="input-group mb-3">
                     <input type="text" id="withdrawInvoice" class="form-control" placeholder="Paste Invoice" aria-label="Paste Invoice" aria-describedby="basic-addon2">
                     <div class="input-group-append">
@@ -117,6 +117,7 @@
 }
 @section scripts
 {
+    @Scripts.Render("~/bundles/moment")
     @Scripts.Render("~/bundles/datatables")
     <script src="~/Scripts/jquery.signalR-2.2.3.min.js"></script>
     <script src="~/signalr/hubs"></script>
@@ -156,7 +157,7 @@
             // All transactions notification handling
             hub.client.NotifyNewTransaction = function (t) {
                 //alert(t.Memo);
-                var row = "<tr><td>"+t.Timestamp+"</td><td>"+t.Type+"</td><td>"+t.Amount+"</td><td>"+t.Memo+"</td></tr>";
+                var row = "<tr><td>" + moment.utc(t.Timestamp).format('YYYY-MM-DD h:mm:ss A')+"</td><td>"+t.Type+"</td><td>"+t.Amount+"</td><td>"+t.Memo+"</td></tr>";
                 $("#RecentTransactions tr:first").after(row);
             };
 

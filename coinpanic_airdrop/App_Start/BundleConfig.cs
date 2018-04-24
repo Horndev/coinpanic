@@ -11,6 +11,9 @@ namespace coinpanic_airdrop
             bundles.Add(new ScriptBundle("~/bundles/signalr").Include(
                         "~/Scripts/jquery.signalR-2.2.3.min.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/moment").Include(
+                        "~/Scripts/moment.min.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/sparkline").Include(
                         "~/Scripts/jquery.sparkline.min.js"));
 
@@ -48,8 +51,6 @@ namespace coinpanic_airdrop
 
             bundles.Add(new StyleBundle("~/bundles/fontawesome/css").Include(
                       "~/bower_components/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));
-
-            
 
             bundles.Add(new ScriptBundle("~/bundles/datatables/css").Include(
                        "~/Scripts/DataTables/datatables.min.css"));

@@ -28,7 +28,6 @@ namespace coinpanic_airdrop.Controllers
         public ActionResult CommunityJar()
         {
             usingTestnet = GetUseTestnet();
-
             var lndClient = new LndRpcClient(
                 host: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetHost" : "LnMainnetHost"],
                 macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
@@ -36,8 +35,8 @@ namespace coinpanic_airdrop.Controllers
 
             var info = lndClient.GetInfo();
             ViewBag.URI = info.uris.First();
-
             string userId = "";
+
             //Check if user is returning
             if (HttpContext.Request.Cookies["CoinpanicCommunityJarUser"] != null)
             {
@@ -120,13 +119,11 @@ namespace coinpanic_airdrop.Controllers
         {
             int minwithdraw = 150;
             string ip = Request.UserHostAddress;
-
             bool useTestnet = GetUseTestnet();
             var lndClient = new LndRpcClient(
                 host: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetHost" : "LnMainnetHost"],
                 macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
                 macaroonRead: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"]);
-
             try
             {
                 string userId = "";
