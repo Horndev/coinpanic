@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinpanicLib", "CoinpanicLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coinpanic.Tests", "Coinpanic.Tests\Coinpanic.Tests.csproj", "{1795185D-0ED7-4589-80DE-FA2F2A036DCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinpanicSignUI", "CoinpanicSignUI\CoinpanicSignUI.csproj", "{6E5906FB-B963-4892-B6EE-FE45DE98816E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignTxOffline", "..\CoinpanicSign\CoinpanicSignTx\SignTxOffline.csproj", "{44CC2BBF-7ADB-4401-9025-1BF52E073F15}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin", "..\CoinpanicSign\NBitcoin\NBitcoin\NBitcoin.csproj", "{A3A29F71-3FF4-4817-9CFB-CE4B59A2BD9B}"
@@ -64,12 +62,6 @@ Global
 		{1795185D-0ED7-4589-80DE-FA2F2A036DCC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1795185D-0ED7-4589-80DE-FA2F2A036DCC}.ReleaseLinux|Any CPU.ActiveCfg = Release|Any CPU
 		{1795185D-0ED7-4589-80DE-FA2F2A036DCC}.ReleaseLinux|Any CPU.Build.0 = Release|Any CPU
-		{6E5906FB-B963-4892-B6EE-FE45DE98816E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E5906FB-B963-4892-B6EE-FE45DE98816E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E5906FB-B963-4892-B6EE-FE45DE98816E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E5906FB-B963-4892-B6EE-FE45DE98816E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E5906FB-B963-4892-B6EE-FE45DE98816E}.ReleaseLinux|Any CPU.ActiveCfg = Release|Any CPU
-		{6E5906FB-B963-4892-B6EE-FE45DE98816E}.ReleaseLinux|Any CPU.Build.0 = Release|Any CPU
 		{44CC2BBF-7ADB-4401-9025-1BF52E073F15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{44CC2BBF-7ADB-4401-9025-1BF52E073F15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44CC2BBF-7ADB-4401-9025-1BF52E073F15}.Release|Any CPU.ActiveCfg = Release|Any CPU
