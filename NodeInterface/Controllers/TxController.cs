@@ -96,7 +96,8 @@ namespace NodeInterface.Controllers
                 {
 
                 }
-                if (nodeService.Coin == "BTCP")
+                // Disable for now so that the full node is used (for segwit claims)
+                if (false)//nodeService.Coin == "BTCP")
                 {
                     try
                     {
