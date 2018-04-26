@@ -48,3 +48,5 @@ packages/
 /coinpanic_airdrop/bower_components
 /NodeInterface/bower_components
 /coinpanic_airdrop/Scripts/DataTables/
+/Coinpanic.Tests/TestData.config
+/NodeInterfaceLib.Tests/TestData.config

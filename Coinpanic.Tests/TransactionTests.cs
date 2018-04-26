@@ -5,6 +5,7 @@ using CoinController;
 using NBitcoin;
 using System.Collections.Generic;
 using System.Linq;
+using System.Configuration;
 
 namespace Coinpanic.Tests
 {
@@ -12,7 +13,7 @@ namespace Coinpanic.Tests
     public class TransactionTests
     {
         [TestMethod]
-        public void TestBPAutxP2PKH()
+        public void Fork_BPA_utx_P2PKH()
         {
             string coin = "BPA";
             string fromAddr = "15Lo7GRtK7b8WaYQeynwRFU479FJBSyewr";
@@ -24,7 +25,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestBPAstxP2PKH()
+        public void Fork_BPA_stx_P2PKH()
         {
             string coin = "BPA";
             string utxTxt = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a914a7eb01a363c1324eb38f04a3b138f8b6cc4ef40188ac00000000";
@@ -33,6 +34,31 @@ namespace Coinpanic.Tests
             string expected = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e44937080000008b4830450221009bc6fc589f2e097c5b6eb50a77bd27c8ccedc8fab6a18ca561c1e0706e14968f0220395f016b6f7cd27cdc5feee0096ea0cc9b58de1084c28ade1bd35a0c7169c357214104ce9d21fcccea78c02182d7d6e20e87fc7f14920655ca98bc1deebb1bb0945d6a777c187e77cc5e29424a791a07494f457b0c7ebe343dd7cfc56de415a79c5ee9ffffffff011b600300000000001976a914a7eb01a363c1324eb38f04a3b138f8b6cc4ef40188ac00000000";
             string stxStr = SignTransaction(coin, utxTxt, ustr, privK);
             Console.WriteLine(expected);
+            Console.WriteLine(stxStr);
+            Assert.AreEqual(expected, stxStr);
+        }
+
+        [TestMethod]
+        public void Fork_BTCP_utx_P2SH_P2WPKH()
+        {
+            string coin = "BTCP";
+            string fromAddr = "324U6fWBnAMdxiUD9KiPXYE6eA1ZqW6ATN";
+            string toAddr = "b1LrMGFjeFsrwNaiXJkM2xUZkZXFg12aAs9";
+            string expected = "0100000002f080b83ab42f738cedf4ae611810982fc47c1076492e3b96c7d16903df894ea10000000000ffffffff681e3f81d1c4726f658f33223d1d43d4827809ab51eafc24a24982bbf9180edc0000000000ffffffff010eeb9d7c000000001976a914b3b255028648e151b3e419ab6c5b2e9656ba363988ac00000000";
+            double fee = 0.0001;
+            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, out string utxos, "BTCP");
+            Assert.AreEqual(expected, utx);
+        }
+
+        [TestMethod]
+        public void Fork_BTCP_stk_P2SH_P2WPKH()
+        {
+            string coin = "BTCP";
+            string utx = "0100000002f080b83ab42f738cedf4ae611810982fc47c1076492e3b96c7d16903df894ea10000000000ffffffff681e3f81d1c4726f658f33223d1d43d4827809ab51eafc24a24982bbf9180edc0000000000ffffffff010eeb9d7c000000001976a914b3b255028648e151b3e419ab6c5b2e9656ba363988ac00000000";
+            string privK = ConfigurationManager.AppSettings["BTCP_STX_P2SH_P2WPKH_PK"];
+            string ustr = "[\r\n  {\r\n    \"transactionId\": \"dc0e18f9bb8249a224fcea51ab097882d4431d3d22338f656f72c4d1813f1e68\",\r\n    \"index\": 0,\r\n    \"value\": 2089853221,\r\n    \"scriptPubKey\": \"a914040e95a6492afc5a7c572bec3e094728ec27ac9387\",\r\n    \"redeemScript\": null\r\n  },\r\n  {\r\n    \"transactionId\": \"a14e89df0369d1c7963b2e4976107cc42f98101861aef4ed8c732fb43ab880f0\",\r\n    \"index\": 0,\r\n    \"value\": 880889,\r\n    \"scriptPubKey\": \"a914040e95a6492afc5a7c572bec3e094728ec27ac9387\",\r\n    \"redeemScript\": null\r\n  }\r\n]";
+            string expected = "";
+            string stxStr = SignTransaction(coin, utx, ustr, privK);
             Console.WriteLine(stxStr);
             Assert.AreEqual(expected, stxStr);
         }
@@ -222,7 +248,7 @@ namespace Coinpanic.Tests
             Console.WriteLine("To:           " + toAddr);
 
             BlockScanner bsc = new BlockScanner();
-            // NOTE that BTN is used since this address doesn't actually have BTV
+            
             var balances = bsc.GetUnspentTransactionOutputs(new List<BitcoinAddress>() { origin }, ForceCoin != "" ? ForceCoin : coin);
             //Unspent transaction outputs
             var autxos = balances.Item1;
@@ -241,6 +267,7 @@ namespace Coinpanic.Tests
             BCDtx.Version = BitcoinForks.ForkByShortName[coin].TransactionVersion;
             string utx = BCDtx.ToHex();
             var ustr = NBitcoin.JsonConverters.Serializer.ToString(autxos);
+            Console.WriteLine("UTXO_Str: " + ustr);
             Console.WriteLine("UTX: " + utx);
             utxos = ustr;
             return utx;

@@ -5,6 +5,7 @@ using CoinpanicLib.NodeConnection.Api;
 using NBitcoin;
 using NBitcoin.Forks;
 using RestSharp;
+using RestSharp.Authenticators;
 using shortid;
 using System;
 using System.Collections.Generic;
@@ -267,14 +268,26 @@ namespace coinpanic_airdrop.Controllers
                     MonitoringService.SendMessage("B2X explorer send failed", e.Message);
                 }
             }
+
+            // disable for now so that full node is used.
             if (userclaim.CoinShortName == "BTCP")
             {
                 try
                 {
-                    var client = new RestClient("https://explorer.btcprivate.org/api/");
-                    var request = new RestRequest("tx/send/", Method.POST);
-                    request.AddJsonBody(new { rawtx = signedTransaction });
-                    IRestResponse restResponse = client.Execute(request);
+                    GetConnectionDetails("BTCP", out string host, out int port, out string user, out string pass);
+                    var client = new RestClient("http://" + host + ":" + Convert.ToString(port));
+                    client.Authenticator = new HttpBasicAuthenticator(user, pass);
+                    var request = new RestRequest("/", Method.POST);
+                    request.RequestFormat = DataFormat.Json;
+                    request.AddBody(new
+                    {
+                        jsonrpc = "1.0",
+                        id = "1",
+                        method = "sendrawtransaction",
+                        @params = new List<string>() { signedTransaction },
+                    });
+
+                    var restResponse = client.Execute(request);
                     var content = restResponse.Content; // raw content as string
                     userclaim.TransactionHash = content;
                     userclaim.WasTransmitted = true;
@@ -287,7 +300,7 @@ namespace coinpanic_airdrop.Controllers
                 }
                 catch (Exception e)
                 {
-                    MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                    MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
                 }
             }
             if (userclaim.CoinShortName == "BTG")
@@ -423,6 +436,35 @@ namespace coinpanic_airdrop.Controllers
             ViewBag.ClaimId = claimId;
             return View();
         }
+
+        private static void GetConnectionDetails(string coin, out string host, out int port, out string user, out string pass)
+        {
+            host = GetHost(coin);
+            port = GetPort(coin);
+            user = GetUser(coin);
+            pass = GetPass(coin);
+        }
+
+        static string GetHost(string coin)
+        {
+            return ConfigurationManager.AppSettings[coin + "Host"];
+        }
+
+        static int GetPort(string coin)
+        {
+            return Convert.ToInt32(ConfigurationManager.AppSettings[coin + "Port"]);
+        }
+
+        static string GetUser(string coin)
+        {
+            return ConfigurationManager.AppSettings[coin + "User"];
+        }
+
+        static string GetPass(string coin)
+        {
+            return ConfigurationManager.AppSettings[coin + "Pass"];
+        }
+
 
         public ActionResult InvalidCoin()
         {
