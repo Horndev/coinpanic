@@ -10,7 +10,7 @@ namespace Coinpanic.Tests
     public class BlockExplorerTests
     {
         [TestMethod]
-        public void TestBTCP()
+        public void Explorer_Query_P2SH_BTCP()
         {
             string BTCaddr = "38q354WHtHUDFeVXCh4nkQ2UtL66M3FVnK";
 

@@ -13,7 +13,7 @@ namespace Coinpanic.Tests
     public class TransactionTests
     {
         [TestMethod]
-        public void Fork_BPA_utx_P2PKH()
+        public void Fork_utx_P2PKH_BPA()
         {
             string coin = "BPA";
             string fromAddr = "15Lo7GRtK7b8WaYQeynwRFU479FJBSyewr";
@@ -25,7 +25,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void Fork_BPA_stx_P2PKH()
+        public void Fork_stx_P2PKH_BPA()
         {
             string coin = "BPA";
             string utxTxt = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a914a7eb01a363c1324eb38f04a3b138f8b6cc4ef40188ac00000000";
@@ -39,7 +39,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void Fork_BTCP_utx_P2SH_P2WPKH()
+        public void Fork_utx_P2SH_P2WPKH_BTCP()
         {
             string coin = "BTCP";
             string fromAddr = "324U6fWBnAMdxiUD9KiPXYE6eA1ZqW6ATN";
@@ -51,14 +51,20 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void Fork_BTCP_stk_P2SH_P2WPKH()
+        public void Fork_stx_P2SH_P2WPKH_BTCP()
         {
             string coin = "BTCP";
             string utx = "0100000002f080b83ab42f738cedf4ae611810982fc47c1076492e3b96c7d16903df894ea10000000000ffffffff681e3f81d1c4726f658f33223d1d43d4827809ab51eafc24a24982bbf9180edc0000000000ffffffff010eeb9d7c000000001976a914b3b255028648e151b3e419ab6c5b2e9656ba363988ac00000000";
             string privK = ConfigurationManager.AppSettings["BTCP_STX_P2SH_P2WPKH_PK"];
+
+            //Ensure privK is compressed format
+            var clientprivkey = new BitcoinSecret(privK, Network.BTCP);
+            var clientprivcompressed = clientprivkey.Copy(compressed: true);
+            string WIFKey = clientprivcompressed.ToWif();
+
             string ustr = "[\r\n  {\r\n    \"transactionId\": \"dc0e18f9bb8249a224fcea51ab097882d4431d3d22338f656f72c4d1813f1e68\",\r\n    \"index\": 0,\r\n    \"value\": 2089853221,\r\n    \"scriptPubKey\": \"a914040e95a6492afc5a7c572bec3e094728ec27ac9387\",\r\n    \"redeemScript\": null\r\n  },\r\n  {\r\n    \"transactionId\": \"a14e89df0369d1c7963b2e4976107cc42f98101861aef4ed8c732fb43ab880f0\",\r\n    \"index\": 0,\r\n    \"value\": 880889,\r\n    \"scriptPubKey\": \"a914040e95a6492afc5a7c572bec3e094728ec27ac9387\",\r\n    \"redeemScript\": null\r\n  }\r\n]";
-            string expected = "";
-            string stxStr = SignTransaction(coin, utx, ustr, privK);
+            string expected = "0100000002f080b83ab42f738cedf4ae611810982fc47c1076492e3b96c7d16903df894ea1000000008147304402205be0a7f20c3d966cb6fedc8f943f5c3b696bfa862261e3b84104823a4173fc9802206bc1a1e7ef7e2485a6c4e651a81df234a3ca8dd94fa5504d9e424bf16d5cf24c4121027977c92d6ce6d6e19a992bb8589515951cb32b977f0513870c6a93f4e75f129d160014c2d6eb6b04819813312c0563706c5cc2008abbc8ffffffff681e3f81d1c4726f658f33223d1d43d4827809ab51eafc24a24982bbf9180edc0000000082483045022100e32214ccc2ab841173283c966c50f514b4b8a9d073fd5b712ab0553ee4cfa6ad0220217bcfb899edf13da2ea083cf8a62feb696478ece2e730337869df67263104ba4121027977c92d6ce6d6e19a992bb8589515951cb32b977f0513870c6a93f4e75f129d160014c2d6eb6b04819813312c0563706c5cc2008abbc8ffffffff010eeb9d7c000000001976a914b3b255028648e151b3e419ab6c5b2e9656ba363988ac00000000";
+            string stxStr = SignTransaction(coin, utx, ustr, WIFKey);
             Console.WriteLine(stxStr);
             Assert.AreEqual(expected, stxStr);
         }
@@ -90,7 +96,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestBTVutxP2PKH()
+        public void Fork_utx_P2PKH_BTV()
         {
             string coin = "BTV";
             string fromAddr = "15Lo7GRtK7b8WaYQeynwRFU479FJBSyewr";
@@ -103,7 +109,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestLBTCutxP2PKH()
+        public void Fork_utx_P2PKH_LBTC()
         {
             string coin = "LBTC";
             string fromAddr = "15Lo7GRtK7b8WaYQeynwRFU479FJBSyewr";
@@ -127,7 +133,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestBTVutxP2SH_P2WPKH()
+        public void Fork_utx_P2SH_P2WPKH_BTV()
         {
             string coin = "BTV";
             string fromAddr = "34ZuYSNSCm5Vtgtfn7PnxKYXP2rbp4N4rC";
@@ -180,7 +186,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestBTVstxP2SH_P2WPKH2()
+        public void Fork_stx_P2SH_P2WPKH2_BTV()
         {
             string coin = "BTV";
             string utxTxt = "02000000013617cb17192501c8a4fcef74ec360930f05b5bc3f8bf128d9904d5056111bc7a0000000000ffffffff01104d4701000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
@@ -193,7 +199,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestBTVstxP2PKH()
+        public void Fork_stx_P2PKH_BTV()
         {
             string coin = "BTV";
             string utxTxt = "0200000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
@@ -208,7 +214,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestPrivKeyUncompToComp()
+        public void Privk_PrivKeyUncompToComp()
         {
             var n = BitcoinForks.ForkByShortName["BTV"].Network; //can use any network which supports segwit
             //This is a Segwit P2SH-P2WPKH address
@@ -228,7 +234,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestBTVstxP2SH_P2WPKH()
+        public void Fork_stx_P2SH_P2WPKH_BTV()
         {
             string coin = "BTV";
             string utxTxt = "02000000065c9be01d9de24f668a8be964e4aa2f544690f5e73dd5b818d5812d69eb98227a0100000000ffffffffd7dc5c66aac944659dc11e7b68282af4fb5182451fff31a320e253d30908d59d0000000000ffffffff3bbe46f65214917b52b18370e0bb9ddaf134f6ee87304bba1e8bba48efd21aa50000000000ffffffff1c62addcda85a37dc9ef8c50fa92c391949d4d97bd17dded24a95dd898cdf64d2c00000000ffffffff8c64c798031f1f70d0e68be210887a95173c528a203fc63f620c59db2ed2d3980000000000ffffffff049978513769443705e355151f8d7d1ae821ae90aa150fa58456bb8047bd387a0600000000ffffffff01771af301000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
@@ -294,22 +300,22 @@ namespace Coinpanic.Tests
             var sbcdbuilder = new TransactionBuilder();
             utx.sigtype = coin;
 
-            var stx = sbcdbuilder
-                    .AddCoins(coins: autxos)
-                    //.AddKeys(privatekeys.ToArray())
-                    .SignTransaction(
-                        utx,
-                        BitcoinForks.ForkByShortName[coin].SigHash | SigHash.All,
-                        coin);
-            stx.Version = BitcoinForks.ForkByShortName[coin].TransactionVersion;
+            //var stx = sbcdbuilder
+            //        .AddCoins(coins: autxos)
+            //        //.AddKeys(privatekeys.ToArray())
+            //        .SignTransaction(
+            //            utx,
+            //            BitcoinForks.ForkByShortName[coin].SigHash | SigHash.All,
+            //            coin);
+            //stx.Version = BitcoinForks.ForkByShortName[coin].TransactionVersion;
 
-            bool isok = sbcdbuilder.Verify(stx, coin);
+            //bool isok = sbcdbuilder.Verify(stx, coin);
 
-            Assert.IsFalse(isok);
+            //Assert.IsFalse(isok);
 
             sbcdbuilder = new TransactionBuilder();
             utx.sigtype = coin;
-            stx = sbcdbuilder
+            var stx = sbcdbuilder
                 .AddKeys(privatekeys.ToArray())
                 .AddCoins(coins: autxos)
                 .SignTransaction(
@@ -317,7 +323,7 @@ namespace Coinpanic.Tests
                         BitcoinForks.ForkByShortName[coin].SigHash | SigHash.All,
                         coin);
 
-            isok = sbcdbuilder.Verify(stx, coin);
+            bool isok = sbcdbuilder.Verify(stx, coin);
             Assert.IsTrue(isok);
 
             Console.WriteLine("Signed Transaction:");

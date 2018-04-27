@@ -8,7 +8,7 @@ namespace Coinpanic.Tests
     public class AddressTests
     {
         [TestMethod]
-        public void TestBTGP2PKH()
+        public void Addr_Create_P2PKH_BTG()
         {
             string BTGaddr = "GZGmgmawaDLjoaz4ZQsz9VXNE9qCoX5oY6";
             var add = BitcoinAddress.Create(BTGaddr, Network.BTG);
@@ -16,7 +16,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestBTPP2PKH()
+        public void Addr_Create_P2PKH_BTP()
         {
             string BTPaddr = "PbQdinKhh9pRKTfkJuhngfX8ctQiZ5cNvy";
 
@@ -26,7 +26,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void TestBTPP2SH()
+        public void Addr_Create_P2SH_BTP()
         {
             string BTPaddr = "Qf1NJsJ8Nf34pNcYQCCDCmPi8doa3rcoWR";
             var add = BitcoinAddress.Create(BTPaddr, Network.BTP);
@@ -52,7 +52,7 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
-        public void Fork_BTCP_Address_P2PKH_Convert()
+        public void Fork_Address_P2PKH_Convert_BTCP()
         {
             string BTCaddr = "14jkz2hJPqgqqKRhDqMYUx37CycQ7G6Ygy";
             string BTCPaddr = "b18CxfDYJ8ziwxbkGAynX5T1nqFKUR9X7pe";
@@ -64,7 +64,7 @@ namespace Coinpanic.Tests
             Assert.AreEqual(BTCPaddr, add2.ToString());
         }
         [TestMethod]
-        public void Fork_BTCP_Address_P2SH_Convert()
+        public void Fork_Address_P2SH_Convert_BTCP()
         {
             string BTCaddr = "34ZuYSNSCm5Vtgtfn7PnxKYXP2rbp4N4rC";
             string BTCPaddr = "bxdzLB4rkNuk8nckkz48A3ViqiPq8cm5yFS";
