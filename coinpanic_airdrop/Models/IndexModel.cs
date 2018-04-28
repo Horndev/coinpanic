@@ -11,6 +11,11 @@ namespace coinpanic_airdrop.Models
     /// </summary>
     public class IndexCoinInfo
     {
+        public IndexCoinInfo()
+        {
+            Exchanges = new List<ExchangeInfo>();
+        }
+
         [Key]
         public int InfoId { get; set; }
         public string Coin { get; set; }
@@ -25,7 +30,30 @@ namespace coinpanic_airdrop.Models
         public string ExchangeConfirm { get; set; }
         public string ExplorerURL { get; set; }
         public string ExplorerUsed { get; set; }
+        public virtual ICollection<ExchangeInfo> Exchanges { get; set; }
     }
+
+    public class ExchangeInfo
+    {
+        public ExchangeInfo()
+        {
+            Coins = new List<IndexCoinInfo>();
+        }
+
+        [Key]
+        public int ExchangeId { get; set; }
+
+        public string Name { get; set; }
+        public string URL { get; set; }
+        public string Confirmed { get; set; }
+        public int Rating { get; set; }
+        public string KYC { get; set; }
+
+        public virtual ICollection<IndexCoinInfo> Coins { get; set; }
+    }
+
+
+
 
     public class IndexModel
     {

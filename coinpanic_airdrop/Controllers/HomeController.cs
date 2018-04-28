@@ -15,28 +15,29 @@ namespace coinpanic_airdrop.Controllers
         public ActionResult Index()
         {
             IndexModel viewModel = new IndexModel();
-            viewModel.CoinInfo = new Dictionary<string, IndexCoinInfo>();
+            //viewModel.CoinInfo = new Dictionary<string, IndexCoinInfo>();
 
-            var ci = db.IndexCoinInfo.ToList();
+            var ci = db.IndexCoinInfo.Include("Exchanges").AsNoTracking().ToList();
 
-            foreach (var i in ci)
-            {
-                var c = new IndexCoinInfo()
-                {
-                    CoinName = i.CoinName,
-                    AlertClass = i.AlertClass,
-                    Status = i.Status,
-                    CoinHeaderMessage = i.CoinHeaderMessage,
-                    Exchange = i.Exchange,
-                    ExchangeURL = i.ExchangeURL,
-                    ExchangeConfirm = i.ExchangeConfirm,
-                    //Nodes = CoinPanicServer.GetNumNodes(i.Coin),
-                    CoinNotice = i.CoinNotice,
-                    ExplorerURL = i.ExplorerURL,
-                    ExplorerUsed = i.ExplorerUsed
-                };
-                viewModel.CoinInfo.Add(i.Coin, c);
-            }
+            viewModel.CoinInfo = ci.ToDictionary(i => i.Coin, i => i);
+            //foreach (var i in ci)
+            //{
+            //    var c = new IndexCoinInfo()
+            //    {
+            //        CoinName = i.CoinName,
+            //        AlertClass = i.AlertClass,
+            //        Status = i.Status,
+            //        CoinHeaderMessage = i.CoinHeaderMessage,
+            //        Exchange = i.Exchange,
+            //        ExchangeURL = i.ExchangeURL,
+            //        ExchangeConfirm = i.ExchangeConfirm,
+            //        //Nodes = CoinPanicServer.GetNumNodes(i.Coin),
+            //        CoinNotice = i.CoinNotice,
+            //        ExplorerURL = i.ExplorerURL,
+            //        ExplorerUsed = i.ExplorerUsed
+            //    };
+            //    viewModel.CoinInfo.Add(i.Coin, c);
+            //}
 
             //viewModel.CoinInfo = new Dictionary<string, IndexCoinInfo>()
             //{

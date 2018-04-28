@@ -318,6 +318,10 @@
     <Compile Include="Migrations\201804190118469_AddCPExplorerURL.Designer.cs">
       <DependentUpon>201804190118469_AddCPExplorerURL.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201804272224387_AddExchangeList.cs" />
+    <Compile Include="Migrations\201804272224387_AddExchangeList.Designer.cs">
+      <DependentUpon>201804272224387_AddExchangeList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Coupon.cs" />
     <Compile Include="Models\IndexModel.cs" />
@@ -1820,6 +1824,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201804190118469_AddCPExplorerURL.resx">
       <DependentUpon>201804190118469_AddCPExplorerURL.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804272224387_AddExchangeList.resx">
+      <DependentUpon>201804272224387_AddExchangeList.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

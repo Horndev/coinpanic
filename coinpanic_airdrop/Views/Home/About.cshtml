@@ -1,14 +1,126 @@
 ﻿@{
     ViewBag.Title = "About";
 }
-<h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
 
-<p>This webpage was created to help users claim their Bitcoin Forks.</p>
-
-<p>If you find our services helpful to you, please consider donating to support us to develop more services.</p>
-
-<br />
-<p>Donation address</p>
-<p><img src="~/Content/DonationQR.png" /></p>
-<p>3EZ8tgzdBYQz2eanQkHvQUTEH8R3MR2n4E</p>
+<div class="card">
+    <h3 class="card-header">@ViewBag.Title @ViewBag.Message</h3>
+    <div class="card-body">
+        <p class="card-text">This webpage was created to help users claim their Bitcoin Forks.</p>
+        <p class="card-text">If you find our services helpful to you, please consider donating to support us to develop more services.</p>
+        <h4>Donation Addresses</h4>
+        <div id="accordion">
+            <div class="card">
+                <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Bitcoin (BTC)
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body">
+                        @{
+                            var urlBTC = string.Format(
+                                "/Lightning/getQr?qr={0}",
+                                @Uri.EscapeDataString("3EZ8tgzdBYQz2eanQkHvQUTEH8R3MR2n4E"));
+                        }
+                        <div class="col-md-4">
+                            <img src="@urlBTC" class="img-fluid" /><br />
+                            
+                        </div>
+                        3EZ8tgzdBYQz2eanQkHvQUTEH8R3MR2n4E
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingTwo">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Segwit 2x (B2X)
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                    <div class="card-body">
+                        @{
+                            var urlB2X = string.Format(
+                                "/Lightning/getQr?qr={0}",
+                                @Uri.EscapeDataString("1SPs5y4VtW9gaAyctJJvwR1PnF9YfeyeV"));
+                        }
+                        <div class="col-md-4">
+                            <img src="@urlB2X" class="img-fluid" /><br />
+                        </div>
+                            1SPs5y4VtW9gaAyctJJvwR1PnF9YfeyeV
+                        </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingThree">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Bitcoin Faith (BTF)
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                    <div class="card-body">
+                        @{
+                            var urlBTF = string.Format(
+                                "/Lightning/getQr?qr={0}",
+                                @Uri.EscapeDataString("Fe2NBCc9FkGoKyasPCfgeQZXvfjoXvdRsd"));
+                        }
+                        <div class="col-md-4">
+                            <img src="@urlBTF" class="img-fluid" /><br />
+                        </div>
+                            Fe2NBCc9FkGoKyasPCfgeQZXvfjoXvdRsd
+                        </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingBTW">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseBTW" aria-expanded="false" aria-controls="collapseBTW">
+                            Bitcoin World (BTW)
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseBTW" class="collapse" aria-labelledby="headingBTW" data-parent="#accordion">
+                    <div class="card-body">
+                        @{
+                            var urlBTW = string.Format(
+                                "/Lightning/getQr?qr={0}",
+                                @Uri.EscapeDataString("WXb6HKY8bLcY6BEFy8UJx3N7yzioYFP4dx"));
+                        }
+                        <div class="col-md-4">
+                            <img src="@urlBTW" class="img-fluid" /><br />
+                        </div>
+                        WXb6HKY8bLcY6BEFy8UJx3N7yzioYFP4dx
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingUBTC">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseUBTC" aria-expanded="false" aria-controls="collapseUBTC">
+                            United Bitcoin (UBTC)
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseUBTC" class="collapse" aria-labelledby="headingUBTC" data-parent="#accordion">
+                    <div class="card-body">
+                        @{
+                            var urlUBTC = string.Format(
+                                "/Lightning/getQr?qr={0}",
+                                @Uri.EscapeDataString("19nykQ2y6TNuAUUApL9Y2fBHGMWqMpauMD"));
+                        }
+                        <div class="col-md-4">
+                            <img src="@urlUBTC" class="img-fluid" /><br />
+                        </div>
+                        19nykQ2y6TNuAUUApL9Y2fBHGMWqMpauMD
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
