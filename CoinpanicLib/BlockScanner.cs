@@ -140,11 +140,17 @@ namespace CoinController
                     string baseURL = "https://explorer.b2x-segwit.io/b2x-insight-api";
                     unspentCoins = GetUTXOFromInsight(UTXOs, ca, baseURL);
                 }
+                else if (forkShortName == "BCI" && !isSW && !estimate)
+                {
+                    var addr = ca.Convert(Network.BCI);
+                    string baseURL = "https://explorer.bitcoininterest.io/api/";
+                    unspentCoins = GetUTXOFromInsight(UTXOs, addr, baseURL);
+                }
                 else if (forkShortName == "BTCP" && !isSW && !estimate)
                 {
-                    var btcpa = ca.Convert(Network.BTCP);
+                    var addr = ca.Convert(Network.BTCP);
                     string baseURL = "https://explorer.btcprivate.org/api";
-                    unspentCoins = GetUTXOFromInsight(UTXOs, btcpa, baseURL);
+                    unspentCoins = GetUTXOFromInsight(UTXOs, addr, baseURL);
                 }
                 else if (forkShortName == "BTX" && !isSW && !estimate)
                 {

@@ -42,7 +42,15 @@ namespace coinpanic_airdrop.Controllers
                     RequestIP = ip
                 });
                 var res = db.SaveChanges();
-                ViewBag.Exchanges = db.IndexCoinInfo.Where(i => i.Coin == coin).AsNoTracking().First().Exchanges.ToList();
+                var ci = db.IndexCoinInfo.Where(i => i.Coin == coin).AsNoTracking();
+                if (ci.Count() > 0)
+                {
+                    ViewBag.Exchanges = ci.First().Exchanges.ToList();
+                }
+                else
+                {
+                    ViewBag.Exchanges = new List<Models.ExchangeInfo>();
+                }
             }
 
             // Make sure we understand how to sign the requested coin
@@ -63,7 +71,6 @@ namespace coinpanic_airdrop.Controllers
             using (CoinpanicContext db = new CoinpanicContext())
             {
                 CoinClaim userclaim = db.Claims.Where(c => c.ClaimId == claimId).Include(c => c.InputAddresses).First();
-
 
                 //clean up
                 depositAddress = depositAddress.Replace("\n", String.Empty);
@@ -113,6 +120,17 @@ namespace coinpanic_airdrop.Controllers
                     {
                         AddressId = Guid.NewGuid(),
                         PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BTCP).ToString(),
+                        CoinShortName = userclaim.CoinShortName,
+                        ClaimId = userclaim.ClaimId,
+                        ClaimValue = balances[li],
+                    }).ToList();
+                }
+                else if (userclaim.CoinShortName == "BCI")
+                {
+                    inputs = list.Select(li => new InputAddress()
+                    {
+                        AddressId = Guid.NewGuid(),
+                        PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BCI).ToString(),
                         CoinShortName = userclaim.CoinShortName,
                         ClaimId = userclaim.ClaimId,
                         ClaimValue = balances[li],
@@ -261,7 +279,6 @@ namespace coinpanic_airdrop.Controllers
                         var client = new RestClient("https://explorer.b2x-segwit.io/b2x-insight-api/");
                         var request = new RestRequest("tx/send/", Method.POST);
                         request.AddJsonBody(new { rawtx = signedTransaction });
-                        //request.AddParameter("rawtx", signedTransaction);
 
                         IRestResponse restResponse = client.Execute(request);
                         var content = restResponse.Content; // raw content as string
@@ -281,7 +298,33 @@ namespace coinpanic_airdrop.Controllers
                         MonitoringService.SendMessage("B2X explorer send failed", e.Message);
                     }
                 }
+                if (userclaim.CoinShortName == "BCI")
+                {
+                    //https://explorer.bitcoininterest.io/api/
+                    try
+                    {
+                        var client = new RestClient("https://explorer.bitcoininterest.io/api/");
+                        var request = new RestRequest("tx/send/", Method.POST);
+                        request.AddJsonBody(new { rawtx = signedTransaction });
 
+                        IRestResponse restResponse = client.Execute(request);
+                        var content = restResponse.Content; // raw content as string
+                        userclaim.TransactionHash = content;
+                        userclaim.WasTransmitted = true;
+                        userclaim.SubmitDate = DateTime.Now;
+
+                        db.SaveChanges();
+                        MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue),
+                            "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction
+                            + "\r\n Result: " + content);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                    }
+                }
                 // disable for now so that full node is used.
                 if (userclaim.CoinShortName == "BTCP")
                 {

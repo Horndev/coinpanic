@@ -120,6 +120,28 @@
                     </div>
                 </div>
             </div>
+            <div class="card">
+                <div class="card-header" id="headingBCI">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseBCI" aria-expanded="false" aria-controls="collapseBCI">
+                            Bitcoin Interest (BCI)
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseBCI" class="collapse" aria-labelledby="headingBCI" data-parent="#accordion">
+                    <div class="card-body">
+                        @{
+                            var urlBCI = string.Format(
+                                "/Lightning/getQr?qr={0}",
+                                @Uri.EscapeDataString("iCJB7egYMV5S2xs9CyzBiJtq8r1e5R2isc"));
+                        }
+                        <div class="col-md-4">
+                            <img src="@urlBCI" class="img-fluid" /><br />
+                        </div>
+                        iCJB7egYMV5S2xs9CyzBiJtq8r1e5R2isc
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
