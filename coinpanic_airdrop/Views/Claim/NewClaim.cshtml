@@ -21,9 +21,24 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <div class="col-sm-7">
-                        <label for="depositAddress">Your @Model.CoinShortName deposit address (where your @Model.CoinShortName should be sent)</label>
-                        <input data-toggle="tooltip" data-placement="right" title="Warning: Please make sure the deposit address is correct.  Sending your coins to a cross-fork address, or incorrect address, could result in the unrecoverable loss of your coins." placeholder="Enter deposit address" type="text" class="form-control" id="depositAddress" name="depositAddress">
+                    <div class="row">
+                        <div class="col-sm-7">
+                            <label for="depositAddress">Your @Model.CoinShortName deposit address (where your @Model.CoinShortName should be sent)</label>
+                            <input data-toggle="tooltip" data-placement="right" title="Warning: Please make sure the deposit address is correct.  Sending your coins to a cross-fork address, or incorrect address, could result in the unrecoverable loss of your coins." placeholder="Enter deposit address" type="text" class="form-control" id="depositAddress" name="depositAddress">
+                        </div>
+                        <div class="col-sm-2 align-self-end">
+                            <div class="dropdown">
+                                <button class="btn btn-link" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span data-toggle="tooltip" title="Exchanges" class="fa fa-university"></span>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    @foreach (var j in ViewBag.Exchanges)
+                                    {
+                                        <a class="dropdown-item" href="@j.URL" target="_blank">@j.Name</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </p>
