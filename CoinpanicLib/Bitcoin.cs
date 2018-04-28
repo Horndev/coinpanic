@@ -44,14 +44,27 @@ namespace CoinController
                 return "";
             }
 
-            Transaction utx = builder
-                .AddCoins(coins: UTXOs)
-                .Send(clientDepAddr, amounts[0])
-                .Send(MyDepositAddr, amounts[1])
-                .SetChange(MyDepositAddr)
-                .SendFees(amounts[2])
-                .BuildTransaction(sign: false);
+            Transaction utx;
 
+            if (clientDepAddr.ToString() == MyDepositAddr.ToString())
+            {
+                utx = builder
+                    .AddCoins(coins: UTXOs)
+                    .Send(MyDepositAddr, amounts[0] + amounts[1])                
+                    .SetChange(MyDepositAddr)
+                    .SendFees(amounts[2])
+                    .BuildTransaction(sign: false);
+            }
+            else
+            {
+                utx = builder
+                    .AddCoins(coins: UTXOs)
+                    .Send(clientDepAddr, amounts[0])
+                    .Send(MyDepositAddr, amounts[1])
+                    .SetChange(MyDepositAddr)
+                    .SendFees(amounts[2])
+                    .BuildTransaction(sign: false);
+            }
             utx.Version = BitcoinForks.ForkByShortName[forkShortName].TransactionVersion;
             return utx.ToHex();
         }
