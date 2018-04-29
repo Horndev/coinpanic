@@ -24,6 +24,14 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
+        public void Fork_Address_Create_P2PKH_BCA()
+        {
+            string addr = "AZyMH7m2YfbGLatXYbKLAv5ubWPcoVTush";
+            var add = BitcoinAddress.Create(addr, Network.Main);
+            Assert.AreEqual(addr, add.ToString());
+        }
+
+        [TestMethod]
         public void Fork_Address_Create_P2PKH_BTP()
         {
             string BTPaddr = "PbQdinKhh9pRKTfkJuhngfX8ctQiZ5cNvy";
@@ -84,6 +92,16 @@ namespace Coinpanic.Tests
             string ConvertedAddress = "i7DHR76gpExDFXeXidL3wjoMQRtcf4JUsG";
             BitcoinAddress add = BitcoinAddress.Create(BTCaddr, Network.Main);
             var add2 = add.Convert(Network.BCI);
+            Assert.AreEqual(ConvertedAddress, add2.ToString());
+        }
+
+        [TestMethod]
+        public void Fork_Address_Convert_P2PKH_BCA()
+        {
+            string BTCaddr = "14jkz2hJPqgqqKRhDqMYUx37CycQ7G6Ygy";
+            string ConvertedAddress = "AKWddXYvizLzeHdgnV1sdqJCgaY6Ranszd";
+            BitcoinAddress add = BitcoinAddress.Create(BTCaddr, Network.Main);
+            var add2 = add.Convert(Network.BCA);
             Assert.AreEqual(ConvertedAddress, add2.ToString());
         }
 

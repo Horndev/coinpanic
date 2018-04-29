@@ -416,27 +416,6 @@ namespace CoinController
 
             return result;
         }
-        
-    //    public string CreateUnsignedTransaction(List<ICoin> UTXOs, BitcoinAddress clientDepAddr, Money theirMoney, BitcoinAddress myDepAddr, Money myMoney, Money txFees, Forks.ForkCode forkCode)
-    //    {
-    //        var builder = new TransactionBuilder();
-
-    //        Transaction utx = builder
-				//.AddCoins(coins: UTXOs)
-				//.Send(clientDepAddr, theirMoney)
-				//.Send(myDepAddr, myMoney)
-				//.SetChange(myDepAddr)
-				//.SendFees(txFees)
-				////.SetLockTime(LockTime.Zero)
-				//.BuildTransaction(sign: false);
-
-    //        if (forkCode == Forks.ForkCode.SBTC)
-    //        {
-    //            utx.Version = 2;
-    //        }
-
-    //        return utx.ToHex();
-    //    }
 
         public string GetWitnessText(List<ICoin> UTXOs)
         {
@@ -447,60 +426,3 @@ namespace CoinController
         private QBitNinjaClient client;
     }
 }
-
-//Phase 1
-                        //---------
-                        //All users who transfer Bitcoins from his/her own address to his/her own address between Block 494000 and 
-                        //    Block 498777 (11 November 2017 to 12 December 2017 GMT) will be eligible if the transaction meets the following 
-                        //    criteria.
-                        // The output address(receiving address) must also be listed as one of the input addresses 
-                        //    and cannot be a totally new address
-                        // The output address(receiving address) must end up with a balance of more than 0.01 BTC
-                        //
-                        // If you are not sure if the operation is complete, please make two transfers.
-
-                        // UBTC rules sleightly different
-                        // 1) account held coins prior to block 498777
-                        // 2) user must have conducted an outgoing transaction between 494,000 and fork
-                        //Phase 2
-                        //---------
-                        // 1) not received phase 1
-                        // 2) balance at block 498777 larger than 0.01 BTC
-                        // 3) user must have conducted an outgoing transaction between had activity (outgoing) between block 502,315 and 507,613 
-                        //Phase 2 Grace Period
-                        // 3) had activity (outgoing) between block 502,315 and 507,613 
-
-    //List<BalanceOperation> Phase2_ForkOps = AddressTxs.Operations.Where(o => o.Height < 502315 && o.Height > 494000).ToList();
-
-                        //bool inputIsInOutput = false;
-                        //if (Phase1_ForkOps.Count() > 0)
-                        //{
-                        //    foreach (var o in Phase1_ForkOps)
-                        //    {
-                        //        List<BitcoinAddress> inputAddresses = new List<BitcoinAddress>();
-                        //        List<BitcoinAddress> outputAddresses = new List<BitcoinAddress>();
-
-                        //        var t = client.GetTransaction(o.TransactionId).Result;
-
-                        //        foreach (var i in t.Transaction.Outputs)
-                        //        {
-                        //            var paymentScript = i.ScriptPubKey;
-                        //            var address = paymentScript.GetDestinationAddress(Network.Main);
-                        //            outputAddresses.Add(address);
-                        //            //t.Transaction.Outputs.g
-                        //        }
-                        //        foreach (var i in t.Transaction.Inputs)
-                        //        {
-                        //            var inhash = i.PrevOut.Hash;
-                        //            var invout = i.PrevOut.N;
-                        //            var prevtransaction = client.GetTransaction(inhash).Result.Transaction;
-                        //            var sourceAddress = prevtransaction.Outputs[invout].ScriptPubKey.GetDestinationAddress(Network.Main);
-                        //            inputAddresses.Add(sourceAddress);
-                        //        }
-                                
-                        //        inputIsInOutput = inputAddresses.Count(i => outputAddresses.Contains(i)) > 0;
-                        //        if (inputIsInOutput)
-                        //        {
-                        //            AutomaticOps.Add(o);
-                        //        }
-                        //    }

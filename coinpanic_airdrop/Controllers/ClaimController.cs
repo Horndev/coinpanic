@@ -88,7 +88,7 @@ namespace coinpanic_airdrop.Controllers
                 if (list.Count < 1)
                     return RedirectToAction("ClaimError", new { message = "You must enter at least one address to claim", claimId = claimId });
 
-                if (!Bitcoin.IsValidAddress(depositAddress, userclaim.CoinShortName))
+                if (!Bitcoin.IsValidAddress(depositAddress, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network))
                     return RedirectToAction("ClaimError", new { message = "Deposit Address not valid", claimId = claimId });
 
                 var invalid = list.Where(a => !Bitcoin.IsValidAddress(a));
@@ -136,6 +136,17 @@ namespace coinpanic_airdrop.Controllers
                         ClaimValue = balances[li],
                     }).ToList();
                 }
+                else if (userclaim.CoinShortName == "BCA")
+                {
+                    inputs = list.Select(li => new InputAddress()
+                    {
+                        AddressId = Guid.NewGuid(),
+                        PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BCA).ToString(),
+                        CoinShortName = userclaim.CoinShortName,
+                        ClaimId = userclaim.ClaimId,
+                        ClaimValue = balances[li],
+                    }).ToList();
+                }
                 else
                 {
                     inputs = list.Select(li => new InputAddress()
@@ -164,9 +175,12 @@ namespace coinpanic_airdrop.Controllers
                 // Generate unsigned tx
                 var mydepaddr = ConfigurationManager.AppSettings[userclaim.CoinShortName + "Deposit"];
 
-                var utx = Bitcoin.GenerateUnsignedTX(claimcoins.Item1, amounts, Bitcoin.ParseAddress(userclaim.DepositAddress, userclaim.CoinShortName),
-                    Bitcoin.ParseAddress(mydepaddr, userclaim.CoinShortName),
-                    userclaim.CoinShortName);
+                var utx = Bitcoin.GenerateUnsignedTX(
+                    UTXOs: claimcoins.Item1, 
+                    amounts: amounts, 
+                    MyDepositAddr: Bitcoin.ParseAddress(userclaim.DepositAddress, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
+                    clientDepAddr: Bitcoin.ParseAddress(mydepaddr, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
+                    forkShortName: userclaim.CoinShortName);
 
                 userclaim.UnsignedTX = utx;
 
@@ -272,6 +286,38 @@ namespace coinpanic_airdrop.Controllers
                 }
 
                 // Transmit via explorers
+                if (userclaim.CoinShortName == "BCA")
+                {
+                    try
+                    {
+                        var url = "https://explorer.bitcoinatom.io/";
+                        var client = new RestClient(url);
+                        var request = new RestRequest("/rpc-terminal/", Method.POST);
+                        request.AddHeader("content-type", "application/x-www-form-urlencoded");
+                        request.AddHeader("x-requested-with", "XMLHttpRequest");
+                        request.AddObject(new
+                        {
+                            cmd = "sendrawtransaction " + signedTransaction
+                        });
+
+                        IRestResponse restResponse = client.Execute(request);
+                        var content = restResponse.Content; // raw content as string
+                        userclaim.TransactionHash = content;
+                        userclaim.WasTransmitted = true;
+                        userclaim.SubmitDate = DateTime.Now;
+
+                        db.SaveChanges();
+                        MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue),
+                            "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction
+                            + "\r\n Result: " + content);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                    }
+                }
                 if (userclaim.CoinShortName == "B2X")
                 {
                     try
@@ -295,7 +341,7 @@ namespace coinpanic_airdrop.Controllers
                     }
                     catch (Exception e)
                     {
-                        MonitoringService.SendMessage("B2X explorer send failed", e.Message);
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
                     }
                 }
                 if (userclaim.CoinShortName == "BCI")
