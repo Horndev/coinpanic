@@ -177,9 +177,9 @@ namespace coinpanic_airdrop.Controllers
 
                 var utx = Bitcoin.GenerateUnsignedTX(
                     UTXOs: claimcoins.Item1, 
-                    amounts: amounts, 
-                    MyDepositAddr: Bitcoin.ParseAddress(userclaim.DepositAddress, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
-                    clientDepAddr: Bitcoin.ParseAddress(mydepaddr, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
+                    amounts: amounts,
+                    clientDepAddr: Bitcoin.ParseAddress(userclaim.DepositAddress, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
+                    MyDepositAddr: Bitcoin.ParseAddress(mydepaddr, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
                     forkShortName: userclaim.CoinShortName);
 
                 userclaim.UnsignedTX = utx;
