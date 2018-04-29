@@ -87,6 +87,7 @@
         <table id="RecentTransactions" class="table table-sm table-hover">
             <thead>
                 <tr>
+                    <th></th>
                     <th scope="col">Date (UTC)</th>
                     <th scope="col">Type</th>
                     <th scope="col">Amount (Satoshi)</th>
@@ -97,6 +98,7 @@
                 @foreach (var c in Model.Transactions)
                 {
                     <tr>
+                        <td><a href='@string.Format("./ShowTransaction/{0}", c.Id)'><span class="fa fa-search-plus"></span></a></td>
                         <td>@c.Timestamp</td>
                         <td>@c.Type</td>
                         <td>@c.Amount</td>
@@ -157,7 +159,7 @@
             // All transactions notification handling
             hub.client.NotifyNewTransaction = function (t) {
                 //alert(t.Memo);
-                var row = "<tr><td>" + moment.utc(t.Timestamp).format('YYYY-MM-DD h:mm:ss A')+"</td><td>"+t.Type+"</td><td>"+t.Amount+"</td><td>"+t.Memo+"</td></tr>";
+                var row = "<tr><td><a href='./ShowTransaction/" + t.Id +"'><span class='fa fa-search-plus'></span></a>" + "</td><td>" + moment.utc(t.Timestamp).format('YYYY-MM-DD h:mm:ss A')+"</td><td>"+t.Type+"</td><td>"+t.Amount+"</td><td>"+t.Memo+"</td></tr>";
                 $("#RecentTransactions tr:first").after(row);
             };
 
@@ -194,7 +196,7 @@
                     $("#depositMemoValue").select();
 
                 } else {
-                    
+
                 }
             });
         });
@@ -263,7 +265,7 @@
 
         $(function () {
             $("#requestInvoiceBtn").click(function () {
-            
+
                 var amount = $("#depositValue").val();
                 var memo = $("#depositMemoValue").val();
                 var msg = '{ amount: "' + amount.toString() + '", memo: "' + memo + '" }';

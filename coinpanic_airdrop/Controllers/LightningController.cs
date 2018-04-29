@@ -69,6 +69,7 @@ namespace coinpanic_airdrop.Controllers
                     Amount = t.Value,
                     Memo = t.Memo,
                     Type = t.IsDeposit ? "Deposit" : "Withdrawal",
+                    Id = t.TransactionId,
                 }).ToList();
                 latestTx.Balance = jar.Balance;
             }
@@ -220,7 +221,7 @@ namespace coinpanic_airdrop.Controllers
                 }
                 else
                 {
-                    //double request
+                    //double request!
                     Thread.Sleep(1000);
 
                     //Check if paid
@@ -238,7 +239,6 @@ namespace coinpanic_airdrop.Controllers
                     }
                 }
                 WithdrawRequests.TryRemove(request, out DateTime reqInitTime);
-                
                 
                 if (paymentresult.payment_error != null)
                 {
@@ -268,6 +268,8 @@ namespace coinpanic_airdrop.Controllers
                         TimestampSettled = DateTime.UtcNow,
                         TimestampCreated = DateTime.UtcNow, //can't kbnow
                         PaymentRequest = request,
+                        FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees)),
+                        NumberOfHops = paymentresult.payment_route.hops == null ? 0 : paymentresult.payment_route.hops.Count(),
                     };
                     db.LnTransactions.Add(t);
 
@@ -284,6 +286,7 @@ namespace coinpanic_airdrop.Controllers
                         Amount = t.Value,
                         Memo = t.Memo,
                         Type = t.IsDeposit ? "Deposit" : "Withdrawal",
+                        Id = t.TransactionId,
                     };
 
                     context.Clients.All.NotifyNewTransaction(newT);
@@ -297,6 +300,24 @@ namespace coinpanic_airdrop.Controllers
             }
 
             return Json(new { Result = "success" });
+        }
+
+        /// <summary>
+        /// Query previous transactions and display
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public ActionResult ShowTransaction(int id)
+        {
+            LnTransaction t = new LnTransaction();
+            using (CoinpanicContext db = new CoinpanicContext())
+            {
+                var tr = db.LnTransactions.AsNoTracking().FirstOrDefault(tid => tid.TransactionId == id);
+                if (tr != null)
+                    t = tr;
+            }
+            return View(t);
         }
 
         [HttpPost]
@@ -447,6 +468,7 @@ namespace coinpanic_airdrop.Controllers
 
                 //check if unsettled transaction exists
                 var tx = db.LnTransactions.Where(tr => tr.PaymentRequest == invoice.payment_request).ToList();
+                DateTime settletime = DateTime.UtcNow;
 
                 LnTransaction t;
                 if (tx.Count > 0)
@@ -458,6 +480,7 @@ namespace coinpanic_airdrop.Controllers
                 else
                 {
                     //insert transaction
+                    settletime = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
                     t = new LnTransaction()
                     {
                         IsSettled = invoice.settled,
@@ -466,7 +489,7 @@ namespace coinpanic_airdrop.Controllers
                         IsTestnet = GetUseTestnet(),
                         HashStr = invoice.r_hash,
                         IsDeposit = true,
-                        TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date)),
+                        TimestampSettled = settletime,
                         TimestampCreated = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.creation_date)),
                         PaymentRequest = invoice.payment_request,
                         UserId = Guid.NewGuid().ToString(),
@@ -484,10 +507,16 @@ namespace coinpanic_airdrop.Controllers
                 user.TimesampLastDeposit = DateTime.UtcNow;
 
                 t.IsSettled = true;
-
                 jar.Balance += Convert.ToInt64(invoice.value);
                 jar.Transactions.Add(t);
                 db.SaveChanges();
+
+                //re-fetch to get the transaction id
+                // Ok, this may not be required.
+                //var tnew = db.LnTransactions.AsNoTracking().FirstOrDefault(tr => tr.PaymentRequest == invoice.payment_request && (DateTime)tr.TimestampSettled == settletime);
+
+                //if (tnew != null)
+                //    t = tnew;
 
                 // Notify Web clients - this is shown to user
                 var newT = new LnCJTransaction()
@@ -496,6 +525,7 @@ namespace coinpanic_airdrop.Controllers
                     Amount = t.Value,
                     Memo = t.Memo,
                     Type = t.IsDeposit ? "Deposit" : "Withdrawal",
+                    Id = t.TransactionId,
                 };
 
                 context.Clients.All.NotifyNewTransaction(newT);

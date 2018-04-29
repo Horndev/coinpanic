@@ -1726,6 +1726,7 @@
     <Content Include="Views\Lightning\NodeError.cshtml" />
     <Content Include="Views\Lightning\CommunityJar.cshtml" />
     <Content Include="Views\Lightning\WebWallet.cshtml" />
+    <Content Include="Views\Lightning\ShowTransaction.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

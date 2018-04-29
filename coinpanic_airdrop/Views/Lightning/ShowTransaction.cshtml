@@ -1,0 +1,121 @@
+﻿@model coinpanic_airdrop.Models.LnTransaction
+
+@{
+    ViewBag.Title = "Show Transaction";
+}
+
+<div class="card">
+    <h3 class="card-header">Lightning Transaction</h3>
+    <div class="card-body">
+        <div class="pl-2 alert alert-dark" role="alert">
+            <b>Memo: </b> @Model.Memo
+        </div>
+        <div class="row">
+            <div class="col col-md-6">
+                <table id="Transactions" class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th colspan="2">
+                                <b>Transaction Information</b>
+                            </th>
+                        </tr>
+                    </thead>
+                    @*<tr>
+                        <td>Transaction Index</td>
+                        <td>@Model.TransactionId</td>
+                    </tr>*@
+                    <tr>
+                        <td>
+                            Network
+                        </td>
+                        <td>
+                            @if (Model.IsTestnet)
+                            {
+                                <text>Testnet</text>
+                            }
+                            else
+                            {
+                                <text>Mainnet</text>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Settlement State
+                        </td>
+                        <td>
+                            @if (Model.IsSettled)
+                            {
+                                <text>Settled</text>
+                            }
+                            else
+                            {
+                                <text>Not Settled</text>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Timestamp Created
+                        </td>
+                        <td>
+                            @Model.TimestampCreated
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Timestamp Settled
+                        </td>
+                        <td>
+                            @Model.TimestampSettled
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col col-md-6">
+                <table id="Transactions" class="table table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th colspan="2">
+                                <b>Transaction Details</b>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <td>Value (Satoshi)</td>
+                        <td>@Model.Value</td>
+                    </tr>
+                    <tr>
+                        <td>Fees Paid (Satoshi) *</td>
+                        <td>@Model.FeePaid_Satoshi</td>
+                    </tr>
+                    <tr>
+                        <td>Number of node hops *</td>
+                        <td>@Model.NumberOfHops</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Type
+                        </td>
+                        <td>
+                            @if (Model.IsDeposit)
+                            {
+                                <text>Deposit</text>
+                            }
+                            else
+                            {
+                                <text>Withdrawal</text>
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="pl-2 alert alert-dark" role="alert">
+            <b>Invoice: </b> @Model.PaymentRequest
+        </div>
+    </div>
+    <div class="card-footer">
+        <p class="card-text">* only known for withdrawal transactions.</p>
+    </div>
+</div>
