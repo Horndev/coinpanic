@@ -322,6 +322,10 @@
     <Compile Include="Migrations\201804272224387_AddExchangeList.Designer.cs">
       <DependentUpon>201804272224387_AddExchangeList.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201804290202310_AddLnPaymentDetails.cs" />
+    <Compile Include="Migrations\201804290202310_AddLnPaymentDetails.Designer.cs">
+      <DependentUpon>201804290202310_AddLnPaymentDetails.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Coupon.cs" />
     <Compile Include="Models\IndexModel.cs" />
@@ -1827,6 +1831,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201804272224387_AddExchangeList.resx">
       <DependentUpon>201804272224387_AddExchangeList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804290202310_AddLnPaymentDetails.resx">
+      <DependentUpon>201804290202310_AddLnPaymentDetails.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

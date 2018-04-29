@@ -190,5 +190,15 @@ namespace coinpanic_airdrop.Models
         public Int64 Value { get; set; }
 
         public string PaymentRequest { get; set; }
+
+        /// <summary>
+        /// The fee which was paid (in Satoshi)
+        /// </summary>
+        public Int64? FeePaid_Satoshi { get; set; }
+
+        /// <summary>
+        /// The number of LN node hops required
+        /// </summary>
+        public int? NumberOfHops { get; set; }
     }
 }
