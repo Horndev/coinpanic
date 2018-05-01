@@ -30,6 +30,8 @@ namespace LightningLib.lndrpc
         // This event is triggered when the HTTP stream is closed
         public event LnStreamLost StreamLost;
 
+        public bool IsLive = false;
+
         public Guid ListenerId = Guid.NewGuid();
 
         public string url;      // full url to /v1/invoices/subscribe
@@ -57,6 +59,7 @@ namespace LightningLib.lndrpc
                     using (var body = await response.Content.ReadAsStreamAsync())
                     using (var reader = new StreamReader(body))
                     {
+                        IsLive = true;
                         //need to read and chop message
                         try
                         {
@@ -73,6 +76,7 @@ namespace LightningLib.lndrpc
                         {
                             // TODO: check that the exception type is actually from a closed stream.
                             Debug.WriteLine(e.Message);
+                            IsLive = false;
                             StreamLost?.Invoke(this);
                         }
                     }

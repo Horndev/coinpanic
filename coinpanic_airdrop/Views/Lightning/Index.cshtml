@@ -1,65 +1,61 @@
 ﻿@model coinpanic_airdrop.Models.LnStatusViewModel
+@{
+    var url = string.Format(
+        "/Lightning/getQr?qr={0}",
+        @Uri.EscapeDataString(ViewBag.URI.ToString()));
+}
 
 <div class="card">
     <h3 class="card-header">Lightning Network node information</h3>
-    <p class="card-text">
-        <div class="form-group">
-            <div class="col-sm-12">
-                @{
-                    var url = string.Format(
-                        "/Lightning/getQr?qr={0}",
-                        @Uri.EscapeDataString(ViewBag.URI.ToString()));
-                }
-                <div class="row justify-content-end">
-                    <div class="col-md-8">
-                        <h4>Node Name: @ViewBag.Alias</h4>
-                        <br />
-                        Connection URI: @ViewBag.URI
-                        <br />
-                        <p class="card-text">
-                            <div class="form-group">
-                                @*<div class="form-inline">
-                                    <div class="form-group">
-                                        <label for="totalxfer" class="col-sm-1 col-form-label">Routed</label>
-                                        <div class="input-group col-xs-1">
-                                            <input type="text" class="form-control input-lg select" id="totalxfer" value="@ViewBag.TotalValueXfer">
-                                            <div class="input-group-append">
-                                                <span class="input-group-text">BTC</span>
-                                            </div>
-                                        </div>
-                                        <div class="input-group col-xs-1">
-                                            <input type="text" class="form-control" id="ntotalxfer" value="@ViewBag.NumXfer">
-                                            <div class="input-group-append">
-                                                <span class="input-group-text">Transactions</span>
-                                            </div>
-                                        </div>
-                                     </div>
-                                </div>*@
-                                <div class="col-sm-10">
-                                    Number of Channels: @ViewBag.NumChannelsActive online / @ViewBag.NumChannels total
-                                    <br />
-                                    Total Capacity: @ViewBag.Capacity BTC (Local balance to send: @ViewBag.LocalCapacity BTC; Remote balace to receive: @ViewBag.RemoteCapacity BTC)
-                                    <br />
-                                    Online Capacity: @ViewBag.ActiveCapacity BTC (Local: @ViewBag.ActiveLocalCapacity BTC; Remote: @ViewBag.ActiveRemoteCapacity BTC)
-                                    <br />
-                                    This node routed: @ViewBag.TotalValueXfer BTC in @ViewBag.NumXfer payments for fees totalling just @ViewBag.TotalFees BTC.
-                                </div>
-                            </div>
-                        </p>
-                    </div>
-                    <div class="col-md-4 " style="padding-left: 0px;  padding-right: 0px;">
-                        <img src="@url" class="img-fluid" />
-                    </div>
-                </div>
+    <div class="card-body">
+        <div>
+            <h4>Node Name: @ViewBag.Alias</h4>
+            <div class="pl-2 alert alert-dark" role="alert">
+                <b></b>Connection URI:</b> @ViewBag.URI
             </div>
         </div>
-    </p>
-
+        <div class="row justify-content-end">
+            <div class="col-md-9">
+                    <table class="table table-sm table-striped table-bordered">
+                        <tr>
+                            <td><b>Number of Channels Total</b></td>
+                            <td colspan="3">@ViewBag.NumChannels</td>
+                        </tr>
+                        <tr>
+                            <td><b>Number of Channels Online</b></td>
+                            <td colspan="3">@ViewBag.NumChannelsActive</tdcolspan="3">
+                        </tr>
+                        <tr>
+                            <td><b>Total Capacity</b></td>
+                            <td>@ViewBag.Capacity BTC</td>
+                            <td>@ViewBag.LocalCapacity BTC Local</td>
+                            <td>@ViewBag.RemoteCapacity BTC Remote</td>
+                        </tr>
+                        <tr>
+                            <td><b>Total Capacity Online</b></td>
+                            <td>@ViewBag.ActiveCapacity BTC</td>
+                            <td>@ViewBag.ActiveLocalCapacity BTC Local</td>
+                            <td>@ViewBag.ActiveRemoteCapacity BTC Remote</td>
+                        </tr>
+                        <tr>
+                            <td><b>Routed</b></td>
+                            <td>@ViewBag.NumXfer payments</td>
+                            <td>@ViewBag.TotalValueXfer BTC value</td>
+                            <td>@ViewBag.TotalFees BTC fees</td>
+                        </tr>
+                    </table>
+            </div>
+            <div class="col-md-3 " style="padding-left: 0px;  padding-right: 0px;">
+                <img src="@url" class="img-fluid" />
+            </div>
+        </div>
+    </div>
 </div>
+<br />
 <div class="card">
     <h3 class="card-header">Connections</h3>
     <div class="card-body">
-        <table id="connectionTbl" class="table table-bordered table-responsive table-hover">
+        <table id="connectionTbl" class="table table-sm table-bordered table-responsive table-hover">
             <thead>
                 <tr>
                     <th>Node Alias</th>

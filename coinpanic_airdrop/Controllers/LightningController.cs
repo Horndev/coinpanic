@@ -392,13 +392,21 @@ namespace coinpanic_airdrop.Controllers
                 db.SaveChanges();
             }
 
-            var listener = lndClient.GetListener();
-            lndclients.TryAdd(listener.ListenerId, listener);           //keep alive while we wait for payment
-            listener.InvoicePaid += NotifyClientsInvoicePaid;     //handle payment message
-            listener.StreamLost += OnListenerLost;                  //stream lost
-            var a = new Task(() => listener.Start());                   //listen for payment
-            a.Start();
+            // If a listener is not already running, this should start
 
+            // Check if there is one already online.
+            var numListeners = lndclients.Count(kvp => kvp.Value.IsLive);
+
+            // If we don't have one running - start it and subscribe
+            if (numListeners < 1)
+            {
+                var listener = lndClient.GetListener();
+                lndclients.TryAdd(listener.ListenerId, listener);           //keep alive while we wait for payment
+                listener.InvoicePaid += NotifyClientsInvoicePaid;     //handle payment message
+                listener.StreamLost += OnListenerLost;                  //stream lost
+                var a = new Task(() => listener.Start());                   //listen for payment
+                a.Start();
+            }
             return Json(resp);
         }
 

@@ -326,6 +326,10 @@
     <Compile Include="Migrations\201804290202310_AddLnPaymentDetails.Designer.cs">
       <DependentUpon>201804290202310_AddLnPaymentDetails.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201804302349598_LNPaymentAddDestinationAndErrors.cs" />
+    <Compile Include="Migrations\201804302349598_LNPaymentAddDestinationAndErrors.Designer.cs">
+      <DependentUpon>201804302349598_LNPaymentAddDestinationAndErrors.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Coupon.cs" />
     <Compile Include="Models\IndexModel.cs" />
@@ -1835,6 +1839,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201804290202310_AddLnPaymentDetails.resx">
       <DependentUpon>201804290202310_AddLnPaymentDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804302349598_LNPaymentAddDestinationAndErrors.resx">
+      <DependentUpon>201804302349598_LNPaymentAddDestinationAndErrors.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

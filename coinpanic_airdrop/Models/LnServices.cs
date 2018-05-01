@@ -201,5 +201,20 @@ namespace coinpanic_airdrop.Models
         /// The number of LN node hops required
         /// </summary>
         public int? NumberOfHops { get; set; }
+
+        /// <summary>
+        /// Where the payment went
+        /// </summary>
+        public string DestinationPubKey { get; set; }
+
+        /// <summary>
+        /// Record error messages
+        /// </summary>
+        public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// Record of payment error
+        /// </summary>
+        public bool IsError { get; set; }
     }
 }

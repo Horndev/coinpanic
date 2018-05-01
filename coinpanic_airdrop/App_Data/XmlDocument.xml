@@ -12,6 +12,13 @@
             <param name="claimId"></param>
             <returns></returns>
         </member>
+        <member name="M:coinpanic_airdrop.Controllers.LightningController.ShowTransaction(System.Int32)">
+            <summary>
+            Query previous transactions and display
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
         <member name="T:coinpanic_airdrop.Controllers.ServicesController">
             <summary>
             
@@ -85,6 +92,31 @@
         <member name="P:coinpanic_airdrop.Models.LnTransaction.IsTestnet">
             <summary>
             Whether or not the transaction is on testnet
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.FeePaid_Satoshi">
+            <summary>
+            The fee which was paid (in Satoshi)
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.NumberOfHops">
+            <summary>
+            The number of LN node hops required
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.DestinationPubKey">
+            <summary>
+            Where the payment went
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.ErrorMessage">
+            <summary>
+            Record error messages
+            </summary>
+        </member>
+        <member name="P:coinpanic_airdrop.Models.LnTransaction.IsError">
+            <summary>
+            Record of payment error
             </summary>
         </member>
     </members>
