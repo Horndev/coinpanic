@@ -107,6 +107,51 @@
                 }
             </tbody>
         </table>
+        <nav aria-label="...">
+            <ul class="pagination justify-content-center">
+                
+                @if (ViewBag.ActivePage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="./CommunityJar?page=1">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="./CommunityJar?page=@(ViewBag.ActivePage-1)">Previous</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" href="./CommunityJar?page=1">First</a>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                }
+                @for (int p = ViewBag.FirstPage; p <= ViewBag.LastPage; p++)
+                {
+                    if (p == ViewBag.ActivePage)
+                    {
+                        <li class="page-item active">
+                            <span class="page-link">
+                                @p
+                                <span class="sr-only">(current)</span>
+                            </span>
+                        </li>
+                    }
+                    else if (p <= ViewBag.NumPages)
+                    {
+                        <li class="page-item"><a class="page-link" href="./CommunityJar?page=@p">@p</a></li>
+                    }
+                }
+                <li class="page-item">
+                    <a class="page-link" href="./CommunityJar?page=@(ViewBag.ActivePage+1)">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="./CommunityJar?page=@ViewBag.NumPages">Last</a>
+                </li>
+            </ul>
+        </nav>
     </div>
     <div class="card-footer">
         <p class="card-text"><small class="text-muted">This service uses cookies to anonymously track your contributions.  If you do not make any deposits or withdrawals for a period of 7 days, your user history will be reset.</small></p>
@@ -274,14 +319,9 @@
                     type: "POST",
                     url: "/Lightning/GetJarDepositInvoice",
                     data: msg,
-                    //xhrFields: {
-                    //    withCredentials: true
-                    //},
-                    //crossDomain: true,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (response) {
-                        //$("#spinner").hide();
                         $("#lnDepositInvoiceInput").val(response.Invoice);
                         $("#lnDepositInvoiceLink").attr("href", "lightning:" + response.Invoice);
                         $("#lnDepositQR").attr("src", "/Lightning/GetQr?qr=" + encodeURI("lightning:" + response.Invoice));

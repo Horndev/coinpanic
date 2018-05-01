@@ -25,7 +25,7 @@ namespace coinpanic_airdrop.Controllers
 
         private static bool usingTestnet = true;
 
-        public ActionResult CommunityJar()
+        public ActionResult CommunityJar(int page=1)
         {
             usingTestnet = GetUseTestnet();
             var lndClient = new LndRpcClient(
@@ -56,14 +56,24 @@ namespace coinpanic_airdrop.Controllers
                 userId = cookie.Value;
             }
 
+            // This will be the list of transactions shown to the user
             LnCJTransactions latestTx = new LnCJTransactions();
+
+            
 
             using (CoinpanicContext db = new CoinpanicContext())
             {
-                var jar = db.LnCommunityJars.Where(j => j.IsTestnet == usingTestnet).First();
+                var jar = db.LnCommunityJars.AsNoTracking().Where(j => j.IsTestnet == usingTestnet).First();
                 ViewBag.Balance = jar.Balance;
 
-                latestTx.Transactions = jar.Transactions.OrderByDescending(t => t.TimestampSettled).Take(20).Select(t => new LnCJTransaction()
+                int NumTransactions = jar.Transactions.Count();
+                ViewBag.NumTransactions = NumTransactions;
+                ViewBag.NumPages = Math.Ceiling(Convert.ToDouble(NumTransactions)/20.0);
+                ViewBag.ActivePage = page;
+                ViewBag.FirstPage = (page-3) < 1 ? 1 : (page-3);
+                ViewBag.LastPage = (page+3) < 6 ? 6 : (page+3);
+
+                latestTx.Transactions = jar.Transactions.OrderByDescending(t => t.TimestampSettled).Skip((page-1)*20).Take(20).Select(t => new LnCJTransaction()
                 {
                     Timestamp = t.TimestampSettled == null ? DateTime.UtcNow : (DateTime)t.TimestampSettled,
                     Amount = t.Value,
@@ -72,7 +82,11 @@ namespace coinpanic_airdrop.Controllers
                     Id = t.TransactionId,
                 }).ToList();
                 latestTx.Balance = jar.Balance;
+
+                
             }
+
+            
 
             return View(latestTx);
         }
@@ -115,6 +129,11 @@ namespace coinpanic_airdrop.Controllers
         //Used for rate limiting double withdraws
         static ConcurrentDictionary<string, DateTime> WithdrawRequests = new ConcurrentDictionary<string, DateTime>();
 
+        /// <summary>
+        /// Pay the Community Jar payment request if it meets requirements of time restriction and value.
+        /// </summary>
+        /// <param name="request">LN payment request</param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult SubmitPaymentRequest(string request)
         {
@@ -125,6 +144,7 @@ namespace coinpanic_airdrop.Controllers
                 host: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetHost" : "LnMainnetHost"],
                 macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
                 macaroonRead: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"]);
+
             try
             {
                 string userId = "";
@@ -149,9 +169,8 @@ namespace coinpanic_airdrop.Controllers
                     userId = cookie.Value;
                 }
 
-                //check if payment request is ok
-                //Check if already paid
-
+                // Check if payment request is ok
+                // Check if already paid
                 var decoded = lndClient.DecodePayment(request);
                 
                 if (decoded.destination == null)
@@ -242,18 +261,39 @@ namespace coinpanic_airdrop.Controllers
                 
                 if (paymentresult.payment_error != null)
                 {
+                    // Save payment error to database
+                    using (CoinpanicContext db = new CoinpanicContext())
+                    {
+                        user = GetUserFromDb(userId, db, jar, ip);
+                        LnTransaction t = new LnTransaction()
+                        {
+                            UserId = user.LnCJUserId,
+                            IsSettled = false,
+                            Memo = decoded.description ?? "Withdraw",
+                            Value = Convert.ToInt64(decoded.num_satoshis),
+                            IsTestnet = GetUseTestnet(),
+                            HashStr = decoded.payment_hash,
+                            IsDeposit = false,
+                            TimestampCreated = DateTime.UtcNow, //can't know
+                            PaymentRequest = request,
+                            DestinationPubKey = decoded.destination,
+                            IsError = true,
+                            ErrorMessage = paymentresult.payment_error,
+                        };
+                        db.LnTransactions.Add(t);
+                        db.SaveChanges();
+                    }
                     return Json(new { Result = "Payment Error: " + paymentresult.payment_error });
                 }
 
                 var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+
                 using (CoinpanicContext db = new CoinpanicContext())
                 {
                     user = GetUserFromDb(userId, db, jar, ip);
                     user.NumWithdraws += 1;
                     user.TotalWithdrawn += Convert.ToInt64(decoded.num_satoshis);
                     user.TimesampLastWithdraw = DateTime.UtcNow;
-
-                    //check if unsettled transaction exists?
 
                     //insert transaction
                     LnTransaction t = new LnTransaction()
@@ -266,17 +306,18 @@ namespace coinpanic_airdrop.Controllers
                         HashStr = decoded.payment_hash,
                         IsDeposit = false,
                         TimestampSettled = DateTime.UtcNow,
-                        TimestampCreated = DateTime.UtcNow, //can't kbnow
+                        TimestampCreated = DateTime.UtcNow, //can't know
                         PaymentRequest = request,
                         FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees)),
                         NumberOfHops = paymentresult.payment_route.hops == null ? 0 : paymentresult.payment_route.hops.Count(),
+                        DestinationPubKey = decoded.destination,
                     };
                     db.LnTransactions.Add(t);
+                    db.SaveChanges();
 
                     jar = db.LnCommunityJars.Where(j => j.IsTestnet == useTestnet).First();
                     jar.Balance -= Convert.ToInt64(decoded.num_satoshis);
                     jar.Balance -= paymentresult.payment_route.total_fees != null ? Convert.ToInt64(paymentresult.payment_route.total_fees) : 0;
-
                     jar.Transactions.Add(t);
                     db.SaveChanges();
 
@@ -387,6 +428,7 @@ namespace coinpanic_airdrop.Controllers
                     //TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date)),
                     TimestampCreated = DateTime.Now,
                     PaymentRequest = inv.payment_request,
+                    DestinationPubKey = System.Configuration.ConfigurationManager.AppSettings["LnPubkey"],
                 };
                 db.LnTransactions.Add(t);
                 db.SaveChanges();

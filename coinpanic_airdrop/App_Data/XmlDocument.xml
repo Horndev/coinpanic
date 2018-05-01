@@ -12,6 +12,13 @@
             <param name="claimId"></param>
             <returns></returns>
         </member>
+        <member name="M:coinpanic_airdrop.Controllers.LightningController.SubmitPaymentRequest(System.String)">
+            <summary>
+            Pay the Community Jar payment request if it meets requirements of time restriction and value.
+            </summary>
+            <param name="request">LN payment request</param>
+            <returns></returns>
+        </member>
         <member name="M:coinpanic_airdrop.Controllers.LightningController.ShowTransaction(System.Int32)">
             <summary>
             Query previous transactions and display
