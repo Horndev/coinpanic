@@ -13,6 +13,32 @@ namespace Coinpanic.Tests
     public class TransactionTests
     {
         [TestMethod]
+        public void Fork_utx_P2PKH_BCI()
+        {
+            string coin = "BCI";
+            string fromAddr = "15Lo7GRtK7b8WaYQeynwRFU479FJBSyewr";
+            string toAddr = "iCJB7egYMV5S2xs9CyzBiJtq8r1e5R2isc";
+            string expected = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a91460c40317a54738e57e6b435dc4e80f568326cd9988ac00000000";
+            double fee = 0.0001;
+            string utx = createUnsignedTransaction(coin, fromAddr, toAddr, fee, out string utxos, "BTN");
+            Assert.AreEqual(expected, utx);
+        }
+
+        [TestMethod]
+        public void Fork_stx_P2PKH_BCI()
+        {
+            string coin = "BCI";
+            string utxTxt = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a91460c40317a54738e57e6b435dc4e80f568326cd9988ac00000000";
+            string ustr = "[\r\n  {\r\n    \"transactionId\": \"3749e4b36586d9ad82b4b02b367c0b008bc0ade1517c901efcdf093ccdefa0bc\",\r\n    \"index\": 8,\r\n    \"value\": 231211,\r\n    \"scriptPubKey\": \"76a9142f9ee53cc09b3136a8c5bcf2b6fac9f81563a87288ac\",\r\n    \"redeemScript\": null\r\n  }\r\n]";
+            string privK = "5HsCbiMnMop1z8u4jmjGHziE8ne9R2mNCdizDgvKJiQyeY7EegW";
+            string expected = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e44937080000008a47304402204776a6f3193ce1be69ad057b06c8717ce882baba5cd148ab0d6e87c252b5860f0220485d17417473d9d2a6e48cb258f6800a439930cb2ad14e5ae9def1000512cead414104ce9d21fcccea78c02182d7d6e20e87fc7f14920655ca98bc1deebb1bb0945d6a777c187e77cc5e29424a791a07494f457b0c7ebe343dd7cfc56de415a79c5ee9ffffffff011b600300000000001976a91460c40317a54738e57e6b435dc4e80f568326cd9988ac00000000";
+            string stxStr = SignTransaction(coin, utxTxt, ustr, privK);
+            Console.WriteLine(expected);
+            Console.WriteLine(stxStr);
+            Assert.AreEqual(expected, stxStr);
+        }
+
+        [TestMethod]
         public void Fork_utx_P2PKH_UBTC()
         {
             string coin = "UBTC";
@@ -37,7 +63,6 @@ namespace Coinpanic.Tests
             Console.WriteLine(stxStr);
             Assert.AreEqual(expected, stxStr);
         }
-
 
         [TestMethod]
         public void Fork_utx_P2PKH_BPA()

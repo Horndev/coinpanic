@@ -25,6 +25,18 @@ namespace coinpanic_airdrop.Controllers
 
         private static bool usingTestnet = true;
 
+        [HttpGet]
+        public ActionResult Statistics()
+        {
+            using (CoinpanicContext db = new CoinpanicContext())
+            {
+                ViewBag.Errors = db.LnTransactions.AsNoTracking().Where(t => t.IsError).ToList();
+            }
+
+            return View();
+        }
+
+
         public ActionResult CommunityJar(int page=1)
         {
             usingTestnet = GetUseTestnet();

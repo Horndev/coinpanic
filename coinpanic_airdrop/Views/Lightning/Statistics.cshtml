@@ -1,0 +1,55 @@
+﻿@using coinpanic_airdrop.Models
+
+@{
+    ViewBag.Title = "LN Statistics";
+}
+
+<div class="card">
+    <h3 class="card-header">Lightning Transaction Statistics</h3>
+    <div class="card-body">
+        <table>
+            <tr>
+                <td>TransactionId</td>
+                <td>UserId</td>
+                <td>JarId</td>
+                <td>HashStr</td>
+                <td>TimestampSettled</td>
+                <td>TimestampCreated</td>
+                <td>IsDeposit</td>
+                <td>IsSettled</td>
+                <td>IsTestnet</td>
+                <td>Memo</td>
+                <td>Value</td>
+                <td>PaymentRequest</td>
+                <td>FeePaid_Satoshi</td>
+                <td>NumberOfHops</td>
+                <td>DestinationPubKey</td>
+                <td>ErrorMessage</td>
+                <td>IsError</td>
+            </tr>
+            @foreach (LnTransaction t in ViewBag.Errors)
+            {
+                <tr>
+                    <td>@t.TransactionId</td>
+                    <td>@t.UserId</td>
+                    <td>@t.JarId</td>
+                    <td>@t.HashStr</td>
+                    <td>@t.TimestampSettled</td>
+                    <td>@t.TimestampCreated</td>
+                    <td>@t.IsDeposit</td>
+                    <td>@t.IsSettled</td>
+                    <td>@t.IsTestnet</td>
+                    <td>@t.Memo</td>
+                    <td>@t.Value</td>
+                    <td>@t.PaymentRequest</td>
+                    <td>@t.FeePaid_Satoshi</td>
+                    <td>@t.NumberOfHops</td>
+                    <td>@t.DestinationPubKey</td>
+                    <td>@t.ErrorMessage</td>
+                    <td>@t.IsError</td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+

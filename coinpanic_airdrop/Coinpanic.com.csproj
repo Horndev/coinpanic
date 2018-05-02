@@ -222,6 +222,7 @@
     <Compile Include="Controllers\LightningController.cs" />
     <Compile Include="Controllers\NodesController.cs" />
     <Compile Include="Controllers\ServicesController.cs" />
+    <Compile Include="Controllers\WalletController.cs" />
     <Compile Include="Database\CoinpanicContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -1731,6 +1732,8 @@
     <Content Include="Views\Lightning\CommunityJar.cshtml" />
     <Content Include="Views\Lightning\WebWallet.cshtml" />
     <Content Include="Views\Lightning\ShowTransaction.cshtml" />
+    <Content Include="Views\Wallet\Index.cshtml" />
+    <Content Include="Views\Lightning\Statistics.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
