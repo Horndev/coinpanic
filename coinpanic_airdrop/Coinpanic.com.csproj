@@ -1577,9 +1577,6 @@
     <Content Include="bower_components\bitcore-lib\package-lock.json" />
     <Content Include="bower_components\bitcore-lib\package.json" />
     <Content Include="bower_components\bitcore-lib\README.md" />
-    <Content Include="AppSettings.config">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Database.config" />
     <Content Include="bower_components\DataTables\.bower.json" />
     <Content Include="bower_components\DataTables\.gitignore" />
@@ -1590,6 +1587,10 @@
     <Content Include="bower_components\DataTables\scripts\jshint.config" />
     <Content Include="bower_components\DataTables\scripts\make.sh" />
     <Content Include="bower_components\DataTables\scripts\unit_tests.sh" />
+    <Content Include="..\CoinpanicTestData\Coinpanic.com\AppSettings.config">
+      <Link>AppSettings.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\PublishProfiles\coinpanic.com - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\Coinpanic.com.pubxml" />
     <None Include="Properties\PublishProfiles\localhost.pubxml" />
@@ -1754,10 +1755,6 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CoinpanicSign\NBitcoin\NBitcoin\NBitcoin.csproj">
-      <Project>{a3a29f71-3ff4-4817-9cfb-ce4b59a2bd9b}</Project>
-      <Name>NBitcoin</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CoinpanicLib\CoinpanicLib.csproj">
       <Project>{1500a165-f8c4-415c-9ac7-9166c8b1ff0e}</Project>
       <Name>CoinpanicLib</Name>
@@ -1765,6 +1762,10 @@
     <ProjectReference Include="..\LightningLib\LightningLib.csproj">
       <Project>{824d15c2-a623-46d0-a45e-cf152e97c025}</Project>
       <Name>LightningLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NBitcoin\NBitcoin\NBitcoin.csproj">
+      <Project>{cce119e6-e7e3-47e4-a022-68997b233a33}</Project>
+      <Name>NBitcoin</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

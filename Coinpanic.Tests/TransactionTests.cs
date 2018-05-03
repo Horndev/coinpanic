@@ -107,6 +107,7 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void Fork_stx_P2SH_P2WPKH_BTCP()
         {
+            Assert.Inconclusive();
             string coin = "BTCP";
             string utx = "0100000002f080b83ab42f738cedf4ae611810982fc47c1076492e3b96c7d16903df894ea10000000000ffffffff681e3f81d1c4726f658f33223d1d43d4827809ab51eafc24a24982bbf9180edc0000000000ffffffff010eeb9d7c000000001976a914b3b255028648e151b3e419ab6c5b2e9656ba363988ac00000000";
             string privK = ConfigurationManager.AppSettings["BTCP_STX_P2SH_P2WPKH_PK"];

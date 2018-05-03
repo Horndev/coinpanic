@@ -13,6 +13,7 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void UBTC_Explorer_GetUTXOs()
         {
+            Assert.Inconclusive();
             string addr = "14Z1kt7uUCB8rKwhauXmh5qFdv8cKK9fVj";
             List<ICoin> unspentCoins = new List<ICoin>();
             unspentCoins = GetUTXOFromUBTCExplorer(addr);
