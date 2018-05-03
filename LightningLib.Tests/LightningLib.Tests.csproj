@@ -103,18 +103,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
-    <None Include="tls.cert">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CoinpanicSign\NBitcoin\NBitcoin\NBitcoin.csproj">
-      <Project>{a3a29f71-3ff4-4817-9cfb-ce4b59a2bd9b}</Project>
-      <Name>NBitcoin</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LightningLib\LightningLib.csproj">
       <Project>{824d15c2-a623-46d0-a45e-cf152e97c025}</Project>
       <Name>LightningLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NBitcoin\NBitcoin\NBitcoin.csproj">
+      <Project>{cce119e6-e7e3-47e4-a022-68997b233a33}</Project>
+      <Name>NBitcoin</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

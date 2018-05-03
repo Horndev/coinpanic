@@ -54,7 +54,7 @@ namespace LightningNetworkTests
             QRCodeData qrCodeData = qrGenerator.CreateQrCode("The text which should be encoded.", QRCodeGenerator.ECCLevel.Q);
             QRCode qrCode = new QRCode(qrCodeData);
             Bitmap qrCodeImage = qrCode.GetGraphic(20);
-            //qrCodeImage.Save(@"D:\qr.png");
+            Assert.IsNotNull(qrCodeImage);
         }
 
         [TestMethod]
@@ -126,25 +126,6 @@ namespace LightningNetworkTests
             string expected = "{\"destination\":\"03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf\",\"payment_hash\":\"968adef6b90d269120cf0b53d961332e89092e1ecd9b7fe1d5b2f483b9494f8a\",\"num_satoshis\":\"9\",\"timestamp\":\"1524275264\",\"expiry\":\"3600\",\"description\":\"This is my memo\",\"cltv_expiry\":\"144\"}";
             Assert.AreEqual(expected, responseStr);
         }
-
-        [TestMethod]
-        public void Test_CallGetchaninfoAsStringMainnet()
-        {
-            string host = ConfigurationManager.AppSettings["LnMainnetHost"];
-            string restpath = "/v1/graph/edge/{chan_id}";
-
-            string chanid = "565631662402109440";
-
-            string response = LndApiGet(
-                host: host,
-                restpath: restpath,
-                urlParameters: new Dictionary<string, string>() { { "chan_id", chanid } },
-                macaroonRead: MacaroonRead[false]);
-
-            Console.WriteLine(response);
-        }
-
-
 
         #region testnet
 

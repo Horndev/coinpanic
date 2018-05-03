@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin", "NBitcoin\NBitco
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightningLib", "LightningLib\LightningLib.csproj", "{824D15C2-A623-46D0-A45E-CF152E97C025}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightningLib.Tests", "LightningLib.Tests\LightningLib.Tests.csproj", "{1895BAE9-1828-46D1-895C-282199CA3B06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{824D15C2-A623-46D0-A45E-CF152E97C025}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{824D15C2-A623-46D0-A45E-CF152E97C025}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{824D15C2-A623-46D0-A45E-CF152E97C025}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1895BAE9-1828-46D1-895C-282199CA3B06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1895BAE9-1828-46D1-895C-282199CA3B06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1895BAE9-1828-46D1-895C-282199CA3B06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1895BAE9-1828-46D1-895C-282199CA3B06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
