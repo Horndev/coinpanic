@@ -180,9 +180,7 @@ namespace LightningNetworkTests
         [TestMethod]
         public void TestAPIGetInfo()
         {
-            var m = System.IO.File.ReadAllBytes("readonly.macaroon");
-            HexEncoder h = new HexEncoder();
-            string macaroon = h.EncodeData(m);
+            string macaroon = ConfigurationManager.AppSettings["LnMainnetMacaroonRead"];
 
             string host = ConfigurationManager.AppSettings["LnMainnetHost"];
             string restpath = "/v1/getinfo";
@@ -199,16 +197,16 @@ namespace LightningNetworkTests
                 HexEncoder h = new HexEncoder();
                 macaroon = h.EncodeData(m);
             }
-            string TLSFilename = "tls.cert";
-            X509Certificate2 certificates = new X509Certificate2();
-            certificates.Import(System.IO.File.ReadAllBytes(TLSFilename));
+            //string TLSFilename = "tls.cert";
+            //X509Certificate2 certificates = new X509Certificate2();
+            //certificates.Import(System.IO.File.ReadAllBytes(TLSFilename));
 
             var client = new RestClient("https://" + host + ":" + Convert.ToString(port));
-            client.ClientCertificates = new X509CertificateCollection() { certificates };
+            //client.ClientCertificates = new X509CertificateCollection() { certificates };
 
-            X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadWrite);
-            store.Add(certificates);
+            //X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            //store.Open(OpenFlags.ReadWrite);
+            //store.Add(certificates);
 
             client.RemoteCertificateValidationCallback =
                 delegate (object s, X509Certificate certificate,
@@ -239,7 +237,8 @@ namespace LightningNetworkTests
                 num_max_events = 1000,
             };
 
-            string responseStr = LndRpcClient.LndApiPostStr(host, restpath, reqObj);
+            string responseStr = LndRpcClient.LndApiPostStr(host, restpath, reqObj, 
+                adminMacaroon: ConfigurationManager.AppSettings["LnMainnetMacaroonRead"]);
             Console.WriteLine(responseStr);
         }
 
@@ -256,7 +255,8 @@ namespace LightningNetworkTests
                 num_max_events = 1000,
             };
 
-            string responseStr = LndRpcClient.LndApiPostStr(host, restpath, reqObj);
+            string responseStr = LndRpcClient.LndApiPostStr(host, restpath, reqObj, 
+                adminMacaroon: ConfigurationManager.AppSettings["LnMainnetMacaroonRead"]);
             Console.WriteLine(responseStr);
         }
 
@@ -296,7 +296,6 @@ namespace LightningNetworkTests
                     Console.WriteLine("added: " + responseStr);
                 }
             }
-
             Console.WriteLine("Done");
         }
 
