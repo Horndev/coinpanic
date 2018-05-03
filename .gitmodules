@@ -1,3 +1,6 @@
 [submodule "NBitcoin"]
 	path = NBitcoin
 	url = https://github.com/Horndev/NBitcoin.git
+[submodule "CoinpanicTestData"]
+	path = CoinpanicTestData
+	url = https://github.com/Horndev/CoinpanicTestData.git
