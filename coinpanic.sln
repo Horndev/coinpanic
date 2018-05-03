@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightningLib", "LightningLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightningLib.Tests", "LightningLib.Tests\LightningLib.Tests.csproj", "{1895BAE9-1828-46D1-895C-282199CA3B06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinpanicLib", "CoinpanicLib\CoinpanicLib.csproj", "{1500A165-F8C4-415C-9AC7-9166C8B1FF0E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1895BAE9-1828-46D1-895C-282199CA3B06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1895BAE9-1828-46D1-895C-282199CA3B06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1895BAE9-1828-46D1-895C-282199CA3B06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1500A165-F8C4-415C-9AC7-9166C8B1FF0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1500A165-F8C4-415C-9AC7-9166C8B1FF0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1500A165-F8C4-415C-9AC7-9166C8B1FF0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1500A165-F8C4-415C-9AC7-9166C8B1FF0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

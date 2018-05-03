@@ -65,7 +65,6 @@
   <ItemGroup>
     <Compile Include="Bitcoin.cs" />
     <Compile Include="BlockScanner.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="Models\BlockData.cs" />
     <Compile Include="Models\CoinClaim.cs" />
     <Compile Include="Models\PeerModels.cs" />
@@ -88,8 +87,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CoinpanicSign\NBitcoin\NBitcoin\NBitcoin.csproj">
-      <Project>{a3a29f71-3ff4-4817-9cfb-ce4b59a2bd9b}</Project>
+    <ProjectReference Include="..\NBitcoin\NBitcoin\NBitcoin.csproj">
+      <Project>{cce119e6-e7e3-47e4-a022-68997b233a33}</Project>
       <Name>NBitcoin</Name>
     </ProjectReference>
   </ItemGroup>
