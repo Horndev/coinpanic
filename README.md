@@ -1,5 +1,7 @@
 # Coinpanic.com
 
+[![Build Status](https://horndev.visualstudio.com/_apis/public/build/definitions/42b52b2d-471f-47d9-ab4b-d0338f2c8036/1/badge)](https://horndev.visualstudio.com/Coinpanic/_build/index?definitionId=1)
+
 This is the website for Coinpanic.com.  It is provided here openly for audit by the website users.
 
 ## Forks
