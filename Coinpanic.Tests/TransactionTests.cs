@@ -53,6 +53,7 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void Fork_stx_P2PKH_UBTC()
         {
+            Assert.Inconclusive();
             string coin = "UBTC";
             string utxTxt = "0100000001bca0efcd3c09dffc1e907c51e1adc08b000b7c362bb0b482add98665b3e449370800000000ffffffff011b600300000000001976a914a7eb01a363c1324eb38f04a3b138f8b6cc4ef40188ac00000000";
             string ustr = "[\r\n  {\r\n    \"transactionId\": \"3749e4b36586d9ad82b4b02b367c0b008bc0ade1517c901efcdf093ccdefa0bc\",\r\n    \"index\": 8,\r\n    \"value\": 231211,\r\n    \"scriptPubKey\": \"76a9142f9ee53cc09b3136a8c5bcf2b6fac9f81563a87288ac\",\r\n    \"redeemScript\": null\r\n  }\r\n]";
@@ -93,6 +94,7 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void Fork_utx_P2SH_P2WPKH_BTCP()
         {
+            Assert.Inconclusive();
             string coin = "BTCP";
             string fromAddr = "324U6fWBnAMdxiUD9KiPXYE6eA1ZqW6ATN";
             string toAddr = "b1LrMGFjeFsrwNaiXJkM2xUZkZXFg12aAs9";
@@ -240,6 +242,7 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void Fork_stx_P2SH_P2WPKH2_BTV()
         {
+            Assert.Inconclusive();
             string coin = "BTV";
             string utxTxt = "02000000013617cb17192501c8a4fcef74ec360930f05b5bc3f8bf128d9904d5056111bc7a0000000000ffffffff01104d4701000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
             string ustr = "[\r\n  {\r\n    \"transactionId\": \"7abc116105d504998d12bff8c35b5bf0300936ec74effca4c801251917cb1736\",\r\n    \"index\": 0,\r\n    \"value\": 21550000,\r\n    \"scriptPubKey\": \"a91456986355fded8640265c376c17e2d085a38a202a87\",\r\n    \"redeemScript\": null\r\n  }\r\n]";
@@ -288,6 +291,7 @@ namespace Coinpanic.Tests
         [TestMethod]
         public void Fork_stx_P2SH_P2WPKH_BTV()
         {
+            Assert.Inconclusive();
             string coin = "BTV";
             string utxTxt = "02000000065c9be01d9de24f668a8be964e4aa2f544690f5e73dd5b818d5812d69eb98227a0100000000ffffffffd7dc5c66aac944659dc11e7b68282af4fb5182451fff31a320e253d30908d59d0000000000ffffffff3bbe46f65214917b52b18370e0bb9ddaf134f6ee87304bba1e8bba48efd21aa50000000000ffffffff1c62addcda85a37dc9ef8c50fa92c391949d4d97bd17dded24a95dd898cdf64d2c00000000ffffffff8c64c798031f1f70d0e68be210887a95173c528a203fc63f620c59db2ed2d3980000000000ffffffff049978513769443705e355151f8d7d1ae821ae90aa150fa58456bb8047bd387a0600000000ffffffff01771af301000000001976a9149d7da644b0db0d97a23e0c8a64fa644d2079ef5288ac00000000";
             string ustr = "[\r\n  {\r\n    \"transactionId\": \"98d3d22edb590c623fc63f208a523c17957a8810e28be6d0701f1f0398c7648c\",\r\n    \"index\": 0,\r\n    \"value\": 1311156,\r\n    \"scriptPubKey\": \"a9141f9023904096e4dfa8c6dccf065774effe93feb787\",\r\n    \"redeemScript\": null\r\n  },\r\n  {\r\n    \"transactionId\": \"9dd50809d353e220a331ff1f458251fbf42a28687b1ec19d6544c9aa665cdcd7\",\r\n    \"index\": 0,\r\n    \"value\": 907079,\r\n    \"scriptPubKey\": \"a9141f9023904096e4dfa8c6dccf065774effe93feb787\",\r\n    \"redeemScript\": null\r\n  },\r\n  {\r\n    \"transactionId\": \"4df6cd98d85da924eddd17bd974d9d9491c392fa508cefc97da385dadcad621c\",\r\n    \"index\": 44,\r\n    \"value\": 942282,\r\n    \"scriptPubKey\": \"a9141f9023904096e4dfa8c6dccf065774effe93feb787\",\r\n    \"redeemScript\": null\r\n  },\r\n  {\r\n    \"transactionId\": \"7a2298eb692d81d518b8d53de7f59046542faae464e98b8a664fe29d1de09b5c\",\r\n    \"index\": 1,\r\n    \"value\": 65351,\r\n    \"scriptPubKey\": \"a9141f9023904096e4dfa8c6dccf065774effe93feb787\",\r\n    \"redeemScript\": null\r\n  },\r\n  {\r\n    \"transactionId\": \"a51ad2ef48ba8b1eba4b3087eef634f1da9dbbe07083b1527b911452f646be3b\",\r\n    \"index\": 0,\r\n    \"value\": 938833,\r\n    \"scriptPubKey\": \"a9141f9023904096e4dfa8c6dccf065774effe93feb787\",\r\n    \"redeemScript\": null\r\n  },\r\n  {\r\n    \"transactionId\": \"7a38bd4780bb5684a50f15aa90ae21e81a7d8d1f1555e3053744693751789904\",\r\n    \"index\": 6,\r\n    \"value\": 28554538,\r\n    \"scriptPubKey\": \"a9141f9023904096e4dfa8c6dccf065774effe93feb787\",\r\n    \"redeemScript\": null\r\n  }\r\n]";

@@ -27,7 +27,7 @@ namespace Coinpanic.Tests
         public void Fork_Address_Create_P2PKH_BCA()
         {
             string addr = "AZyMH7m2YfbGLatXYbKLAv5ubWPcoVTush";
-            var add = BitcoinAddress.Create(addr, Network.Main);
+            var add = BitcoinAddress.Create(addr, Network.BCA);
             Assert.AreEqual(addr, add.ToString());
         }
 
