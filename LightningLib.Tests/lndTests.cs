@@ -260,17 +260,6 @@ namespace LightningNetworkTests
             Console.WriteLine(responseStr);
         }
 
-        
-
-        [TestMethod]
-        public void TestReadMacaroon()
-        {
-            HexEncoder h = new HexEncoder();
-            Console.WriteLine("admin: " + h.EncodeData(System.IO.File.ReadAllBytes("D:\\admin.macaroon")));
-            Console.WriteLine("invoice: " + h.EncodeData(System.IO.File.ReadAllBytes("D:\\invoice.macaroon")));
-            Console.WriteLine("readonly: " + h.EncodeData(System.IO.File.ReadAllBytes("D:\\readonly.macaroon")));
-        }
-
         [TestMethod]
         public void TestAPISubscribeInvoice()
         {
