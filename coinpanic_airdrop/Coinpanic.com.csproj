@@ -1259,9 +1259,7 @@
     <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.eot" />
     <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.ttf" />
     <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.woff" />
-    <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.woff2">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="bower_components\font-awesome\fonts\fontawesome-webfont.woff2" />
     <Content Include="bower_components\font-awesome\fonts\FontAwesome.otf" />
     <Content Include="bower_components\font-awesome\less\animated.less" />
     <Content Include="bower_components\font-awesome\less\bordered-pulled.less" />
