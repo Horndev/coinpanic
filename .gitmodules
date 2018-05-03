@@ -1,0 +1,3 @@
+[submodule "NBitcoin"]
+	path = NBitcoin
+	url = https://github.com/Horndev/NBitcoin.git
