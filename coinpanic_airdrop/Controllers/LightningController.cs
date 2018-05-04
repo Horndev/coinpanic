@@ -45,8 +45,17 @@ namespace coinpanic_airdrop.Controllers
                 macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
                 macaroonRead: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"]);
 
-            var info = lndClient.GetInfo();
-            ViewBag.URI = info.uris.First();
+            ViewBag.URI = "03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf@13.92.254.226:9735";
+            try
+            {
+                var info = lndClient.GetInfo();
+                ViewBag.URI = info.uris.First();
+            }
+            catch
+            {
+
+            }
+            
             string userId = "";
 
             //Check if user is returning
