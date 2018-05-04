@@ -18,7 +18,7 @@ namespace coinpanic_airdrop
                         "~/Scripts/jquery.sparkline.min.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/datatables").Include(
-                        "~/Scripts/DataTables/datatables.min.js"));
+                        "~/Scripts/DataTables/datatables.min.js"));                 // Included
 
             bundles.Add(new ScriptBundle("~/bundles/jquery/unobtrusive").Include(
                         "~/Scripts/jquery.unobtrusive-ajax.min.min.js"));
@@ -50,7 +50,7 @@ namespace coinpanic_airdrop
                       "~/bower_components/font-awesome/css/font-awesome.min.css", new CssRewriteUrlTransform()));   // Included
 
             bundles.Add(new ScriptBundle("~/bundles/datatables/css").Include(
-                       "~/Scripts/DataTables/datatables.min.css"));
+                       "~/Scripts/DataTables/datatables.min.css"));                 // Included
         }
     }
 }
