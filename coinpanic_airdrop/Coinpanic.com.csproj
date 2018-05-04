@@ -1064,7 +1064,6 @@
     <Content Include="bower_components\jquery-validation\README.md" />
     <Content Include="bower_components\jquery-validation\validation.jquery.json" />
     <Content Include="bower.json" />
-    <Content Include="Database.config" />
     <Content Include="bower_components\DataTables\.bower.json" />
     <Content Include="bower_components\DataTables\.gitignore" />
     <Content Include="bower_components\DataTables\component.json" />
@@ -1076,6 +1075,10 @@
     <Content Include="bower_components\DataTables\scripts\unit_tests.sh" />
     <Content Include="..\CoinpanicTestData\Coinpanic.com\AppSettings.config">
       <Link>AppSettings.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\CoinpanicTestData\Coinpanic.com\Database.config">
+      <Link>Database.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Properties\PublishProfiles\coinpanic.com - FTP.pubxml" />
