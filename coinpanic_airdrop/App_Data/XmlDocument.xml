@@ -12,6 +12,14 @@
             <param name="claimId"></param>
             <returns></returns>
         </member>
+        <member name="M:coinpanic_airdrop.Controllers.ClaimController.Broadcast(System.String,System.String)">
+            <summary>
+            Broadcast a claim to the blockchain
+            </summary>
+            <param name="ClaimId">Database identifier</param>
+            <param name="Hex">Hex encoded transaction</param>
+            <returns></returns>
+        </member>
         <member name="M:coinpanic_airdrop.Controllers.LightningController.SubmitPaymentRequest(System.String)">
             <summary>
             Pay the Community Jar payment request if it meets requirements of time restriction and value.
