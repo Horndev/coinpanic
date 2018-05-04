@@ -47,7 +47,9 @@ packages/
 /LightningNetworkTests/TestData.config
 /coinpanic_airdrop/bower_components
 /NodeInterface/bower_components
-/coinpanic_airdrop/Scripts/DataTables/
 /Coinpanic.Tests/TestData.config
 /NodeInterfaceLib.Tests/TestData.config
 
+/coinpanic_airdrop/Scripts/DataTables/DataTables-1.10.16
+/coinpanic_airdrop/Scripts/DataTables/FixedHeader-3.1.3/
+/coinpanic_airdrop/Scripts/DataTables/Responsive-2.2.1/
