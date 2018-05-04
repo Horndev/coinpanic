@@ -4,3 +4,6 @@
 [submodule "CoinpanicTestData"]
 	path = CoinpanicTestData
 	url = https://github.com/Horndev/CoinpanicTestData.git
+[submodule "CoinpanicSign"]
+	path = CoinpanicSign
+	url = https://github.com/Horndev/CoinpanicSign.git
