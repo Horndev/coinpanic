@@ -65,6 +65,7 @@
     <Compile Include="MultisigTests.cs" />
     <Compile Include="UBTCExplorerTests.cs" />
     <Compile Include="BlockExplorerTests.cs" />
+    <Compile Include="JSONRPCTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\CoinpanicTestData\Coinpanic.Tests\TestData.config">

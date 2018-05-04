@@ -21,8 +21,6 @@ namespace coinpanic_airdrop.Controllers
 {
     public class ClaimController : Controller
     {
-        
-
         // GET: NewClaim
         public async Task<ActionResult> NewClaim(string coin, string coupon)
         {
@@ -72,7 +70,7 @@ namespace coinpanic_airdrop.Controllers
             {
                 CoinClaim userclaim = db.Claims.Where(c => c.ClaimId == claimId).Include(c => c.InputAddresses).First();
 
-                //clean up
+                // Clean up input
                 depositAddress = depositAddress.Replace("\n", String.Empty);
                 depositAddress = depositAddress.Replace("\r", String.Empty);
                 depositAddress = depositAddress.Replace("\t", String.Empty);
@@ -113,6 +111,7 @@ namespace coinpanic_airdrop.Controllers
                 var amounts = scanner.CalculateOutputAmounts_Their_My_Fee(claimcoins.Item1, 0.05, 0.0003 * claimcoins.Item1.Count);
                 var balances = claimcoins.Item2;
 
+                // Return converted addresses to user
                 List<InputAddress> inputs;
                 if (userclaim.CoinShortName == "BTCP")
                 {
@@ -230,6 +229,12 @@ namespace coinpanic_airdrop.Controllers
             }
         }
 
+        /// <summary>
+        /// Broadcast a claim to the blockchain
+        /// </summary>
+        /// <param name="ClaimId">Database identifier</param>
+        /// <param name="Hex">Hex encoded transaction</param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult Broadcast(string ClaimId, string Hex)
         {
@@ -255,16 +260,19 @@ namespace coinpanic_airdrop.Controllers
                     db.SaveChanges();
                 }
 
+                // This is what is returned to the client
                 BroadcastResponse response = new BroadcastResponse()
                 {
                     Error = false,
                     Result = "Transaction successfully broadcast.",
                     Txid = "",
                 };
+
                 var tx = signedTransaction;
 
                 if (tx == "")
                 {
+                    response.Error = true;
                     response.Result = "Error: No signed transaction provided.";
                     MonitoringService.SendMessage("Empty tx " + userclaim.CoinShortName + " submitted.",
                         "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId);
@@ -281,7 +289,9 @@ namespace coinpanic_airdrop.Controllers
                     response.Error = true;
                     response.Result = "Error parsing transaction";
                     MonitoringService.SendMessage("Invalid tx " + userclaim.CoinShortName + " submitted " + Convert.ToString(userclaim.TotalValue),
-                        "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                        "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " 
+                        + signedTransaction + "\r\n"
+                        + e.Message);
                     return Json(response);
                 }
 
@@ -371,32 +381,102 @@ namespace coinpanic_airdrop.Controllers
                         MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
                     }
                 }
-                // disable for now so that full node is used.
                 if (userclaim.CoinShortName == "BTCP")
                 {
                     try
                     {
-                        GetConnectionDetails("BTCP", out string host, out int port, out string user, out string pass);
-                        var client = new RestClient("http://" + host + ":" + Convert.ToString(port));
-                        client.Authenticator = new HttpBasicAuthenticator(user, pass);
-                        var request = new RestRequest("/", Method.POST);
-                        request.RequestFormat = DataFormat.Json;
-                        request.AddBody(new
-                        {
-                            jsonrpc = "1.0",
-                            id = "1",
-                            method = "sendrawtransaction",
-                            @params = new List<string>() { signedTransaction },
-                        });
-
-                        var restResponse = client.Execute(request);
-                        var content = restResponse.Content; // raw content as string
-                        userclaim.TransactionHash = content;
-                        userclaim.WasTransmitted = true;
-                        userclaim.SubmitDate = DateTime.Now;
-                        db.SaveChanges();
-                        MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue),
-                            "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
+                    }
+                }
+                if (userclaim.CoinShortName == "UBTC")
+                {
+                    try
+                    {
+                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
+                    }
+                }
+                if (userclaim.CoinShortName == "BCD")
+                {
+                    try
+                    {
+                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
+                    }
+                }
+                if (userclaim.CoinShortName == "SBTC")
+                {
+                    try
+                    {
+                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
+                    }
+                }
+                if (userclaim.CoinShortName == "BPA")
+                {
+                    try
+                    {
+                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
+                    }
+                }
+                if (userclaim.CoinShortName == "BTW")
+                {
+                    try
+                    {
+                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
+                    }
+                }
+                if (userclaim.CoinShortName == "BTV")
+                {
+                    try
+                    {
+                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
+                    }
+                }
+                if (userclaim.CoinShortName == "BTF")
+                {
+                    try
+                    {
+                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
                         response.Result = content;
                         return Json(response);
                     }
@@ -530,6 +610,32 @@ namespace coinpanic_airdrop.Controllers
                 response.Error = true;
                 return Json(response);
             }
+        }
+
+        private static string TransmitViaJSONRPC(string ClaimId, CoinpanicContext db, CoinClaim userclaim, string signedTransaction, string coin)
+        {
+            GetConnectionDetails(coin, out string host, out int port, out string user, out string pass);
+            var client = new RestClient("http://" + host + ":" + Convert.ToString(port));
+            client.Authenticator = new HttpBasicAuthenticator(user, pass);
+            var request = new RestRequest("/", Method.POST);
+            request.RequestFormat = DataFormat.Json;
+            request.AddBody(new
+            {
+                jsonrpc = "1.0",
+                id = "1",
+                method = "sendrawtransaction",
+                @params = new List<string>() { signedTransaction },
+            });
+
+            var restResponse = client.Execute(request);
+            var content = restResponse.Content; // raw content as string
+            userclaim.TransactionHash = content;
+            userclaim.WasTransmitted = true;
+            userclaim.SubmitDate = DateTime.Now;
+            db.SaveChanges();
+            MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue),
+                "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+            return content;
         }
 
         public ActionResult ClaimError(string message, string claimId)
