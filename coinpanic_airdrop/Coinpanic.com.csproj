@@ -585,7 +585,6 @@
     <Content Include="Views\Home\Legal.cshtml" />
     <Content Include="Tools\CoinPanicSignTxUI.zip" />
     <Content Include="Views\Nodes\Index.cshtml" />
-    <Content Include="Tools\CoinpanicSignMac.tar.gz" />
     <Content Include="Views\Services\Index.cshtml" />
     <Content Include="Views\Lightning\Index.cshtml" />
     <Content Include="Views\Lightning\NodeError.cshtml" />
