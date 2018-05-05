@@ -14,6 +14,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coinpanic.Tests", "Coinpanic.Tests\Coinpanic.Tests.csproj", "{1795185D-0ED7-4589-80DE-FA2F2A036DCC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coinpanic.com", "coinpanic_airdrop\Coinpanic.com.csproj", "{E3381E4F-B702-49F3-8F60-767C343EC3AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{44CC2BBF-7ADB-4401-9025-1BF52E073F15} = {44CC2BBF-7ADB-4401-9025-1BF52E073F15}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignTxOffline", "CoinpanicSign\CoinpanicSignTx\SignTxOffline.csproj", "{44CC2BBF-7ADB-4401-9025-1BF52E073F15}"
 EndProject

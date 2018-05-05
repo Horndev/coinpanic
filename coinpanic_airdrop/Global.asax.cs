@@ -22,7 +22,7 @@ namespace coinpanic_airdrop
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
-            if (!Request.Url.Host.StartsWith("www") && !Request.Url.IsLoopback)
+            if (!Request.Url.Host.StartsWith("www") && !Request.Url.IsLoopback && !Request.Url.Host.StartsWith("coinpanicnode"))
             {
                 UriBuilder builder = new UriBuilder(Request.Url);
                 builder.Host = "www." + Request.Url.Host;
