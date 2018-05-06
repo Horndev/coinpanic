@@ -21,7 +21,7 @@ namespace coinpanic_airdrop.Controllers
 {
     public class LightningController : Controller
     {
-        private static ConcurrentDictionary<Guid, TransactionListener> lndclients = new ConcurrentDictionary<Guid, TransactionListener>();
+        private static ConcurrentDictionary<Guid, TransactionListener> lndTransactionListeners = new ConcurrentDictionary<Guid, TransactionListener>();
 
         private static bool usingTestnet = true;
 
@@ -36,28 +36,53 @@ namespace coinpanic_airdrop.Controllers
             return View();
         }
 
-
         public ActionResult CommunityJar(int page=1)
         {
-            usingTestnet = GetUseTestnet();
-            var lndClient = new LndRpcClient(
-                host: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetHost" : "LnMainnetHost"],
-                macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
-                macaroonRead: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"]);
+            LndRpcClient lndClient = GetLndClient();
 
+            // TODO: Added this try-catch to avoid errors
             ViewBag.URI = "03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf@13.92.254.226:9735";
             try
             {
                 var info = lndClient.GetInfo();
                 ViewBag.URI = info.uris.First();
             }
-            catch
+            catch {}
+
+            string userId = SetOrUpdateUserCookie();
+
+            // This will be the list of transactions shown to the user
+            LnCJTransactions latestTx = new LnCJTransactions();
+            using (CoinpanicContext db = new CoinpanicContext())
             {
+                var jar = db.LnCommunityJars.AsNoTracking().Where(j => j.IsTestnet == usingTestnet).First();
+                ViewBag.Balance = jar.Balance;
+                int NumTransactions = jar.Transactions.Count();
 
+                // Code for the paging
+                ViewBag.NumTransactions = NumTransactions;
+                ViewBag.NumPages = Math.Ceiling(Convert.ToDouble(NumTransactions) / 20.0);
+                ViewBag.ActivePage = page;
+                ViewBag.FirstPage = (page - 3) < 1 ? 1 : (page - 3);
+                ViewBag.LastPage = (page + 3) < 6 ? 6 : (page + 3);
+
+                // Query and filter the transactions
+                latestTx.Transactions = jar.Transactions.OrderByDescending(t => t.TimestampSettled).Skip((page - 1) * 20).Take(20).Select(t => new LnCJTransaction()
+                {
+                    Timestamp = t.TimestampSettled == null ? DateTime.UtcNow : (DateTime)t.TimestampSettled,
+                    Amount = t.Value,
+                    Memo = t.Memo,
+                    Type = t.IsDeposit ? "Deposit" : "Withdrawal",
+                    Id = t.TransactionId,
+                }).ToList();
+                latestTx.Balance = jar.Balance;
             }
-            
-            string userId = "";
+            return View(latestTx);
+        }
 
+        private string SetOrUpdateUserCookie()
+        {
+            string userId;
             //Check if user is returning
             if (HttpContext.Request.Cookies["CoinpanicCommunityJarUser"] != null)
             {
@@ -77,39 +102,18 @@ namespace coinpanic_airdrop.Controllers
                 userId = cookie.Value;
             }
 
-            // This will be the list of transactions shown to the user
-            LnCJTransactions latestTx = new LnCJTransactions();
+            return userId;
+        }
 
-            
-
-            using (CoinpanicContext db = new CoinpanicContext())
-            {
-                var jar = db.LnCommunityJars.AsNoTracking().Where(j => j.IsTestnet == usingTestnet).First();
-                ViewBag.Balance = jar.Balance;
-
-                int NumTransactions = jar.Transactions.Count();
-                ViewBag.NumTransactions = NumTransactions;
-                ViewBag.NumPages = Math.Ceiling(Convert.ToDouble(NumTransactions)/20.0);
-                ViewBag.ActivePage = page;
-                ViewBag.FirstPage = (page-3) < 1 ? 1 : (page-3);
-                ViewBag.LastPage = (page+3) < 6 ? 6 : (page+3);
-
-                latestTx.Transactions = jar.Transactions.OrderByDescending(t => t.TimestampSettled).Skip((page-1)*20).Take(20).Select(t => new LnCJTransaction()
-                {
-                    Timestamp = t.TimestampSettled == null ? DateTime.UtcNow : (DateTime)t.TimestampSettled,
-                    Amount = t.Value,
-                    Memo = t.Memo,
-                    Type = t.IsDeposit ? "Deposit" : "Withdrawal",
-                    Id = t.TransactionId,
-                }).ToList();
-                latestTx.Balance = jar.Balance;
-
-                
-            }
-
-            
-
-            return View(latestTx);
+        private static LndRpcClient GetLndClient()
+        {
+            usingTestnet = GetUseTestnet();
+            var lndClient = new LndRpcClient(
+                host: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetHost" : "LnMainnetHost"],
+                macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
+                macaroonRead: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"],
+                macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings[usingTestnet ? "LnMainnetMacaroonInvoice" : "LnMainnetMacaroonInvoice"]);
+            return lndClient;
         }
 
         public ActionResult WebWallet()
@@ -158,37 +162,15 @@ namespace coinpanic_airdrop.Controllers
         [HttpPost]
         public ActionResult SubmitPaymentRequest(string request)
         {
-            int minwithdraw = 150;
+            int maxWithdraw = 150;
+            usingTestnet = GetUseTestnet();
             string ip = Request.UserHostAddress;
-            bool useTestnet = GetUseTestnet();
-            var lndClient = new LndRpcClient(
-                host: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetHost" : "LnMainnetHost"],
-                macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
-                macaroonRead: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"]);
+
+            var lndClient = GetLndClient();
 
             try
             {
-                string userId = "";
-                // Check if user is returning
-                if (HttpContext.Request.Cookies["CoinpanicCommunityJarUser"] != null)
-                {
-                    // Returning user - look up in database
-                    var cookie = HttpContext.Request.Cookies.Get("CoinpanicCommunityJarUser");
-                    cookie.Expires = DateTime.Now.AddDays(7);   // update expiry
-                    HttpContext.Response.Cookies.Remove("CoinpanicCommunityJarUser");
-                    HttpContext.Response.SetCookie(cookie);
-                    userId = cookie.Value;
-                }
-                else
-                {
-                    // Create new cookie
-                    HttpCookie cookie = new HttpCookie("CoinpanicCommunityJarUser");
-                    cookie.Value = Guid.NewGuid().ToString();
-                    cookie.Expires = DateTime.Now.AddDays(7);
-                    HttpContext.Response.Cookies.Remove("CoinpanicCommunityJarUser");
-                    HttpContext.Response.SetCookie(cookie);
-                    userId = cookie.Value;
-                }
+                string userId = SetOrUpdateUserCookie();
 
                 // Check if payment request is ok
                 // Check if already paid
@@ -198,7 +180,7 @@ namespace coinpanic_airdrop.Controllers
                 {
                     return Json(new { Result = "Error decoding invoice." });
                 }
-                if (Convert.ToInt64(decoded.num_satoshis) > minwithdraw)
+                if (Convert.ToInt64(decoded.num_satoshis) > maxWithdraw)
                 {
                     return Json(new { Result = "Requested amount is greater than maximum allowed." });
                 }
@@ -208,7 +190,7 @@ namespace coinpanic_airdrop.Controllers
                 LnCommunityJar jar;
                 using (CoinpanicContext db = new CoinpanicContext())
                 {
-                    jar = db.LnCommunityJars.Where(j => j.IsTestnet == useTestnet).AsNoTracking().First();
+                    jar = db.LnCommunityJars.Where(j => j.IsTestnet == usingTestnet).AsNoTracking().First();
                     balance = jar.Balance;
                 }
                 if (Convert.ToInt64(decoded.num_satoshis) > balance)
@@ -237,7 +219,7 @@ namespace coinpanic_airdrop.Controllers
                         }
                     }
 
-                    if (user.TotalDeposited - user.TotalWithdrawn < minwithdraw)
+                    if (user.TotalDeposited - user.TotalWithdrawn < maxWithdraw)
                     {
                         //check for time rate limiting
                         if (DateTime.UtcNow - LastWithdraw < TimeSpan.FromHours(1))
@@ -336,7 +318,7 @@ namespace coinpanic_airdrop.Controllers
                     db.LnTransactions.Add(t);
                     db.SaveChanges();
 
-                    jar = db.LnCommunityJars.Where(j => j.IsTestnet == useTestnet).First();
+                    jar = db.LnCommunityJars.Where(j => j.IsTestnet == usingTestnet).First();
                     jar.Balance -= Convert.ToInt64(decoded.num_satoshis);
                     jar.Balance -= paymentresult.payment_route.total_fees != null ? Convert.ToInt64(paymentresult.payment_route.total_fees) : 0;
                     jar.Transactions.Add(t);
@@ -358,7 +340,7 @@ namespace coinpanic_airdrop.Controllers
             }
             catch (Exception e)
             {
-                return Json(new { Result = "Error decoding request." });
+                return Json(new { Result = "Error decoding request."});
             }
 
             return Json(new { Result = "success" });
@@ -458,13 +440,13 @@ namespace coinpanic_airdrop.Controllers
             // If a listener is not already running, this should start
 
             // Check if there is one already online.
-            var numListeners = lndclients.Count(kvp => kvp.Value.IsLive);
+            var numListeners = lndTransactionListeners.Count(kvp => kvp.Value.IsLive);
 
             // If we don't have one running - start it and subscribe
             if (numListeners < 1)
             {
                 var listener = lndClient.GetListener();
-                lndclients.TryAdd(listener.ListenerId, listener);           //keep alive while we wait for payment
+                lndTransactionListeners.TryAdd(listener.ListenerId, listener);           //keep alive while we wait for payment
                 listener.InvoicePaid += NotifyClientsInvoicePaid;     //handle payment message
                 listener.StreamLost += OnListenerLost;                  //stream lost
                 var a = new Task(() => listener.Start());                   //listen for payment
@@ -524,7 +506,7 @@ namespace coinpanic_airdrop.Controllers
 
         private static void OnListenerLost(TransactionListener l)
         {
-            lndclients.TryRemove(l.ListenerId, out TransactionListener oldListener);
+            lndTransactionListeners.TryRemove(l.ListenerId, out TransactionListener oldListener);
         }
 
         private static void NotifyClientsInvoicePaid(Invoice invoice)
@@ -590,6 +572,8 @@ namespace coinpanic_airdrop.Controllers
                 //    t = tnew;
 
                 // Notify Web clients - this is shown to user
+
+                // Client needs to check that the transaction received is theirs before marking successful.
                 var newT = new LnCJTransaction()
                 {
                     Timestamp = t.TimestampSettled == null ? DateTime.UtcNow : (DateTime)t.TimestampSettled,
@@ -609,7 +593,10 @@ namespace coinpanic_airdrop.Controllers
             return System.Configuration.ConfigurationManager.AppSettings["LnUseTestnet"] == "true";
         }
 
-        // GET: Lightning
+        /// <summary>
+        /// Lightning Status page
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Index()
         {
             try

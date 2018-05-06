@@ -34,6 +34,12 @@
             <param name="id"></param>
             <returns></returns>
         </member>
+        <member name="M:coinpanic_airdrop.Controllers.LightningController.Index">
+            <summary>
+            Lightning Status page
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:coinpanic_airdrop.Controllers.ServicesController">
             <summary>
             
