@@ -90,7 +90,8 @@
                     <th></th>
                     <th scope="col">Date (UTC)</th>
                     <th scope="col">Type</th>
-                    <th scope="col">Amount (Satoshi)</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Fee</th>
                     <th scope="col">Memo</th>
                 </tr>
             </thead>
@@ -102,6 +103,7 @@
                         <td>@c.Timestamp</td>
                         <td>@c.Type</td>
                         <td>@c.Amount</td>
+                        <td>@(c.Fee < 0 ? "?" : Convert.ToString(c.Fee))</td>
                         <td>@c.Memo</td>
                     </tr>
                 }
@@ -155,6 +157,7 @@
     </div>
     <div class="card-footer">
         <p class="card-text"><small class="text-muted">This service uses cookies to anonymously track your contributions.  If you do not make any deposits or withdrawals for a period of 7 days, your user history will be reset.</small></p>
+        <p class="card-text"><small class="text-muted"> * All amounts are in units of Satoshi.</small></p>
     </div>
 </div>
 
@@ -204,7 +207,7 @@
             // All transactions notification handling
             hub.client.NotifyNewTransaction = function (t) {
                 //alert(t.Memo);
-                var row = "<tr><td><a href='./ShowTransaction/" + t.Id +"'><span class='fa fa-search-plus'></span></a>" + "</td><td>" + moment.utc(t.Timestamp).format('YYYY-MM-DD h:mm:ss A')+"</td><td>"+t.Type+"</td><td>"+t.Amount+"</td><td>"+t.Memo+"</td></tr>";
+                var row = "<tr><td><a href='./ShowTransaction/" + t.Id + "'><span class='fa fa-search-plus'></span></a>" + "</td><td>" + moment.utc(t.Timestamp).format('YYYY-MM-DD h:mm:ss A') + "</td><td>" + t.Type + "</td><td>" + t.Amount + "</td><td>" + t.Fees + "</td><td>" + t.Memo + "</td></tr>";
                 $("#RecentTransactions tr:first").after(row);
             };
 

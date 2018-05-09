@@ -93,6 +93,7 @@ namespace coinpanic_airdrop.Models
         public string Memo { get; set; }
         public string Type { get; set; }
         public int Id { get; set; }
+        public Int64 Fee { get; set; }
     }
 
     public class LnRequestInvoice
