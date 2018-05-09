@@ -40,6 +40,18 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:coinpanic_airdrop.Controllers.LightningController.NodeURI">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:coinpanic_airdrop.Controllers.LightningController.NodeSummary">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:coinpanic_airdrop.Controllers.ServicesController">
             <summary>
             

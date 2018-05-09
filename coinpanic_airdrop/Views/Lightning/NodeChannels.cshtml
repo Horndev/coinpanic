@@ -1,0 +1,93 @@
+﻿@model coinpanic_airdrop.Models.LnStatusViewModel
+
+<table id="connectionTbl" class="table table-sm table-bordered table-responsive table-hover">
+    <thead>
+        <tr>
+            <th>Node Alias</th>
+            <th>Capacity</th>
+            <th>L-R</th>
+            <th>Transferred</th>
+            <th>Connection (now - past)</th>
+            <th>Channel Id</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model.channels)
+        {
+            <tr style="@(!c.ChanInfo.active ? "background-color:LightGray" : String.Empty)">
+                <td><a href="https://1ml.com/node/@c.ChanInfo.remote_pubkey">@c.RemoteNode.Alias</a></td>
+                <td>@c.ChanInfo.capacity</td>
+                <td><span id="chanbal" class="inlinebullet" style="display:none">@c.ChanInfo.remote_balance,@c.ChanInfo.capacity</span></td>
+                <td>@(Convert.ToString(Convert.ToInt64(c.ChanInfo.total_satoshis_received) + Convert.ToInt64(c.ChanInfo.total_satoshis_sent))) </td>
+                <td><span id="conn" class="inlinesparkline" style="display:none"> @(string.Join(",", c.History.Select(h => h.IsConnected ? "1" : "-1").ToList())) </span></td>
+                <td><a href="https://1ml.com/channel/@c.ChanInfo.chan_id">@c.ChanInfo.chan_id</a></td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="2" style="text-align:right"></th>
+            <th colspan="2" style="text-align:right"></th>
+            <th colspan="2"></th>
+        </tr>
+    </tfoot>
+</table>
+<p class="card-text"> * All units are in Satoshi.</p>
+<p class="card-text"> ** L-R indicates balance between local-remote nodes.</p>
+
+
+@Styles.Render("~/bundles/datatables/css")
+@Scripts.Render("~/bundles/sparkline")
+@Scripts.Render("~/bundles/datatables")
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $(".inlinesparkline").show();
+        $(".inlinebullet").show();
+        $('.inlinesparkline').sparkline('html', { type: 'tristate', posBarColor: 'green', negBarColor: 'red', tooltipFormat: "" });
+        $('.inlinebullet').sparkline('html', { type: 'bullet', tooltipFormat: "" });
+
+        $('#connectionTbl').DataTable(
+            {
+                "order": [[1, "desc"]],
+                "paging": false,
+                "footerCallback": function (row, data, start, end, display) {
+                    var api = this.api(), data;
+
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function (i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    total = api
+                        .column(1)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    // Update footer capacity
+                    $(api.column(1).footer()).html(
+                        total.toLocaleString() + ' capacity'
+                    );
+
+                    totalt = api
+                        .column(3)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    // Update footer transferred
+                    $(api.column(3).footer()).html(
+                        totalt.toLocaleString() + ' transferred'
+                    );
+                }
+            }
+        );
+    });
+</script>

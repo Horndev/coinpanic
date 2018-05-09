@@ -8,6 +8,29 @@ using System.Web;
 
 namespace coinpanic_airdrop.Models
 {
+    public class LnNodeURIViewModel
+    {
+        public string URI { get; set; }
+        public string Alias { get; set; }
+        public string Node_Pubkey { get; set; }
+    }
+
+    public class LnNodeSummaryViewModel
+    {
+        public int NumChannels { get; set; }
+        public double TotalValueXfer { get; set; }
+        public int NumChannelsActive { get; set; }
+        public int NumXfer { get; set; }
+        public string TotalFees { get; set; }
+        public double Capacity { get; set; }
+        public double LocalCapacity { get; set; }
+        public double RemoteCapacity { get; set; }
+        public double ActiveCapacity { get; set; }
+        public double ActiveLocalCapacity { get; set; }
+        public double ActiveRemoteCapacity { get; set; }
+
+    }
+
     /// <summary>
     /// Record of channel uptime and activity
     /// </summary>

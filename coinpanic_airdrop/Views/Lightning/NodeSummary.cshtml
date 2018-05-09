@@ -1,0 +1,30 @@
+﻿@model coinpanic_airdrop.Models.LnNodeSummaryViewModel
+
+    <table class="table table-sm table-striped table-bordered">
+        <tr>
+            <td><b>Number of Channels Total</b></td>
+            <td colspan="3">@Model.NumChannels</td>
+        </tr>
+        <tr>
+            <td><b>Number of Channels Online</b></td>
+            <td colspan="3">@Model.NumChannelsActive</tdcolspan="3">
+        </tr>
+        <tr>
+            <td><b>Total Capacity</b></td>
+            <td>@Model.Capacity BTC</td>
+            <td>@Model.LocalCapacity BTC Local</td>
+            <td>@Model.RemoteCapacity BTC Remote</td>
+        </tr>
+        <tr>
+            <td><b>Total Capacity Online</b></td>
+            <td>@Model.ActiveCapacity BTC</td>
+            <td>@Model.ActiveLocalCapacity BTC Local</td>
+            <td>@Model.ActiveRemoteCapacity BTC Remote</td>
+        </tr>
+        <tr>
+            <td><b>Routed</b></td>
+            <td>@Model.NumXfer payments</td>
+            <td>@Model.TotalValueXfer BTC value</td>
+            <td>@Model.TotalFees BTC fees</td>
+        </tr>
+    </table>

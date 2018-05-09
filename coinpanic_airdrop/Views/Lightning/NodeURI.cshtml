@@ -1,0 +1,30 @@
+﻿@model coinpanic_airdrop.Models.LnNodeURIViewModel
+
+@{
+    var url = string.Format(
+        "/Lightning/getQr?qr={0}",
+        @Uri.EscapeDataString(Model.URI.ToString()));
+}
+
+<div>
+    <h4>Node Name: @Model.Alias</h4>
+    <div class="pl-2 alert alert-dark" role="alert">
+        <div class="row">
+            <div class="col-md-10">
+                <b>Connection URI:</b> @Model.URI
+            </div>
+            <div class="col-md-2 pull-right">
+                <!-- Small modal -->
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-sm"><i class="fa fa-qrcode"></i></button>
+
+                <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <img src="@url" class="img-fluid" />
+                        </div>
+                    </div>
+                </div>
+            </div>        
+        </div>
+    </div>
+</div>

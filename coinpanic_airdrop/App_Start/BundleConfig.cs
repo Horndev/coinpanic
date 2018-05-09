@@ -26,9 +26,6 @@ namespace coinpanic_airdrop
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/bower_components/jQuery/dist/jquery.min.js"));
 
-            bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
-                        "~/bower_components/jquery-validation/jquery.validate.js"));
-
             bundles.Add(new ScriptBundle("~/bundles/icons").Include(
                         "~/bower_components/webicon/jquery-webicon.min.js"));
 

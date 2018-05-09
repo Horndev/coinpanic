@@ -116,6 +116,15 @@ namespace coinpanic_airdrop.Controllers
             return lndClient;
         }
 
+        private static LndRpcClient GetLndClient(bool useTestnet)
+        {
+            return new LndRpcClient(
+                    host: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetHost" : "LnMainnetHost"],
+                    macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
+                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"],
+                    macaroonInvoice: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonInvoice" : "LnMainnetMacaroonInvoice"]);
+        }
+
         public ActionResult WebWallet()
         {
             return View();
@@ -601,139 +610,263 @@ namespace coinpanic_airdrop.Controllers
         {
             try
             {
-                bool useTestnet = GetUseTestnet();
-
-                var lndClient = new LndRpcClient(
-                    host: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetHost" : "LnMainnetHost"],
-                    macaroonAdmin: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonAdmin" : "LnMainnetMacaroonAdmin"],
-                    macaroonRead: System.Configuration.ConfigurationManager.AppSettings[useTestnet ? "LnTestnetMacaroonRead" : "LnMainnetMacaroonRead"]);
-
-                var info = lndClient.GetInfo();
-                var channels = lndClient.GetChannels();
-
-                var LnStatusViewModel = new LnStatusViewModel();
-                LnStatusViewModel.channels = new List<LnChannelInfoModel>();
-
-                using (CoinpanicContext db = new CoinpanicContext())
-                {
-                    LnNode myNode = GetOrCreateNode(lndClient, info.identity_pubkey, db);
-
-                    //Check each channel
-                    foreach (var c in channels.channels)
-                    {
-                        LnChannelInfoModel channelViewModel = new LnChannelInfoModel();
-
-                        // Check if this is a new channel
-                        if (myNode.Channels.Where(ch => ch.ChannelId == c.chan_id).Count() < 1)
-                        {
-                            LnChannel thisChannel = GetOrCreateChannel(lndClient, db, c);
-                            
-                            if (!myNode.Channels.Contains(thisChannel))
-                            {
-                                myNode.Channels.Add(thisChannel);
-                                db.SaveChanges();
-                            }
-                        }
-
-                        // Check if there is a history for the channel
-                        //List<LnChannelConnectionPoints> chanHist = GetChanHist(lndClient, db, c);
-                        DateTime cutoff = DateTime.UtcNow - TimeSpan.FromDays(30);
-                        Int64 otherchanid = Convert.ToInt64(c.chan_id);
-                        channelViewModel.History = db.LnChannelHistory
-                            .Where(ch => ch.ChanId == otherchanid)
-                            .Where(ch => ch.Timestamp > cutoff)
-                            .OrderByDescending(ch => ch.Timestamp)
-                            .Include("RemoteNode")
-                            .Take(30)
-                            .AsNoTracking()
-                            .ToList();
-
-                        LnChannelConnectionPoints prevChanHist;
-                        if (channelViewModel.History.Count() > 0)
-                        {
-                            prevChanHist = channelViewModel.History.First();
-                        }
-                        else
-                        {
-                            prevChanHist = new LnChannelConnectionPoints()
-                            {
-                                Timestamp = DateTime.UtcNow,
-                            };
-                        }
-                        
-                        // check for changes
-                        if (prevChanHist.IsConnected != c.active
-                            || prevChanHist.LocalBalance != Convert.ToInt64(c.local_balance)
-                            || prevChanHist.RemoteBalance != Convert.ToInt64(c.remote_balance)
-                            || DateTime.UtcNow - prevChanHist.Timestamp > TimeSpan.FromHours(6))
-                        {
-                            // update
-                            LnNode remoteNode = GetOrCreateNode(lndClient, c.remote_pubkey, db);
-                            LnChannelConnectionPoints newChanHist = new LnChannelConnectionPoints()
-                            {
-                                IsConnected = c.active,
-                                LocalBalance = Convert.ToInt64(c.local_balance),
-                                RemoteBalance = Convert.ToInt64(c.remote_balance),
-                                Timestamp = DateTime.UtcNow,
-                                RemoteNode = remoteNode,
-                                ChanId = Convert.ToInt64(c.chan_id),
-                            };
-                            prevChanHist.RemoteNode = remoteNode;
-                            db.LnChannelHistory.Add(newChanHist);
-                            db.SaveChanges();
-                        }
-                        if (c.remote_balance is null)
-                        {
-                            c.remote_balance = "0";
-                        }
-                        if (c.local_balance is null)
-                        {
-                            c.local_balance = "0";
-                        }
-                        channelViewModel.ChanInfo = c;
-                        channelViewModel.RemoteNode = prevChanHist.RemoteNode;
-                        LnStatusViewModel.channels.Add(channelViewModel);
-                    }
-                }
-
-                ViewBag.URI = info.uris.First();
-                ViewBag.NumChannelsActive = info.num_active_channels;
-                ViewBag.Alias = info.alias;
-                ViewBag.NumChannels = channels.channels.Count;
-                ViewBag.Capacity = Convert.ToDouble(channels.channels.Sum(c => Convert.ToInt64(c.capacity))) / 100000000.0;
-
-                //Total capacity on remote nodes
-                //Total capacity on local node
-                ViewBag.LocalCapacity = Convert.ToDouble(channels.channels.Sum(n => Convert.ToInt64(n.local_balance))) / 100000000.0;
-                ViewBag.RemoteCapacity = Convert.ToDouble(channels.channels.Sum(n => Convert.ToInt64(n.remote_balance))) / 100000000.0;
-
-                ViewBag.ActiveCapacity = Convert.ToDouble(channels.channels.Where(c=>c.active).Sum(c => Convert.ToInt64(c.capacity))) / 100000000.0;
-                ViewBag.ActiveLocalCapacity = Convert.ToDouble(channels.channels.Where(c => c.active).Sum(n => Convert.ToInt64(n.local_balance))) / 100000000.0;
-                ViewBag.ActiveRemoteCapacity = Convert.ToDouble(channels.channels.Where(c => c.active).Sum(n => Convert.ToInt64(n.remote_balance))) / 100000000.0;
-
-                try
-                {
-                    var xfers = lndClient.GetForwardingEvents();
-
-                    //Total amount transferred
-                    ViewBag.TotalValueXfer = Convert.ToDouble(xfers.forwarding_events.Sum(f => Convert.ToInt64(f.amt_out))) / 100000000.0;
-                    ViewBag.NumXfer = xfers.forwarding_events.Count;
-                    ViewBag.TotalFees = (Convert.ToDouble(xfers.forwarding_events.Sum(f => Convert.ToInt64(f.fee))) / 100000000.0).ToString("0.00000000");
-                }
-                catch (Exception e)
-                {
-                    ViewBag.TotalValueXfer = "Unknown";
-                    ViewBag.NumXfer = "Unknown";
-                    ViewBag.TotalFees = "Unknown";
-                    MonitoringService.SendMessage("Lightning Error", e.Message);
-                }
-
-                return View(LnStatusViewModel);
+                return View();
             }
             catch (Exception e)
             {
                 return RedirectToAction("NodeError", new { message = "Error communicating with Lightning Node"});
             }
+        }
+
+
+        // Caching
+        private static TimeSpan StatusCacheTimeout = TimeSpan.FromMinutes(10);
+        private static TimeSpan URICacheTimeout = TimeSpan.FromMinutes(10); // Not so expensive.
+        private static TimeSpan FwdingCacheTimeout = TimeSpan.FromMinutes(10); // Not so expensive.
+        private static DateTime LastNodeURIUpdate = DateTime.Now - URICacheTimeout - TimeSpan.FromMinutes(1);    // Initialize so that first call will set values
+        private static DateTime LastNodeChannelsUpdate = DateTime.Now - StatusCacheTimeout - TimeSpan.FromMinutes(1);
+        private static DateTime LastNodeSummaryUpdate = DateTime.Now - FwdingCacheTimeout - TimeSpan.FromMinutes(1);
+
+        private static LnNodeURIViewModel nodeURIViewModel = new LnNodeURIViewModel() { Node_Pubkey = "", URI = "", Alias = "Coinpanic.com" };
+        private static LnNodeSummaryViewModel nodeSummaryViewModel = new LnNodeSummaryViewModel();
+        private static LnStatusViewModel nodeChannelViewModel = new LnStatusViewModel() { channels = new List<LnChannelInfoModel>() };
+
+        private class UpdateTask
+        {
+            public Guid id;
+            public Task task;
+        }
+
+        private static ConcurrentDictionary<Guid, UpdateTask> updateTasks = new ConcurrentDictionary<Guid, UpdateTask>();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult NodeURI()
+        {
+            // Check if cache expired
+
+            if (DateTime.Now - LastNodeURIUpdate > URICacheTimeout)
+            {
+
+                // Update cache
+                Guid taskid = Guid.NewGuid();
+                UpdateTask updateTask = new UpdateTask()
+                {
+                    id = taskid,
+                    task = new Task(() =>
+                    {
+                        try
+                        {
+
+
+                            bool useTestnet = GetUseTestnet();
+                            LndRpcClient lndClient = GetLndClient(useTestnet);
+
+                            var info = lndClient.GetInfo();
+                            nodeSummaryViewModel.NumChannelsActive = info.num_active_channels;
+                            nodeURIViewModel.URI = info.uris.First();
+                            nodeURIViewModel.Alias = info.alias;
+                            nodeURIViewModel.Node_Pubkey = info.identity_pubkey;
+                            UpdateTaskComplete(taskid);
+                        }
+                        catch (Exception e)
+                        {
+                            nodeURIViewModel.URI = "Error loading node information.";
+                        }
+                    }),
+                };
+                updateTasks.TryAdd(taskid, updateTask);
+                updateTask.task.Start();
+
+                LastNodeURIUpdate = DateTime.Now;
+                if (nodeURIViewModel.URI == "")
+                {
+                    //wait for the task to finish.
+                    while (updateTasks.ContainsKey(taskid))
+                    {
+                        Thread.Sleep(1000);
+                    }
+                }
+            }
+            return PartialView("NodeURI", nodeURIViewModel);
+        }
+
+        private static void UpdateTaskComplete(Guid id)
+        {
+            updateTasks.TryRemove(id, out UpdateTask t);
+        }
+
+        public ActionResult NodeChannels()
+        {
+            if (DateTime.Now - LastNodeChannelsUpdate > StatusCacheTimeout)
+            {
+                Guid taskid = Guid.NewGuid();
+                UpdateTask updateTask = new UpdateTask()
+                {
+                    id = taskid,
+                    task = new Task(() =>
+                    {
+                        try
+                        {
+
+
+                            bool useTestnet = GetUseTestnet();
+                            LndRpcClient lndClient = GetLndClient(useTestnet);
+                            string pubkey = nodeURIViewModel.Node_Pubkey;
+                            if (pubkey == "") // If not already known
+                            {
+                                var info = lndClient.GetInfo();
+                                pubkey = info.identity_pubkey;
+                                nodeURIViewModel.URI = info.uris.First();
+                                nodeURIViewModel.Alias = info.alias;
+                                nodeURIViewModel.Node_Pubkey = info.identity_pubkey;
+                            }
+
+                            var channels = lndClient.GetChannels();
+
+                            nodeChannelViewModel.channels = new List<LnChannelInfoModel>(); // Clear cache
+
+                            using (CoinpanicContext db = new CoinpanicContext())
+                            {
+                                LnNode myNode = GetOrCreateNode(lndClient, nodeURIViewModel.Node_Pubkey, db);
+
+                                //Check each channel
+                                foreach (var c in channels.channels)
+                                {
+                                    LnChannelInfoModel channelViewModel = new LnChannelInfoModel();
+
+                                    // Check if this is a new channel
+                                    if (myNode.Channels.Where(ch => ch.ChannelId == c.chan_id).Count() < 1)
+                                    {
+                                        LnChannel thisChannel = GetOrCreateChannel(lndClient, db, c);
+
+                                        if (!myNode.Channels.Contains(thisChannel))
+                                        {
+                                            myNode.Channels.Add(thisChannel);
+                                            db.SaveChanges();
+                                        }
+                                    }
+
+                                    // Check if there is a history for the channel
+                                    //List<LnChannelConnectionPoints> chanHist = GetChanHist(lndClient, db, c);
+                                    DateTime cutoff = DateTime.UtcNow - TimeSpan.FromDays(30);
+                                    Int64 otherchanid = Convert.ToInt64(c.chan_id);
+                                    channelViewModel.History = db.LnChannelHistory
+                                        .Where(ch => ch.ChanId == otherchanid)
+                                        .Where(ch => ch.Timestamp > cutoff)
+                                        .OrderByDescending(ch => ch.Timestamp)
+                                        .Include("RemoteNode")
+                                        .Take(30)
+                                        .AsNoTracking()
+                                        .ToList();
+
+                                    LnChannelConnectionPoints prevChanHist;
+                                    if (channelViewModel.History.Count() > 0)
+                                    {
+                                        prevChanHist = channelViewModel.History.First();
+                                    }
+                                    else
+                                    {
+                                        prevChanHist = new LnChannelConnectionPoints()
+                                        {
+                                            Timestamp = DateTime.UtcNow,
+                                        };
+                                    }
+
+                                    // check for changes
+                                    if (prevChanHist.IsConnected != c.active
+                                        || prevChanHist.LocalBalance != Convert.ToInt64(c.local_balance)
+                                        || prevChanHist.RemoteBalance != Convert.ToInt64(c.remote_balance)
+                                        || DateTime.UtcNow - prevChanHist.Timestamp > TimeSpan.FromHours(6))
+                                    {
+                                        // update
+                                        LnNode remoteNode = GetOrCreateNode(lndClient, c.remote_pubkey, db);
+                                        LnChannelConnectionPoints newChanHist = new LnChannelConnectionPoints()
+                                        {
+                                            IsConnected = c.active,
+                                            LocalBalance = Convert.ToInt64(c.local_balance),
+                                            RemoteBalance = Convert.ToInt64(c.remote_balance),
+                                            Timestamp = DateTime.UtcNow,
+                                            RemoteNode = remoteNode,
+                                            ChanId = Convert.ToInt64(c.chan_id),
+                                        };
+                                        prevChanHist.RemoteNode = remoteNode;
+                                        db.LnChannelHistory.Add(newChanHist);
+                                        db.SaveChanges();
+                                    }
+                                    if (c.remote_balance is null)
+                                    {
+                                        c.remote_balance = "0";
+                                    }
+                                    if (c.local_balance is null)
+                                    {
+                                        c.local_balance = "0";
+                                    }
+                                    channelViewModel.ChanInfo = c;
+                                    channelViewModel.RemoteNode = prevChanHist.RemoteNode;
+                                    nodeChannelViewModel.channels.Add(channelViewModel);
+                                }
+                            }
+
+                            // Updates to channelinfo
+                            nodeSummaryViewModel.NumChannels = channels.channels.Count;
+                            nodeSummaryViewModel.Capacity = Convert.ToDouble(channels.channels.Sum(c => Convert.ToInt64(c.capacity))) / 100000000.0;
+                            nodeSummaryViewModel.LocalCapacity = Convert.ToDouble(channels.channels.Sum(n => Convert.ToInt64(n.local_balance))) / 100000000.0;
+                            nodeSummaryViewModel.RemoteCapacity = Convert.ToDouble(channels.channels.Sum(n => Convert.ToInt64(n.remote_balance))) / 100000000.0;
+                            nodeSummaryViewModel.ActiveCapacity = Convert.ToDouble(channels.channels.Where(c => c.active).Sum(c => Convert.ToInt64(c.capacity))) / 100000000.0;
+                            nodeSummaryViewModel.ActiveLocalCapacity = Convert.ToDouble(channels.channels.Where(c => c.active).Sum(n => Convert.ToInt64(n.local_balance))) / 100000000.0;
+                            nodeSummaryViewModel.ActiveRemoteCapacity = Convert.ToDouble(channels.channels.Where(c => c.active).Sum(n => Convert.ToInt64(n.remote_balance))) / 100000000.0;
+
+                            UpdateTaskComplete(taskid);
+                        }
+                        catch (Exception e)
+                        {
+                            // Try again on next refresh
+                            LastNodeChannelsUpdate = DateTime.Now - StatusCacheTimeout;
+                        }
+                    }),
+                };
+                updateTasks.TryAdd(taskid, updateTask);
+                updateTask.task.Start();
+
+                LastNodeChannelsUpdate = DateTime.Now;
+            }
+
+            return PartialView("NodeChannels", nodeChannelViewModel);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult NodeSummary()
+        {
+            try
+            {
+                if (DateTime.Now - LastNodeSummaryUpdate > FwdingCacheTimeout)
+                {
+                    bool useTestnet = GetUseTestnet();
+                    LndRpcClient lndClient = GetLndClient(useTestnet);
+                    var xfers = lndClient.GetForwardingEvents();
+
+                    //Total amount transferred
+                    nodeSummaryViewModel.TotalValueXfer = Convert.ToDouble(xfers.forwarding_events.Sum(f => Convert.ToInt64(f.amt_out))) / 100000000.0;
+                    nodeSummaryViewModel.NumXfer = xfers.forwarding_events.Count;
+                    nodeSummaryViewModel.TotalFees = (Convert.ToDouble(xfers.forwarding_events.Sum(f => Convert.ToInt64(f.fee))) / 100000000.0).ToString("0.00000000");
+                    LastNodeSummaryUpdate = DateTime.Now;
+                }
+            }
+            catch (Exception e)
+            {
+                ViewBag.TotalValueXfer = "Unknown";
+                ViewBag.NumXfer = "Unknown";
+                ViewBag.TotalFees = "Unknown";
+                MonitoringService.SendMessage("Lightning Error", e.Message);
+            }
+
+            return PartialView("NodeSummary", nodeSummaryViewModel);
         }
 
         private static List<LnChannelConnectionPoints> GetChanHist(LndRpcClient lndClient, CoinpanicContext db, Channel c)
