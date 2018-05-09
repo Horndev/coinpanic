@@ -591,6 +591,7 @@ namespace coinpanic_airdrop.Controllers
                     Memo = t.Memo,
                     Type = t.IsDeposit ? "Deposit" : "Withdrawal",
                     Id = t.TransactionId,
+                    Fee = t.FeePaid_Satoshi ?? -1,
                 };
 
                 context.Clients.All.NotifyNewTransaction(newT);

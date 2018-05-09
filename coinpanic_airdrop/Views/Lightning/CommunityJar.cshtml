@@ -207,7 +207,7 @@
             // All transactions notification handling
             hub.client.NotifyNewTransaction = function (t) {
                 //alert(t.Memo);
-                var row = "<tr><td><a href='./ShowTransaction/" + t.Id + "'><span class='fa fa-search-plus'></span></a>" + "</td><td>" + moment.utc(t.Timestamp).format('YYYY-MM-DD h:mm:ss A') + "</td><td>" + t.Type + "</td><td>" + t.Amount + "</td><td>" + t.Fees + "</td><td>" + t.Memo + "</td></tr>";
+                var row = "<tr><td><a href='./ShowTransaction/" + t.Id + "'><span class='fa fa-search-plus'></span></a>" + "</td><td>" + moment.utc(t.Timestamp).format('YYYY-MM-DD h:mm:ss A') + "</td><td>" + t.Type + "</td><td>" + t.Amount + "</td><td>" + t.Fee + "</td><td>" + t.Memo + "</td></tr>";
                 $("#RecentTransactions tr:first").after(row);
             };
 
