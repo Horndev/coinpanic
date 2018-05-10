@@ -101,7 +101,7 @@ namespace coinpanic_airdrop.Controllers
                 Tuple<List<ICoin>, Dictionary<string, double>> claimcoins;
                 try
                 {
-                    claimcoins = scanner.GetUnspentTransactionOutputs(claimAddresses, userclaim.CoinShortName);
+                    claimcoins = scanner.GetUnspentTransactionOutputs(claimAddresses, userclaim.CoinShortName, out bool usedExplorer);
                 }
                 catch (Exception e)
                 {

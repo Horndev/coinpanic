@@ -93,6 +93,12 @@ namespace CoinController
 
     }
 
+    public class SearchResult
+    {
+        public double Balance { get; set; }
+    }
+
+
     public class BlockScanner
     {
         public BlockScanner()
@@ -110,8 +116,9 @@ namespace CoinController
             return bytes;
         }
 
-        public Tuple<List<ICoin>, Dictionary<string, double>> GetUnspentTransactionOutputs(List<BitcoinAddress> clientAddresses, string forkShortName, bool estimate = false)
+        public Tuple<List<ICoin>, Dictionary<string, double>> GetUnspentTransactionOutputs(List<BitcoinAddress> clientAddresses, string forkShortName, out bool usedExplorer, bool estimate = false)
         {
+            usedExplorer = false;
             List<ICoin> UTXOs = new List<ICoin>();
             List<ICoin> receivedCoins = new List<ICoin>();
             List<ICoin> spentCoins = new List<ICoin>();
@@ -139,23 +146,27 @@ namespace CoinController
                 {
                     string baseURL = "https://explorer.b2x-segwit.io/b2x-insight-api";
                     unspentCoins = GetUTXOFromInsight(UTXOs, ca, baseURL);
+                    usedExplorer = true;
                 }
                 else if (forkShortName == "BCI" && !isSW && !estimate)
                 {
                     var addr = ca.Convert(Network.BCI);
                     string baseURL = "https://explorer.bitcoininterest.io/api/";
                     unspentCoins = GetUTXOFromInsight(UTXOs, addr, baseURL);
+                    usedExplorer = true;
                 }
                 else if (forkShortName == "BTCP" && !isSW && !estimate)
                 {
                     var addr = ca.Convert(Network.BTCP);
                     string baseURL = "https://explorer.btcprivate.org/api";
                     unspentCoins = GetUTXOFromInsight(UTXOs, addr, baseURL);
+                    usedExplorer = true;
                 }
                 else if (forkShortName == "BTX" && !isSW && !estimate)
                 {
                     string baseURL = "http://insight.bitcore.cc/api";
                     unspentCoins = GetUTXOFromInsight(UTXOs, ca, baseURL);
+                    usedExplorer = true;
                 }
                 else if (forkShortName == "BCH" && !isSW)
                 {
@@ -188,9 +199,11 @@ namespace CoinController
                         }
                         UTXOs.AddRange(unspentCoins);
                     }
+                    usedExplorer = true;
                 }
                 else if (forkShortName == "SBTC" && !isSW)
                 {
+                    usedExplorer = true;
                     List<UTXO> addressUTXOs;
                     //Superbitcoin
                     var iclient = new RestClient();
@@ -224,6 +237,7 @@ namespace CoinController
                 }
                 else if (forkShortName == "UBTC" && !isSW)
                 {
+                    usedExplorer = true;
                     unspentCoins = GetUTXOFromUBTCExplorer(ca.ToString());
                     UTXOs.AddRange(unspentCoins);
                 }

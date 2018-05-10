@@ -1,0 +1,21 @@
+﻿@model coinpanic_airdrop.Models.AddressSummary
+
+
+<div class="alert @(Model.Empty ? "alert-danger" :"alert-success" )" role="alert">
+    @if (!Model.Empty)
+    {
+        @Html.ActionLink("Claim " + Model.Coin, "NewClaim", "Claim", new { coin = Model.Coin }, new { @class = "btn btn-primary btn-sm active", @role = "button", @data_toggle = "tooltip", @title = Model.CoinName })
+    }
+    Found @Model.Balance @Model.Coin @(Model.UsedExplorer ? "" : "*") 
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip({
+                container: 'body'
+            });
+        });
+    </script>
+}

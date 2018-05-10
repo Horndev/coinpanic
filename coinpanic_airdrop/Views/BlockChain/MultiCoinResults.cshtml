@@ -1,0 +1,34 @@
+﻿@model coinpanic_airdrop.Models.AddressSearchViewModel
+
+@{
+    ViewBag.Title = "MultiCoinResults";
+}
+
+<div class="card">
+    <h3 class="card-header">MultipleCoinResults</h3>
+    <div class="card-body">
+        @foreach (var c in Model.Coins)
+        {
+            <div class="partialContents" data-url="/BlockChain/CoinBalance?coin=@c&addresses=@Model.Addresses">
+                <i class="fa fa-2x fa-spinner fa-pulse"></i> Searching @c ...
+            </div>
+        }
+    </div>
+    <div class="card-footer">
+        <p> * Search was done on BTC blockchain at fork point, it is possible that these forked coins could already be spent.</p>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".partialContents").each(function (index, item) {
+                var url = $(item).data("url");
+                if (url && url.length > 0) {
+                    $(item).load(url);
+                }
+            });
+        });
+    </script>
+}

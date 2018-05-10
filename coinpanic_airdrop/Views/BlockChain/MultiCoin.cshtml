@@ -1,0 +1,31 @@
+﻿
+
+@{
+    ViewBag.Title = "MultiCoin";
+}
+
+<div class="card">
+    <h3 class="card-header">Search Multiple Forks</h3>
+    <div class="card-body">
+        <form action="/BlockChain/MultiCoinResults" method="post">
+            <p class="card-text">
+                <div class="form-group">
+                    <div class="col-sm-10">
+                        <label for="PublicKeys">Insert your public Bitcoin addresses *</label>
+                        <textarea type="text" class="form-control" rows="5" name="addresses" id="addresses" aria-describedby="pubhelp" placeholder="Enter your addresses you wish to check (each on it's own line)"></textarea>
+                        <small id="pubhelp" class="form-text text-muted">We'll never share your information</small>
+                    </div>
+                </div>
+            </p>
+            <div class="form-group">
+                <div class="col-sm-10">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-footer">
+        <p class="card-text"><small class="text-muted"> * All address types including multi-sig, P2PKH, SegWit, etc. are accepted.</small></p>
+    </div>
+</div>
+

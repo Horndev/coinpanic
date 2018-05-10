@@ -206,6 +206,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\BlockChainController.cs" />
     <Compile Include="Controllers\ClaimController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LightningController.cs" />
@@ -321,6 +322,7 @@
       <DependentUpon>201804302349598_LNPaymentAddDestinationAndErrors.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\BlockChainModels.cs" />
     <Compile Include="Models\Coupon.cs" />
     <Compile Include="Models\IndexModel.cs" />
     <Compile Include="Models\LnServices.cs" />
@@ -442,6 +444,9 @@
     <Content Include="Views\Lightning\NodeSummary.cshtml" />
     <Content Include="Views\Lightning\NodeChannels.cshtml" />
     <Content Include="Views\Lightning\NodeURI.cshtml" />
+    <Content Include="Views\BlockChain\MultiCoin.cshtml" />
+    <Content Include="Views\BlockChain\MultiCoinResults.cshtml" />
+    <Content Include="Views\BlockChain\CoinBalance.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
