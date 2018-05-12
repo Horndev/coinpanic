@@ -403,98 +403,16 @@ namespace coinpanic_airdrop.Controllers
                         MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
                     }
                 }
-                if (userclaim.CoinShortName == "BTCP")
-                {
-                    try
-                    {
-                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
-                        response.Result = content;
-                        return Json(response);
-                    }
-                    catch (Exception e)
-                    {
-                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
-                    }
-                }
-                if (userclaim.CoinShortName == "UBTC")
-                {
-                    try
-                    {
-                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
-                        response.Result = content;
-                        return Json(response);
-                    }
-                    catch (Exception e)
-                    {
-                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
-                    }
-                }
-                if (userclaim.CoinShortName == "BCD")
-                {
-                    try
-                    {
-                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
-                        response.Result = content;
-                        return Json(response);
-                    }
-                    catch (Exception e)
-                    {
-                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
-                    }
-                }
-                if (userclaim.CoinShortName == "SBTC")
-                {
-                    try
-                    {
-                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
-                        response.Result = content;
-                        return Json(response);
-                    }
-                    catch (Exception e)
-                    {
-                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
-                    }
-                }
-                if (userclaim.CoinShortName == "BPA")
-                {
-                    try
-                    {
-                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
-                        response.Result = content;
-                        return Json(response);
-                    }
-                    catch (Exception e)
-                    {
-                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
-                    }
-                }
-                if (userclaim.CoinShortName == "BTW")
-                {
-                    try
-                    {
-                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
-                        response.Result = content;
-                        return Json(response);
-                    }
-                    catch (Exception e)
-                    {
-                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
-                    }
-                }
-                if (userclaim.CoinShortName == "BTV")
-                {
-                    try
-                    {
-                        string content = TransmitViaJSONRPC(ClaimId, db, userclaim, signedTransaction, userclaim.CoinShortName);
-                        response.Result = content;
-                        return Json(response);
-                    }
-                    catch (Exception e)
-                    {
-                        MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
-                    }
-                }
-                if (userclaim.CoinShortName == "BTF")
+                // Broadcast via own nodes over RPC
+                if (   userclaim.CoinShortName == "BBC" 
+                    || userclaim.CoinShortName == "BTF" 
+                    || userclaim.CoinShortName == "BTV" 
+                    || userclaim.CoinShortName == "BCD"
+                    || userclaim.CoinShortName == "BTCP"
+                    || userclaim.CoinShortName == "UBTC"
+                    || userclaim.CoinShortName == "SBTC"
+                    || userclaim.CoinShortName == "BTW" 
+                    || userclaim.CoinShortName == "BPA")
                 {
                     try
                     {
