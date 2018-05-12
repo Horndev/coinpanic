@@ -352,8 +352,6 @@ namespace coinpanic_airdrop.Controllers
             {
                 return Json(new { Result = "Error decoding request."});
             }
-
-            return Json(new { Result = "success" });
         }
 
         /// <summary>
