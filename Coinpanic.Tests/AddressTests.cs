@@ -8,6 +8,14 @@ namespace Coinpanic.Tests
     public class AddressTests
     {
         [TestMethod]
+        public void Fork_Address_Convert_CashAddr_BCH()
+        {
+            string cashAddr = "bitcoincash:qr3vw2jaxaqadyq50udtskpw23h276t28u95ch0uwn";
+            string BTCaddr = SharpCashAddr.Converter.cashAddrToOldAddr(cashAddr, out bool isP2PKH, out _);
+            Assert.AreEqual("1Mg6Jcd3mEGTmKFoH9NGuaMs6nEDBPJkAf", BTCaddr);
+        }
+
+        [TestMethod]
         public void Fork_Address_Create_P2PKH_BBC()
         {
             string BBCaddr = "BFsvMogLzGeAiek3zYRzNMbKT4UTt6D7wp";

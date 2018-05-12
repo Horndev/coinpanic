@@ -95,6 +95,14 @@ namespace coinpanic_airdrop.Controllers
                 if (list.Count < 1)
                     return RedirectToAction("ClaimError", new { message = "You must enter at least one address to claim", claimId = claimId });
 
+                // Convert depositAddress if BCH
+
+                if (userclaim.CoinShortName == "BCH" && depositAddress.StartsWith("bitcoincash:"))
+                {
+                    // Convert
+                    depositAddress = SharpCashAddr.Converter.cashAddrToOldAddr(depositAddress, out bool isP2PKH, out _);
+                }
+
                 if (!Bitcoin.IsValidAddress(depositAddress, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network))
                     return RedirectToAction("ClaimError", new { message = "Deposit Address not valid", claimId = claimId });
 
@@ -142,7 +150,7 @@ namespace coinpanic_airdrop.Controllers
                 var utx = Bitcoin.GenerateUnsignedTX(
                     UTXOs: claimcoins.Item1,
                     amounts: amounts,
-                    clientDepAddr: Bitcoin.ParseAddress(userclaim.DepositAddress, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
+                    clientDepAddr: Bitcoin.ParseAddress(depositAddress, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
                     MyDepositAddr: Bitcoin.ParseAddress(mydepaddr, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
                     forkShortName: userclaim.CoinShortName);
 
@@ -237,6 +245,14 @@ namespace coinpanic_airdrop.Controllers
                     userclaim = db.Claims.Where(c => c.ClaimId == claimId).Include(c => c.InputAddresses).AsNoTracking().First();
                 }
                 ViewBag.Multiplier = BitcoinForks.ForkByShortName[userclaim.CoinShortName].Multiplier;
+
+                //if (userclaim.CoinShortName == "BCH")
+                //{
+                //    // Convert
+                //    var depositAddress = SharpCashAddr.Converter.oldAddrToCashAddr(userclaim.DepositAddress, out bool isP2PKH, out _);
+                //    userclaim.DepositAddress = depositAddress;
+                //}
+
                 return View(userclaim);
             }
             catch

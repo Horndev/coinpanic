@@ -21,7 +21,7 @@ namespace CoinController
                 }
                 var address = BitcoinAddress.Create(addr, n);
             }
-            catch
+            catch (Exception e)
             {
                 return false;
             }
