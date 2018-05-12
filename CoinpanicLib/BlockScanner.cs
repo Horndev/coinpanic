@@ -151,6 +151,16 @@ namespace CoinController
                 {
                     isSW = true;
                 }
+
+                if (forkShortName == "LBTC")
+                {
+                    // Need to add this checking for all coins which do not have SegWit...
+                    //if (ca is NBitcoin.BitcoinWitScriptAddress || ca is NBitcoin.BitcoinWitPubKeyAddress)
+                    //{
+                    //    // LBTC does not support segwit.
+                    //}
+                }
+
                 //if (forkShortName == "BCX" && !isSW)
                 //{
                 //    string baseURL = "https://bcx.info/insight-api";

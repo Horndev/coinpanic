@@ -27,7 +27,7 @@ namespace Coinpanic.Tests
             var claimAddresses = Bitcoin.ParseAddresses(addresslist);
             Tuple<List<ICoin>, Dictionary<string, double>> claimcoins;
 
-            claimcoins = scanner.GetUnspentTransactionOutputs(claimAddresses, coin, estimate: true);
+            claimcoins = scanner.GetUnspentTransactionOutputs(claimAddresses, coin, out bool usedExplorer, estimate: true);
             var amounts = scanner.CalculateOutputAmounts_Their_My_Fee(claimcoins.Item1, 0.05, 0.0003 * claimcoins.Item1.Count);
             // Generate unsigned tx
 

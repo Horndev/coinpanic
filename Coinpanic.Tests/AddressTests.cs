@@ -8,6 +8,14 @@ namespace Coinpanic.Tests
     public class AddressTests
     {
         [TestMethod]
+        public void Fork_Address_Create_P2PKH_BBC()
+        {
+            string BBCaddr = "BFsvMogLzGeAiek3zYRzNMbKT4UTt6D7wp";
+            var add = BitcoinAddress.Create(BBCaddr, Network.BBC);
+            Assert.AreEqual(BBCaddr, add.ToString());
+        }
+
+        [TestMethod]
         public void Fork_Address_Create_P2PKH_BTG()
         {
             string BTGaddr = "GZGmgmawaDLjoaz4ZQsz9VXNE9qCoX5oY6";

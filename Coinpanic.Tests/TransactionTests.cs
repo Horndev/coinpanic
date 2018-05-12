@@ -312,7 +312,7 @@ namespace Coinpanic.Tests
 
             BlockScanner bsc = new BlockScanner();
             
-            var balances = bsc.GetUnspentTransactionOutputs(new List<BitcoinAddress>() { origin }, ForceCoin != "" ? ForceCoin : coin);
+            var balances = bsc.GetUnspentTransactionOutputs(new List<BitcoinAddress>() { origin }, ForceCoin != "" ? ForceCoin : coin, out bool usedExplorer);
             //Unspent transaction outputs
             var autxos = balances.Item1;
             var inputAmount = autxos.Sum(u => ((Money)u.Amount).ToDecimal(MoneyUnit.BTC));
