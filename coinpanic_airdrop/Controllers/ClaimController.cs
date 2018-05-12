@@ -22,10 +22,14 @@ namespace coinpanic_airdrop.Controllers
     public class ClaimController : Controller
     {
         // GET: NewClaim
-        public async Task<ActionResult> NewClaim(string coin, string coupon)
+        public async Task<ActionResult> NewClaim(string coin, string coupon, string addresses)
         {
             string claimId = ShortId.Generate(useNumbers: false, useSpecial: false, length: 10);
             string ip = Request.UserHostAddress;
+
+            List<string> addressList = addresses != null ? new List<string>(
+                addresses.Split(new string[] { "," },
+                StringSplitOptions.RemoveEmptyEntries)) : new List<string>();
 
             using (CoinpanicContext db = new CoinpanicContext())
             {
@@ -51,10 +55,15 @@ namespace coinpanic_airdrop.Controllers
                 }
             }
 
+            
+
             // Make sure we understand how to sign the requested coin
             if (BitcoinForks.ForkByShortName.Keys.Contains(coin))
             {
                 var NewClaim = new CoinClaim { CoinShortName = coin, ClaimId = claimId };
+                List<InputAddress> inputs;
+                inputs = GetInputAddresses(NewClaim, addressList);
+                NewClaim.InputAddresses = inputs;
                 return View(NewClaim);
             }
             else
@@ -113,51 +122,7 @@ namespace coinpanic_airdrop.Controllers
 
                 // Return converted addresses to user
                 List<InputAddress> inputs;
-                if (userclaim.CoinShortName == "BTCP")
-                {
-                    inputs = list.Select(li => new InputAddress()
-                    {
-                        AddressId = Guid.NewGuid(),
-                        PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BTCP).ToString(),
-                        CoinShortName = userclaim.CoinShortName,
-                        ClaimId = userclaim.ClaimId,
-                        ClaimValue = balances[li],
-                    }).ToList();
-                }
-                else if (userclaim.CoinShortName == "BCI")
-                {
-                    inputs = list.Select(li => new InputAddress()
-                    {
-                        AddressId = Guid.NewGuid(),
-                        PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BCI).ToString(),
-                        CoinShortName = userclaim.CoinShortName,
-                        ClaimId = userclaim.ClaimId,
-                        ClaimValue = balances[li],
-                    }).ToList();
-                }
-                else if (userclaim.CoinShortName == "BCA")
-                {
-                    inputs = list.Select(li => new InputAddress()
-                    {
-                        AddressId = Guid.NewGuid(),
-                        PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BCA).ToString(),
-                        CoinShortName = userclaim.CoinShortName,
-                        ClaimId = userclaim.ClaimId,
-                        ClaimValue = balances[li],
-                    }).ToList();
-                }
-                else
-                {
-                    inputs = list.Select(li => new InputAddress()
-                    {
-                        AddressId = Guid.NewGuid(),
-                        PublicAddress = li,
-                        CoinShortName = userclaim.CoinShortName,
-                        ClaimId = userclaim.ClaimId,
-                        ClaimValue = balances[li],
-                    }).ToList();
-                }
-
+                inputs = GetInputAddresses(userclaim, list, balances);
 
                 userclaim.InputAddresses = inputs;
                 userclaim.Deposited = Convert.ToDouble(amounts[0].ToDecimal(MoneyUnit.BTC));
@@ -175,7 +140,7 @@ namespace coinpanic_airdrop.Controllers
                 var mydepaddr = ConfigurationManager.AppSettings[userclaim.CoinShortName + "Deposit"];
 
                 var utx = Bitcoin.GenerateUnsignedTX(
-                    UTXOs: claimcoins.Item1, 
+                    UTXOs: claimcoins.Item1,
                     amounts: amounts,
                     clientDepAddr: Bitcoin.ParseAddress(userclaim.DepositAddress, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
                     MyDepositAddr: Bitcoin.ParseAddress(mydepaddr, userclaim.CoinShortName, BitcoinForks.ForkByShortName[userclaim.CoinShortName].Network),
@@ -203,6 +168,57 @@ namespace coinpanic_airdrop.Controllers
                 MonitoringService.SendMessage("New " + userclaim.CoinShortName + " claim", "new claim Initialized. https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + claimId + " " + " for " + userclaim.CoinShortName);
             }
             return RedirectToAction("ClaimConfirm", new { claimId = claimId });
+        }
+
+        private static List<InputAddress> GetInputAddresses(CoinClaim userclaim, List<string> list, Dictionary<string, double> balances = null)
+        {
+            List<InputAddress> inputs;
+            if (userclaim.CoinShortName == "BTCP")
+            {
+                inputs = list.Select(li => new InputAddress()
+                {
+                    AddressId = Guid.NewGuid(),
+                    PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BTCP).ToString(),
+                    CoinShortName = userclaim.CoinShortName,
+                    ClaimId = userclaim.ClaimId,
+                    ClaimValue = balances != null ? balances[li] : -1,
+                }).ToList();
+            }
+            else if (userclaim.CoinShortName == "BCI")
+            {
+                inputs = list.Select(li => new InputAddress()
+                {
+                    AddressId = Guid.NewGuid(),
+                    PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BCI).ToString(),
+                    CoinShortName = userclaim.CoinShortName,
+                    ClaimId = userclaim.ClaimId,
+                    ClaimValue = balances != null ? balances[li] : -1,
+                }).ToList();
+            }
+            else if (userclaim.CoinShortName == "BCA")
+            {
+                inputs = list.Select(li => new InputAddress()
+                {
+                    AddressId = Guid.NewGuid(),
+                    PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BCA).ToString(),
+                    CoinShortName = userclaim.CoinShortName,
+                    ClaimId = userclaim.ClaimId,
+                    ClaimValue = balances != null ? balances[li] : -1,
+                }).ToList();
+            }
+            else
+            {
+                inputs = list.Select(li => new InputAddress()
+                {
+                    AddressId = Guid.NewGuid(),
+                    PublicAddress = li,
+                    CoinShortName = userclaim.CoinShortName,
+                    ClaimId = userclaim.ClaimId,
+                    ClaimValue = balances != null ? balances[li] : -1,
+                }).ToList();
+            }
+
+            return inputs;
         }
 
         /// <summary>
@@ -238,6 +254,12 @@ namespace coinpanic_airdrop.Controllers
         [HttpPost]
         public ActionResult Broadcast(string ClaimId, string Hex)
         {
+            /*
+             * Known Errors:
+             * 
+             * Missing a signature on one or more input (private key)
+             * {"result":null,"error":{"code":-26,"message":"16: mandatory-script-verify-flag-failed (Operation not valid with the current stack size)"},"id":"1"}
+             */
             using (CoinpanicContext db = new CoinpanicContext())
             {
                 CoinClaim userclaim = db.Claims.Where(c => c.ClaimId == ClaimId).FirstOrDefault();

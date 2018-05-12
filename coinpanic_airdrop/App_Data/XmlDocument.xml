@@ -4,6 +4,13 @@
         <name>coinpanic_airdrop</name>
     </assembly>
     <members>
+        <member name="M:coinpanic_airdrop.Controllers.BlockChainController.MultiCoinResults(System.String)">
+            <summary>
+            This sets up the multi-coin claims page.  Each coin is another asynchronous call
+            </summary>
+            <param name="addresses"></param>
+            <returns></returns>
+        </member>
         <member name="M:coinpanic_airdrop.Controllers.ClaimController.ClaimConfirm(System.String)">
             <summary>
             Controller for the claim confirmation page, where users will

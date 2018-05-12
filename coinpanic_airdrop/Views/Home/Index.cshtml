@@ -26,6 +26,25 @@
             Coinpanic only needs to know your public Bitcoin address, and does not require users to download blockchains.
         </div>
         <table class="table table-responsive table-hover">
+            <tr class="bg-success">
+                <td>
+                    @Html.ActionLink("Search all forks", "MultiCoin", "BlockChain", new { }, new { @class = "btn btn-primary btn-sm btn-block active", @role = "button", @data_toggle = "tooltip", @title = "Search all supported forks" })
+                    
+                </td>
+
+                <td>
+                    <i class="fa fa-bullhorn"></i> New! Search all supported forks at once
+                </td>
+                <td>
+                    
+                </td>
+                <td>
+                    
+                </td>
+                <td>
+                    <span class="badge badge-success">online</span>
+                </td>
+            </tr>
             @foreach (var i in Model.CoinInfo)
             {
             <tr class="@i.Value.AlertClass">

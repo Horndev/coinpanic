@@ -21,5 +21,6 @@ namespace coinpanic_airdrop.Models
         public string Balance { get; set; }
         public bool Empty { get; set; }
         public bool UsedExplorer { get; set; }
+        public bool SearchError { get; set; }
     }
 }

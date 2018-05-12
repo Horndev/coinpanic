@@ -16,7 +16,7 @@
                 <div class="form-group">
                     <div class="col-sm-10">
                         <label for="PublicKeys">Insert your public Bitcoin addresses *</label>
-                        <textarea type="text" class="form-control" rows="5" name="PublicKeys" id="PublicKeys" aria-describedby="pubhelp" placeholder="Enter your addresses you wish to check (each on it's own line)"></textarea>
+                        <textarea type="text" class="form-control" rows="5" name="PublicKeys" id="PublicKeys" aria-describedby="pubhelp" placeholder="Enter your addresses you wish to check (each on it's own line)">@String.Join("\r\n", Model.InputAddresses.Select(i => i.PublicAddress))</textarea>
                         <small id="pubhelp" class="form-text text-muted">We'll never share your information</small>
                     </div>
                 </div>

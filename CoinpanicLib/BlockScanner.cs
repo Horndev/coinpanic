@@ -10,6 +10,20 @@ using System.Threading.Tasks;
 
 namespace CoinController
 {
+    /*
+     * Coins that need a proper explorer:
+      Found 20.32638077 BCX *
+ Found 20.32628893 BCD *
+ Found 20.33530559 BTF *
+ Found 20.34841715 BTN *
+ Found 20.33530559 BTW *
+ Found 21.48078824 BTV *
+ Found 20.02904369 BTG *
+ Found 20.32638077 BTP *
+ Found 20.35515796 BPA *
+ Found 20.33530559 LBTC *
+ Found 25.53402726 BCA *
+         */
     public class Input
     {
         public double val { get; set; }
