@@ -11,6 +11,7 @@ using System.Data.Entity;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -148,7 +149,7 @@ namespace coinpanic_airdrop.Controllers
         public ActionResult GetJarBalances()
         {
             bool useTestnet = GetUseTestnet();
-            string ip = Request.UserHostAddress;
+            string ip = GetClientIpAddress(Request); ;
             string balance;
             string userDeposits = "0";
             string userWithdraws = "0";
@@ -164,6 +165,64 @@ namespace coinpanic_airdrop.Controllers
         //Used for rate limiting double withdraws
         static ConcurrentDictionary<string, DateTime> WithdrawRequests = new ConcurrentDictionary<string, DateTime>();
 
+        public static string GetClientIpAddress(HttpRequestBase request)
+        {
+            try
+            {
+                var userHostAddress = request.UserHostAddress;
+
+                // Attempt to parse.  If it fails, we catch below and return "0.0.0.0"
+                // Could use TryParse instead, but I wanted to catch all exceptions
+                IPAddress.Parse(userHostAddress);
+
+                var xForwardedFor = request.ServerVariables["X_FORWARDED_FOR"];
+
+                if (string.IsNullOrEmpty(xForwardedFor))
+                    return userHostAddress;
+
+                // Get a list of public ip addresses in the X_FORWARDED_FOR variable
+                var publicForwardingIps = xForwardedFor.Split(',').Where(ip => !IsPrivateIpAddress(ip)).ToList();
+
+                // If we found any, return the last one, otherwise return the user host address
+
+                var retval = publicForwardingIps.Any() ? publicForwardingIps.Last() : userHostAddress;
+
+                return retval;
+            }
+            catch (Exception)
+            {
+                // Always return all zeroes for any failure (my calling code expects it)
+                return "0.0.0.0";
+            }
+        }
+
+        private static bool IsPrivateIpAddress(string ipAddress)
+        {
+            // http://en.wikipedia.org/wiki/Private_network
+            // Private IP Addresses are: 
+            //  24-bit block: 10.0.0.0 through 10.255.255.255
+            //  20-bit block: 172.16.0.0 through 172.31.255.255
+            //  16-bit block: 192.168.0.0 through 192.168.255.255
+            //  Link-local addresses: 169.254.0.0 through 169.254.255.255 (http://en.wikipedia.org/wiki/Link-local_address)
+
+            var ip = IPAddress.Parse(ipAddress);
+            var octets = ip.GetAddressBytes();
+
+            var is24BitBlock = octets[0] == 10;
+            if (is24BitBlock) return true; // Return to prevent further processing
+
+            var is20BitBlock = octets[0] == 172 && octets[1] >= 16 && octets[1] <= 31;
+            if (is20BitBlock) return true; // Return to prevent further processing
+
+            var is16BitBlock = octets[0] == 192 && octets[1] == 168;
+            if (is16BitBlock) return true; // Return to prevent further processing
+
+            var isLinkLocalAddress = octets[0] == 169 && octets[1] == 254;
+            return isLinkLocalAddress;
+        }
+
+        private static DateTime timeLastAnonWithdraw = DateTime.Now - TimeSpan.FromHours(1);
+
         /// <summary>
         /// Pay the Community Jar payment request if it meets requirements of time restriction and value.
         /// </summary>
@@ -173,8 +232,9 @@ namespace coinpanic_airdrop.Controllers
         public ActionResult SubmitPaymentRequest(string request)
         {
             int maxWithdraw = 150;
+            int maxWithdraw_firstuser = 10;
             usingTestnet = GetUseTestnet();
-            string ip = Request.UserHostAddress;
+            string ip = GetClientIpAddress(Request);// Request.UserHostAddress;
 
             var lndClient = GetLndClient();
 
@@ -195,6 +255,17 @@ namespace coinpanic_airdrop.Controllers
                     return Json(new { Result = "Requested amount is greater than maximum allowed." });
                 }
 
+                Dictionary<string, string> bannedNodes = new Dictionary<string, string>()
+                {
+                    { "023216c5b9a54b6179645c76b279ae267f3c6b2379b9f305d57c75065006a8e5bd", "Scripted withdraws to drain jar" },
+                    { "0370373fd498ffaf16dc0cf46250c5dae76fd79b0592254bf26fa74de815898a21", "Scripted withdraws to drain jar" }
+                };
+
+                if (bannedNodes.Keys.Contains(decoded.destination))
+                {
+                    return Json(new { Result = "Banned.  Reason: " + bannedNodes[decoded.destination] });
+                }
+
                 // Check that there are funds in the Jar
                 Int64 balance;
                 LnCommunityJar jar;
@@ -210,6 +281,7 @@ namespace coinpanic_airdrop.Controllers
 
                 //Check rate limits
                 LnCJUser user;
+                bool isanon = false;
                 using (CoinpanicContext db = new CoinpanicContext())
                 {
                     //Get user
@@ -220,12 +292,20 @@ namespace coinpanic_airdrop.Controllers
                     //LastWithdraw = db.LnTransactions.Where(tx => tx.IsDeposit == false && tx.IsSettled == true && tx.UserId == user.LnCJUserId).OrderBy(tx => tx.TimestampCreated).AsNoTracking().First().TimestampCreated;
                     if (user.NumWithdraws == 0 && user.NumDeposits == 0)
                     {
+                        maxWithdraw = maxWithdraw_firstuser;
+                        isanon = true;
                         //check ip (if someone is not using cookies to rob the site)
                         var userIPs = db.LnCommunityJarUsers.Where(u => u.UserIP == ip).ToList();
                         if (userIPs.Count > 1)
                         {
                             //most recent withdraw
                             LastWithdraw = userIPs.Max(u => u.TimesampLastWithdraw);
+                        }
+
+                        // Re-check limits
+                        if (Convert.ToInt64(decoded.num_satoshis) > maxWithdraw)
+                        {
+                            return Json(new { Result = "Requested amount is greater than maximum allowed for first time users (" + Convert.ToString(maxWithdraw) + ").  Make a deposit." });
                         }
                     }
 
@@ -243,6 +323,12 @@ namespace coinpanic_airdrop.Controllers
                     {
                         return Json(new { Result = "Invoice has already been paid." });
                     }
+
+                    if (isanon && DateTime.Now - timeLastAnonWithdraw < TimeSpan.FromMinutes(10))
+                    {
+                        return Json(new { Result = "Too many first-time user withdraws.  You must wait another " + ((timeLastAnonWithdraw + TimeSpan.FromMinutes(10)) - DateTime.Now).TotalMinutes.ToString("0.0") + " minutes before withdrawing again, or make a deposit first." });
+
+                    }
                 }
 
                 SendPaymentResponse paymentresult;
@@ -256,7 +342,7 @@ namespace coinpanic_airdrop.Controllers
                     //double request!
                     Thread.Sleep(1000);
 
-                    //Check if paid
+                    //Check if paid (in another thread)
                     using (CoinpanicContext db = new CoinpanicContext())
                     {
                         var txs = db.LnTransactions.Where(t => t.PaymentRequest == request && t.IsSettled).OrderByDescending(t => t.TimestampSettled).AsNoTracking();
@@ -346,6 +432,11 @@ namespace coinpanic_airdrop.Controllers
                     context.Clients.All.NotifyNewTransaction(newT);
                 }
 
+                if (isanon)
+                {
+                    timeLastAnonWithdraw = DateTime.Now;
+                }
+
                 return Json(new { Result = "success", Fees = (paymentresult.payment_route.total_fees == null ? "0" : paymentresult.payment_route.total_fees) });
             }
             catch (Exception e)
@@ -375,7 +466,7 @@ namespace coinpanic_airdrop.Controllers
         [HttpPost]
         public ActionResult GetJarDepositInvoice(string amount, string memo)
         {
-            string ip = Request.UserHostAddress;
+            string ip = GetClientIpAddress(Request); ;
             if (memo == null || memo == "")
             {
                 memo = "Coinpanic Community Jar";

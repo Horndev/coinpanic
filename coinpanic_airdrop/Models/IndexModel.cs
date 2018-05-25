@@ -52,9 +52,6 @@ namespace coinpanic_airdrop.Models
         public virtual ICollection<IndexCoinInfo> Coins { get; set; }
     }
 
-
-
-
     public class IndexModel
     {
         public Dictionary<string, IndexCoinInfo> CoinInfo { get; set; }
