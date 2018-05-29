@@ -48,6 +48,14 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
+        public void Fork_Address_Create_P2SH_BCL()
+        {
+            string BCLaddr = "3JQ5RMJmFX58DzJZZzJwnQDWaKuBXVEUDH";
+            var add = BitcoinAddress.Create(BCLaddr, Network.BCL);
+            Assert.AreEqual(BCLaddr, add.ToString());
+        }
+
+        [TestMethod]
         public void Fork_Address_Create_P2PKH_BTP()
         {
             string BTPaddr = "PbQdinKhh9pRKTfkJuhngfX8ctQiZ5cNvy";

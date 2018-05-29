@@ -421,7 +421,8 @@ namespace coinpanic_airdrop.Controllers
                 }
                 // Broadcast via own nodes over RPC
                 if (   userclaim.CoinShortName == "BBC" 
-                    || userclaim.CoinShortName == "BTF" 
+                    || userclaim.CoinShortName == "BTF"
+                    || userclaim.CoinShortName == "BCL"
                     || userclaim.CoinShortName == "BTV" 
                     || userclaim.CoinShortName == "BCD"
                     || userclaim.CoinShortName == "BTCP"
