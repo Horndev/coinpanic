@@ -132,10 +132,15 @@ namespace coinpanic_airdrop.Controllers
             return View();
         }
 
+        /// <summary>
+        /// TODO: Move this to a dedicated controller
+        /// </summary>
+        /// <param name="qr"></param>
+        /// <returns></returns>
         public ActionResult GetQR(string qr)
         {
             if (qr is null || qr == "")
-                qr = "test";
+                qr = "coinpanic.com";
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(qr, QRCodeGenerator.ECCLevel.L);//, forceUtf8: true);
             QRCode qrCode = new QRCode(qrCodeData);
@@ -699,14 +704,7 @@ namespace coinpanic_airdrop.Controllers
         /// <returns></returns>
         public ActionResult Index()
         {
-            try
-            {
-                return View();
-            }
-            catch (Exception e)
-            {
-                return RedirectToAction("NodeError", new { message = "Error communicating with Lightning Node"});
-            }
+             return View();
         }
 
 
