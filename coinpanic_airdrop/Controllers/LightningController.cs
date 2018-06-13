@@ -737,10 +737,8 @@ namespace coinpanic_airdrop.Controllers
         public ActionResult NodeURI()
         {
             // Check if cache expired
-
             if (DateTime.Now - LastNodeURIUpdate > URICacheTimeout)
             {
-
                 // Update cache
                 Guid taskid = Guid.NewGuid();
                 UpdateTask updateTask = new UpdateTask()
@@ -750,13 +748,20 @@ namespace coinpanic_airdrop.Controllers
                     {
                         try
                         {
-
-
                             bool useTestnet = GetUseTestnet();
                             LndRpcClient lndClient = GetLndClient(useTestnet);
 
                             var info = lndClient.GetInfo();
+                            if (info == null)
+                            {
+
+                            }
+                            else
+                            {
+
+                            }
                             nodeSummaryViewModel.NumChannelsActive = info.num_active_channels;
+                            nodeSummaryViewModel.NumChannels = info.num_peers;
                             nodeURIViewModel.URI = info.uris.First();
                             nodeURIViewModel.Alias = info.alias;
                             nodeURIViewModel.Node_Pubkey = info.identity_pubkey;
@@ -801,8 +806,6 @@ namespace coinpanic_airdrop.Controllers
                     {
                         try
                         {
-
-
                             bool useTestnet = GetUseTestnet();
                             LndRpcClient lndClient = GetLndClient(useTestnet);
                             string pubkey = nodeURIViewModel.Node_Pubkey;

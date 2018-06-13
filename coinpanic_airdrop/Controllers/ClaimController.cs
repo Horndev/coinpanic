@@ -147,6 +147,12 @@ namespace coinpanic_airdrop.Controllers
                 // Generate unsigned tx
                 var mydepaddr = ConfigurationManager.AppSettings[userclaim.CoinShortName + "Deposit"];
 
+                if (userclaim.CoinShortName == "BCH" && mydepaddr.StartsWith("bitcoincash:"))
+                {
+                    // Convert
+                    mydepaddr = SharpCashAddr.Converter.cashAddrToOldAddr(mydepaddr, out bool isP2PKH, out _);
+                }
+
                 var utx = Bitcoin.GenerateUnsignedTX(
                     UTXOs: claimcoins.Item1,
                     amounts: amounts,
@@ -423,6 +429,7 @@ namespace coinpanic_airdrop.Controllers
                 if (   userclaim.CoinShortName == "BBC" 
                     || userclaim.CoinShortName == "BTF"
                     || userclaim.CoinShortName == "BCL"
+                    || userclaim.CoinShortName == "BCBC"
                     || userclaim.CoinShortName == "BTV" 
                     || userclaim.CoinShortName == "BCD"
                     || userclaim.CoinShortName == "BTCP"

@@ -85,6 +85,21 @@ namespace CoinController
         public string rd { get; set; }
     }
 
+    public class UTXOAbe
+    {
+        public int block_number { get; set; }
+        public string script { get; set; }
+        public string tx_hash { get; set; }
+        public int tx_output_n { get; set; }
+        public int value { get; set; }
+        public string value_hex { get; set; }
+    }
+
+    public class ABEUnspentResponse
+    {
+        public List<UTXOAbe> unspent_outputs { get; set; }
+    }
+
     public class UTXO
     {
         //[DeserializeAs(Name = "address")]
@@ -170,6 +185,13 @@ namespace CoinController
                 {
                     string baseURL = "https://explorer.b2x-segwit.io/b2x-insight-api";
                     unspentCoins = GetUTXOFromInsight(UTXOs, ca, baseURL);
+                    usedExplorer = true;
+                }
+                else if (forkShortName == "BCBC" && !isSW && !estimate)
+                {
+                    var addr = ca.Convert(Network.BCBC);
+                    string baseURL = "http://be.cleanblockchain.org";
+                    unspentCoins = GetUTXOFromABE(UTXOs, addr, baseURL);
                     usedExplorer = true;
                 }
                 else if (forkShortName == "BCI" && !isSW && !estimate)
@@ -389,6 +411,44 @@ namespace CoinController
             return unspentCoins;
         }
 
+        public static List<ICoin> GetUTXOFromABE(List<ICoin> UTXOs, BitcoinAddress ca, string baseURL)
+        {
+            // Use https://github.com/bitcoin-abe/bitcoin-abe
+            ABEUnspentResponse addressUTXOs;
+            List<ICoin> unspentCoins = new List<ICoin>();
+            var iclient = new RestClient();
+            iclient.BaseUrl = new Uri(baseURL);
+            var utxoRequest = new RestRequest("/unspent/{addr}", Method.GET);
+            utxoRequest.AddUrlSegment("addr", ca);
+            utxoRequest.OnBeforeDeserialization = resp => { resp.ContentType = "application/json"; };
+            IRestResponse<ABEUnspentResponse> response = iclient.Execute<ABEUnspentResponse>(utxoRequest);
+            addressUTXOs = response.Data;
+            if (addressUTXOs != null)
+            {
+                foreach (var utxo in addressUTXOs.unspent_outputs.GroupBy(u => u.tx_hash).Select(group => group.First()))
+                {
+                    try
+                    {
+                        //create coin
+                        var cOutPoint = new OutPoint(uint256.Parse(utxo.tx_hash), (uint)utxo.tx_output_n);
+                        //if (utxo.satoshis == 0 && utxo.amount > 0) //bug fix for bitcore
+                        //{
+                        //    utxo.satoshis = Convert.ToInt64(utxo.amount * 100000000);
+                        //}
+                        var txout = new TxOut(new Money(satoshis: utxo.value), new Script(StringToByteArray(utxo.script)));
+                        ICoin coin = new Coin(fromOutpoint: cOutPoint, fromTxOut: txout);// //Coin(fromTxHash: uint256.Parse(utxo.txid), fromOutputIndex: utxo.vout, amount: new Money(satoshis: utxo.satoshis), scriptPubKey: new Script(utxo.scriptPubKey));
+                        unspentCoins.Add(coin);
+                    }
+                    catch (Exception e)
+                    {
+                        int z = 1;
+                    }
+                    UTXOs.AddRange(unspentCoins);
+                }
+            }
+            return unspentCoins;
+        }
+        
         public static List<ICoin> GetUTXOFromInsight(List<ICoin> UTXOs, BitcoinAddress ca, string baseURL)
         {
             List<UTXO> addressUTXOs;

@@ -10,6 +10,32 @@ namespace Coinpanic.Tests
     [TestClass]
     public class BlockExplorerTests
     {
+
+/*{
+  "unspent_outputs": [
+    {
+      "block_number": 1757, 
+      "script": "76a91426f651d6ed5fc8d812c2cd45a25369391b5464a988ac", 
+      "tx_hash": "0f1605243a818483bb627dec2671fa7f9755906321e74cea36d5d239dcd9e3ee", 
+      "tx_output_n": 209, 
+      "value": 1901891265, 
+      "value_hex": "715c8ec1"
+    }
+  ]
+}*/
+        [TestMethod]
+        public void Explorer_Query_BCBC()
+        {
+            // Create a query and utxo set from an address
+            string BCBCaddr = "14Z1kt7uUCB8rKwhauXmh5qFdv8cKK9fVj";
+            BitcoinAddress ca = BitcoinAddress.Create(BCBCaddr, Network.BCBC);
+            string baseURL = "http://be.cleanblockchain.org";
+            List<ICoin> UTXOs = new List<ICoin>();
+            var unspentCoins = BlockScanner.GetUTXOFromABE(UTXOs, ca, baseURL);
+
+            int z = 1;
+        }
+
         [TestMethod]
         public void Explorer_Query_P2SH_BTCP()
         {

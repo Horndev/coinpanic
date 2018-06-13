@@ -16,6 +16,14 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
+        public void Fork_Address_Convert_CashAddr_BCH2()
+        {
+            string cashAddr = "qqhwlh7w2ahm76c4xkczxsc7hakrp8xc4yup22cpz8";
+            string BTCaddr = SharpCashAddr.Converter.cashAddrToOldAddr(cashAddr, out bool isP2PKH, out _);
+            Assert.AreEqual("15HBSaZtAFTxuM99hQcUFHSVJ6FrerEtVz", BTCaddr);
+        }
+
+        [TestMethod]
         public void Fork_Address_Create_P2PKH_BBC()
         {
             string BBCaddr = "BFsvMogLzGeAiek3zYRzNMbKT4UTt6D7wp";
