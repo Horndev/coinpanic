@@ -27,6 +27,13 @@
             <param name="Hex">Hex encoded transaction</param>
             <returns></returns>
         </member>
+        <member name="M:coinpanic_airdrop.Controllers.LightningController.GetQR(System.String)">
+            <summary>
+            TODO: Move this to a dedicated controller
+            </summary>
+            <param name="qr"></param>
+            <returns></returns>
+        </member>
         <member name="M:coinpanic_airdrop.Controllers.LightningController.SubmitPaymentRequest(System.String)">
             <summary>
             Pay the Community Jar payment request if it meets requirements of time restriction and value.
@@ -40,6 +47,12 @@
             </summary>
             <param name="id"></param>
             <returns></returns>
+        </member>
+        <member name="M:coinpanic_airdrop.Controllers.LightningController.NotifyClientsInvoicePaid(LightningLib.lndrpc.Invoice)">
+            <summary>
+            Notify web clients via Signalr that an invoice has been paid
+            </summary>
+            <param name="invoice"></param>
         </member>
         <member name="M:coinpanic_airdrop.Controllers.LightningController.Index">
             <summary>

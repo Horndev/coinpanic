@@ -13,7 +13,7 @@
                     The community jar is a way for users to test Lightning Network micro-transactions.
                     <ul>
                         <li>Deposit 1000 Satoshi (suggested amount)</li>
-                        <li>Take up to 150 Satoshi per transaction (free once per hour without deposit, or unlimited up to your deposit).  Your first withdraw is limited to 10 Satoshi, and then 150 per hour after (unless you make a deposit).</li>
+                        <li>Take up to 150 Satoshi per transaction (free once per hour without deposit, or unlimited up to your deposit).  @*Your first withdraw is limited to 10 Satoshi, and then 150 per hour after (unless you make a deposit).*@</li>
                     </ul>
                 </div>
             </div>
@@ -88,7 +88,7 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th scope="col">Date (UTC)</th>
+                    <th scope="col">Timestamp</th>
                     <th scope="col">Type</th>
                     <th scope="col">Amount</th>
                     <th scope="col">Fee</th>
@@ -100,7 +100,7 @@
                 {
                     <tr>
                         <td><a href='@string.Format("./ShowTransaction/{0}", c.Id)'><span class="fa fa-search-plus"></span></a></td>
-                        <td>@c.Timestamp</td>
+                        <td  class="postTime">@c.Timestamp.ToString("o")</td>
                         <td>@c.Type</td>
                         <td>@c.Amount</td>
                         <td>@(c.Fee < 0 ? "?" : Convert.ToString(c.Fee))</td>
@@ -174,11 +174,18 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
+
+            // Render the timestamps
+            $('.postTime').each(function (i, e) {
+                var time = moment.utc($(e).html()).local().calendar();
+                var date = moment.utc($(e).html()).local().format("DD MMM YYYY");
+                $(e).html('<span>' + time + ' - ' + date + '</span>');
+            });
+
             //Get Balance
             var hub = $.connection.notificationHub;
 
             hub.client.NotifyInvoicePaid = function (invoice) {
-                //alert(invoice);
                 if (invoice == $("#lnDepositInvoiceInput").val()) {
                     $("#lnDepositInvoiceResult").html("Successfully received deposit.");
                     $("#lnDepositInvoiceResult").removeClass("bg-error");
@@ -206,8 +213,19 @@
 
             // All transactions notification handling
             hub.client.NotifyNewTransaction = function (t) {
-                //alert(t.Memo);
-                var row = "<tr><td><a href='./ShowTransaction/" + t.Id + "'><span class='fa fa-search-plus'></span></a>" + "</td><td>" + moment.utc(t.Timestamp).format('YYYY-MM-DD h:mm:ss A') + "</td><td>" + t.Type + "</td><td>" + t.Amount + "</td><td>" + t.Fee + "</td><td>" + t.Memo + "</td></tr>";
+                var time = moment.utc(t.Timestamp).local().calendar();
+                var date = moment.utc(t.Timestamp).local().format("DD MMM YYYY");
+                //$(e).html('<span>' + time + ' - ' + date + '</span>');
+
+                var amt = t.Amount;
+                var fee = t.Fee;
+
+                if (parseInt(fee) < 0)
+                {
+                    fee = '?';
+                }
+
+                var row = "<tr><td><a href='./ShowTransaction/" + t.Id + "'><span class='fa fa-search-plus'></span></a>" + "</td><td>" + time + ' - ' + date + "</td><td>" + t.Type + "</td><td>" + amt + "</td><td>" + fee + "</td><td>" + t.Memo + "</td></tr>";
                 $("#RecentTransactions tr:first").after(row);
             };
 
@@ -336,16 +354,12 @@
                         $("#lnDepositInvoiceResult").show();
                     },
                     failure: function (response) {
-                        //$("#spinner").hide();
-                        //alert(response.Result);
                         $("#lnDepositInvoiceResult").html("Failed to generate invoice");
                         $("#lnDepositInvoiceResult").removeClass("bg-success");
                         $("#lnDepositInvoiceResult").addClass("bg-error");
                         $("#lnDepositInvoiceResult").show();
                     },
                     error: function (response) {
-                        //$("#spinner").hide();
-                        //alert(response.Result);
                         $("#lnDepositInvoiceResult").html("Error generating invoice");
                         $("#lnDepositInvoiceResult").removeClass("bg-success");
                         $("#lnDepositInvoiceResult").removeClass("bg-info");

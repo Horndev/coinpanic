@@ -22,6 +22,7 @@ namespace coinpanic_airdrop.Controllers
 {
     public class LightningController : Controller
     {
+        // This listens for transactions which we are waiting for.
         private static ConcurrentDictionary<Guid, TransactionListener> lndTransactionListeners = new ConcurrentDictionary<Guid, TransactionListener>();
 
         private static bool usingTestnet = true;
@@ -43,12 +44,12 @@ namespace coinpanic_airdrop.Controllers
 
             // TODO: Added this try-catch to avoid errors
             ViewBag.URI = "03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf@13.92.254.226:9735";
-            try
-            {
-                var info = lndClient.GetInfo();
-                ViewBag.URI = info.uris.First();
-            }
-            catch {}
+            //try
+            //{
+            //    var info = lndClient.GetInfo();
+            //    ViewBag.URI = info.uris.First();
+            //}
+            //catch {}
 
             string userId = SetOrUpdateUserCookie();
 
@@ -237,7 +238,7 @@ namespace coinpanic_airdrop.Controllers
         public ActionResult SubmitPaymentRequest(string request)
         {
             int maxWithdraw = 150;
-            int maxWithdraw_firstuser = 10;
+            int maxWithdraw_firstuser = 150;
             usingTestnet = GetUseTestnet();
             string ip = GetClientIpAddress(Request);// Request.UserHostAddress;
 
@@ -260,6 +261,7 @@ namespace coinpanic_airdrop.Controllers
                     return Json(new { Result = "Requested amount is greater than maximum allowed." });
                 }
 
+                // TODO: This should be in a database with admin view
                 Dictionary<string, string> bannedNodes = new Dictionary<string, string>()
                 {
                     { "023216c5b9a54b6179645c76b279ae267f3c6b2379b9f305d57c75065006a8e5bd", "Scripted withdraws to drain jar" },
@@ -613,6 +615,10 @@ namespace coinpanic_airdrop.Controllers
             lndTransactionListeners.TryRemove(l.ListenerId, out TransactionListener oldListener);
         }
 
+        /// <summary>
+        /// Notify web clients via Signalr that an invoice has been paid
+        /// </summary>
+        /// <param name="invoice"></param>
         private static void NotifyClientsInvoicePaid(Invoice invoice)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
