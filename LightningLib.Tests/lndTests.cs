@@ -47,8 +47,11 @@ namespace LightningNetworkTests
             Assert.IsFalse(String.IsNullOrEmpty(value), "No App.Config found.");
         }
 
+        /// <summary>
+        /// This test checks that the QRCode library is creating bitmaps
+        /// </summary>
         [TestMethod]
-        public void TestLndQR()
+        public void LN_QR_Create()
         {
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode("The text which should be encoded.", QRCodeGenerator.ECCLevel.Q);
@@ -57,6 +60,9 @@ namespace LightningNetworkTests
             Assert.IsNotNull(qrCodeImage);
         }
 
+        /// <summary>
+        /// This method checks that the getnodeinfo method returns a response over the API
+        /// </summary>
         [TestMethod]
         public void Test_CallGetnodeinfoAsStringMainnet()
         {
@@ -225,7 +231,7 @@ namespace LightningNetworkTests
         }
 
         [TestMethod]
-        public void TestAPICallSwitchAsString()
+        public void LN_APICall_Switch_AsString()
         {
             string host = ConfigurationManager.AppSettings["LnMainnetHost"];
             string restpath = "/v1/switch";
@@ -234,7 +240,7 @@ namespace LightningNetworkTests
                 start_time = "0",
                 end_time = "999999999999",
                 index_offset = 0,
-                num_max_events = 1000,
+                num_max_events = 50000,
             };
 
             string responseStr = LndRpcClient.LndApiPostStr(host, restpath, reqObj, 
