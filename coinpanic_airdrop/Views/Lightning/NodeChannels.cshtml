@@ -15,7 +15,7 @@
         @foreach (var c in Model.channels)
         {
             <tr style="@(!c.ChanInfo.active ? "background-color:LightGray" : String.Empty)">
-                <td><a href="https://1ml.com/node/@c.ChanInfo.remote_pubkey">@c.RemoteNode.Alias</a></td>
+                <td><a href="https://1ml.com/node/@c.ChanInfo.remote_pubkey">@(c.RemoteNode != null ? c.RemoteNode.Alias : String.Empty)</a></td>
                 <td>@c.ChanInfo.capacity</td>
                 <td><span id="chanbal" class="inlinebullet" style="display:none">@c.ChanInfo.remote_balance,@c.ChanInfo.capacity</span></td>
                 <td>@(Convert.ToString(Convert.ToInt64(c.ChanInfo.total_satoshis_received) + Convert.ToInt64(c.ChanInfo.total_satoshis_sent))) </td>

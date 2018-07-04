@@ -198,7 +198,7 @@ namespace LightningLib.lndrpc
                 start_time = "0",
                 end_time = "999999999999",  // Should be far enough in the future to get all of them up to the limit
                 index_offset = 0,
-                num_max_events = 1000,
+                num_max_events = 50000,     // This is the max returned.  TODO: Need to update to do paging if more than 50k are returned
             };
             return LndApiPost<ForwardingEventsResponse>(_host, "/v1/switch", reqObj, adminMacaroon: _macaroonAdmin);
         }

@@ -68,6 +68,16 @@ namespace coinpanic_airdrop.Controllers
                 ViewBag.FirstPage = (page - 3) < 1 ? 1 : (page - 3);
                 ViewBag.LastPage = (page + 3) < 6 ? 6 : (page + 3);
 
+                //Get user
+                string ip = GetClientIpAddress(Request);
+                var user = GetUserFromDb(userId, db, jar, ip);
+                var userMax = (user.TotalDeposited - user.TotalWithdrawn);
+                if (userMax < 150)
+                {
+                    userMax = 150;
+                }
+                ViewBag.UserBalance = userMax;
+
                 // Query and filter the transactions
                 latestTx.Transactions = jar.Transactions.OrderByDescending(t => t.TimestampSettled).Skip((page - 1) * 20).Take(20).Select(t => new LnCJTransaction()
                 {
@@ -246,7 +256,10 @@ namespace coinpanic_airdrop.Controllers
 
             try
             {
+                LnCJUser user;
+
                 string userId = SetOrUpdateUserCookie();
+
 
                 // Check if payment request is ok
                 // Check if already paid
@@ -256,11 +269,34 @@ namespace coinpanic_airdrop.Controllers
                 {
                     return Json(new { Result = "Error decoding invoice." });
                 }
-                if (Convert.ToInt64(decoded.num_satoshis) > maxWithdraw)
-                {
-                    return Json(new { Result = "Requested amount is greater than maximum allowed." });
-                }
 
+                // Check that there are funds in the Jar
+                Int64 balance;
+                LnCommunityJar jar;
+                using (CoinpanicContext db = new CoinpanicContext())
+                {
+                    jar = db.LnCommunityJars.Where(j => j.IsTestnet == usingTestnet).AsNoTracking().First();
+                    balance = jar.Balance;
+
+                    if (Convert.ToInt64(decoded.num_satoshis) > balance)
+                    {
+                        return Json(new { Result = "Requested amount is greater than the available balance." });
+                    }
+
+                    //Get user
+                    user = GetUserFromDb(userId, db, jar, ip);
+
+                    var userMax = (user.TotalDeposited - user.TotalWithdrawn);
+                    if (userMax < maxWithdraw)
+                    {
+                        userMax = maxWithdraw;
+                    }
+
+                    if (Convert.ToInt64(decoded.num_satoshis) > userMax)
+                    {
+                        return Json(new { Result = "Requested amount is greater than maximum allowed." });
+                    }
+                }
                 // TODO: This should be in a database with admin view
                 Dictionary<string, string> bannedNodes = new Dictionary<string, string>()
                 {
@@ -273,26 +309,15 @@ namespace coinpanic_airdrop.Controllers
                     return Json(new { Result = "Banned.  Reason: " + bannedNodes[decoded.destination] });
                 }
 
-                // Check that there are funds in the Jar
-                Int64 balance;
-                LnCommunityJar jar;
-                using (CoinpanicContext db = new CoinpanicContext())
-                {
-                    jar = db.LnCommunityJars.Where(j => j.IsTestnet == usingTestnet).AsNoTracking().First();
-                    balance = jar.Balance;
-                }
-                if (Convert.ToInt64(decoded.num_satoshis) > balance)
-                {
-                    return Json(new { Result = "Requested amount is greater than the available balance." });
-                }
+                
 
                 //Check rate limits
-                LnCJUser user;
+               
                 bool isanon = false;
                 using (CoinpanicContext db = new CoinpanicContext())
                 {
                     //Get user
-                    user = GetUserFromDb(userId, db, jar, ip);
+                    //user = GetUserFromDb(userId, db, jar, ip);
 
                     //check if new user
                     DateTime? LastWithdraw = user.TimesampLastWithdraw;
@@ -838,12 +863,20 @@ namespace coinpanic_airdrop.Controllers
                                     // Check if this is a new channel
                                     if (myNode.Channels.Where(ch => ch.ChannelId == c.chan_id).Count() < 1)
                                     {
-                                        LnChannel thisChannel = GetOrCreateChannel(lndClient, db, c);
-
-                                        if (!myNode.Channels.Contains(thisChannel))
+                                        try
                                         {
-                                            myNode.Channels.Add(thisChannel);
-                                            db.SaveChanges();
+                                            LnChannel thisChannel = GetOrCreateChannel(lndClient, db, c);
+
+                                            if (thisChannel != null && !myNode.Channels.Contains(thisChannel))
+                                            {
+                                                myNode.Channels.Add(thisChannel);
+                                                db.SaveChanges();
+                                            }
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            // TODO - manage errors reading channels
+                                            LnChannel thisChannel = null;
                                         }
                                     }
 
@@ -1002,21 +1035,56 @@ namespace coinpanic_airdrop.Controllers
         private static LnChannel GetOrCreateChannel(LndRpcClient lndClient, CoinpanicContext db, Channel c)
         {
             LnChannel thisChannel;
-            var chanFind = db.LnChannels.Where(ch => ch.ChannelId == c.chan_id);
+
+            string chan_id = "";            // Temporary variable to use as the ChannelId identifier (should be unique) - used for db key
+            if (c.chan_id == null)          // This sometimes happens for private channels.
+            {
+                chan_id = c.channel_point;  // this should always exist
+            }
+            else
+            {
+                chan_id = c.chan_id;        // Use value if reported
+            }
+
+            var chanFind = db.LnChannels.Where(ch => ch.ChannelId == chan_id);  
             if (chanFind.Count() < 1)
             {
-                var chan = lndClient.GetChanInfo(c.chan_id);
-                var Node1 = GetOrCreateNode(lndClient, chan.node1_pub, db);
-                var Node2 = GetOrCreateNode(lndClient, chan.node2_pub, db);
-                // not in database
-                thisChannel = new LnChannel()
+                var chan = lndClient.GetChanInfo(chan_id);
+                if (chan == null)
                 {
-                    Capacity = Convert.ToInt64(chan.capacity),
-                    ChannelId = chan.channel_id,
-                    ChanPoint = chan.chan_point,
-                    Node1 = Node1,
-                    Node2 = Node2,
-                };
+                    var Node1 = GetOrCreateNode(lndClient, c.remote_pubkey, db);
+                    var Node2 = GetOrCreateNode(lndClient, lndClient.GetInfo().identity_pubkey, db);
+                    if (Node1 == null || Node2 == null)
+                    {
+                        // Bad node, can't find info in lnd database.
+                        return null;
+                    }
+
+                    // not in database
+                    thisChannel = new LnChannel()
+                    {
+                        Capacity = Convert.ToInt64(chan.capacity),
+                        ChannelId = chan_id,
+                        ChanPoint = chan.chan_point,
+                        Node1 = Node1,
+                        Node2 = Node2,
+                    };
+                }
+                else
+                {
+                    var Node1 = GetOrCreateNode(lndClient, chan.node1_pub, db);
+                    var Node2 = GetOrCreateNode(lndClient, chan.node2_pub, db);
+                    // not in database
+                    thisChannel = new LnChannel()
+                    {
+                        Capacity = Convert.ToInt64(chan.capacity),
+                        ChannelId = chan.channel_id,
+                        ChanPoint = chan.chan_point,
+                        Node1 = Node1,
+                        Node2 = Node2,
+                    };
+                }
+                
                 db.SaveChanges();
             }
             else
@@ -1034,6 +1102,11 @@ namespace coinpanic_airdrop.Controllers
             {
                 // no record yet of node!
                 var nodeInfo = lndClient.GetNodeInfo(pubkey);
+                if (nodeInfo.node == null)
+                {
+                    return null;
+                }
+
                 theNode = new LnNode()
                 {
                     Alias = nodeInfo.node.alias,
