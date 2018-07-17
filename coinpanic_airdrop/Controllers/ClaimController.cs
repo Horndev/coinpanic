@@ -220,6 +220,17 @@ namespace coinpanic_airdrop.Controllers
                     ClaimValue = balances != null ? balances[li] : -1,
                 }).ToList();
             }
+            else if (userclaim.CoinShortName == "BTG")
+            {
+                inputs = list.Select(li => new InputAddress()
+                {
+                    AddressId = Guid.NewGuid(),
+                    PublicAddress = li + " -> " + Bitcoin.ParseAddress(li).Convert(Network.BTG).ToString(),
+                    CoinShortName = userclaim.CoinShortName,
+                    ClaimId = userclaim.ClaimId,
+                    ClaimValue = balances != null ? balances[li] : -1,
+                }).ToList();
+            }
             else
             {
                 inputs = list.Select(li => new InputAddress()

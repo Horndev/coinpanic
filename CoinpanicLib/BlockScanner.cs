@@ -208,6 +208,13 @@ namespace CoinController
                     unspentCoins = GetUTXOFromInsight(UTXOs, addr, baseURL);
                     usedExplorer = true;
                 }
+                else if (forkShortName == "BTG" && !isSW && !estimate)
+                {
+                    var addr = ca.Convert(Network.BTG);
+                    string baseURL = "https://explorer.bitcoingold.org/insight-api/";
+                    unspentCoins = GetUTXOFromInsight(UTXOs, addr, baseURL);
+                    usedExplorer = true;
+                }
                 else if (forkShortName == "BTX" && !isSW && !estimate)
                 {
                     string baseURL = "http://insight.bitcore.cc/api";

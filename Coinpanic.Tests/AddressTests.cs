@@ -128,6 +128,16 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
+        public void Fork_Address_Convert_P2PKH_BTG()
+        {
+            string BTCaddr = "14jkz2hJPqgqqKRhDqMYUx37CycQ7G6Ygy";
+            string ConvertedAddress = "GMagQA2FNhJ8uniz9n1euiP189QF7xgKF9";
+            BitcoinAddress add = BitcoinAddress.Create(BTCaddr, Network.Main);
+            var add2 = add.Convert(Network.BTG);
+            Assert.AreEqual(ConvertedAddress, add2.ToString());
+        }
+
+        [TestMethod]
         public void Fork_Address_Convert_P2PKH_BCA()
         {
             string BTCaddr = "14jkz2hJPqgqqKRhDqMYUx37CycQ7G6Ygy";

@@ -63,6 +63,18 @@ namespace Coinpanic.Tests
         }
 
         [TestMethod]
+        public void Explorer_Query_P2PKH_BTG()
+        {
+            string BTCaddr = "GMRz9M1jnc69kW15u8aiGV1EzTgaTuguZQ";
+            BitcoinAddress ca = BitcoinAddress.Create(BTCaddr, Network.Main);
+            var addr = ca.Convert(Network.BTG);
+            string baseURL = "https://explorer.bitcoingold.org/insight-api/";
+            List<ICoin> UTXOs = new List<ICoin>();
+            var unspentCoins = BlockScanner.GetUTXOFromInsight(UTXOs, addr, baseURL);
+            int z = 1;
+        }
+
+        [TestMethod]
         public void Explorer_DecodeTx_P2PKH_BCA()
         {
             var url = "https://explorer.bitcoinatom.io/";
