@@ -456,7 +456,7 @@
       <Project>{1500a165-f8c4-415c-9ac7-9166c8b1ff0e}</Project>
       <Name>CoinpanicLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\LightningLib\LightningLib.csproj">
+    <ProjectReference Include="..\LndLib.NET\LightningLib\LightningLib.csproj">
       <Project>{824d15c2-a623-46d0-a45e-cf152e97c025}</Project>
       <Name>LightningLib</Name>
     </ProjectReference>
