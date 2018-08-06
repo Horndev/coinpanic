@@ -7,3 +7,6 @@
 [submodule "CoinpanicSign"]
 	path = CoinpanicSign
 	url = https://github.com/Horndev/CoinpanicSign.git
+[submodule "LndLib.NET"]
+	path = LndLib.NET
+	url = https://github.com/Horndev/LndLib.NET.git
