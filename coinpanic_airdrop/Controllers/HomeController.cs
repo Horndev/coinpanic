@@ -12,6 +12,11 @@ namespace coinpanic_airdrop.Controllers
     {
         private CoinpanicContext db = new CoinpanicContext();
 
+        public ActionResult Maintenance()
+        {
+            return View();
+        }
+
         public ActionResult Index()
         {
             IndexModel viewModel = new IndexModel();

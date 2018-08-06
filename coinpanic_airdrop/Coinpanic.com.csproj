@@ -447,6 +447,7 @@
     <Content Include="Views\BlockChain\MultiCoin.cshtml" />
     <Content Include="Views\BlockChain\MultiCoinResults.cshtml" />
     <Content Include="Views\BlockChain\CoinBalance.cshtml" />
+    <Content Include="Views\Home\Maintenance.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

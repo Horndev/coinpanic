@@ -40,6 +40,7 @@ namespace coinpanic_airdrop.Controllers
 
         public ActionResult CommunityJar(int page=1)
         {
+            return RedirectToAction(actionName: "Maintenance", controllerName:"Home");
             LndRpcClient lndClient = GetLndClient();
 
             // TODO: Added this try-catch to avoid errors

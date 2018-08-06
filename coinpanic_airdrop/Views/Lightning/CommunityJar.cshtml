@@ -241,6 +241,7 @@
                 });
         });
 
+        // Function to copy the invoice to the clipboard
         $(function () {
             $("#lnDepositInvoiceCopy").click(function () {
                 $("#lnDepositInvoiceInput").focus();
@@ -256,6 +257,7 @@
             });
         });
 
+        // Function to show the memo input
         $(function () {
             $('#lnDepositMemoBox').click(function () {
                 if ($(this).is(':checked')) {
@@ -270,6 +272,7 @@
             });
         });
 
+        // Request withdrawal
         $(function () {
             $("#lnWithdrawInvoiceBtn").click(function () {
                 $("#lnWithdrawInvoiceBtn").attr("disabled", "disabled");
@@ -332,6 +335,7 @@
             });
         });
 
+        // Request Deposit invoice
         $(function () {
             $("#requestInvoiceBtn").click(function () {
 
