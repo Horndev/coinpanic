@@ -1,9 +1,14 @@
 ﻿using coinpanic_airdrop.Database;
+using coinpanic_airdrop.Models;
+using LightningLib.lndrpc;
+using Microsoft.AspNet.SignalR;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace coinpanic_airdrop.Services
@@ -19,7 +24,13 @@ namespace coinpanic_airdrop.Services
         // Badness value for node (for banning)
         private static ConcurrentDictionary<string, int> nodeBadness = new ConcurrentDictionary<string, int>();
 
-        private static TimeSpan withdrawRateLimit = TimeSpan.FromSeconds(20);
+        private static TimeSpan withdrawRateLimit = TimeSpan.FromSeconds(60);
+
+        private static DateTime timeLastAnonWithdraw = DateTime.Now - TimeSpan.FromHours(1);
+
+        //Used for rate limiting double withdraws
+        static ConcurrentDictionary<string, DateTime> WithdrawRequests = new ConcurrentDictionary<string, DateTime>();
+
 
         /// <summary>
         /// Ensure only one withdraw at a time
@@ -80,14 +91,305 @@ namespace coinpanic_airdrop.Services
             } 
         }
 
-        public bool TryWithdrawal(string payreq)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="userId"></param>
+        /// <param name="lndClient"></param>
+        /// <returns></returns>
+        public object TryWithdrawal(string request, string userId, string ip, LndRpcClient lndClient)
         {
-            // Lock all threading
-            lock(withdrawLock)
-            {
+            int maxWithdraw = 150;
+            int maxWithdraw_firstuser = 150;
 
+            if (lndClient == null)
+            {
+                throw new ArgumentNullException(nameof(lndClient));
             }
-            return false;
+
+            // Lock all threading
+            lock (withdrawLock)
+            {
+                LnCJUser user;
+                try
+                {
+                    var decoded = lndClient.DecodePayment(request);
+
+                    // Check if payment request is ok
+                    if (decoded.destination == null)
+                    {
+                        return new { Result = "Error decoding invoice." };
+                    }
+
+                    // Check that there are funds in the Jar
+                    Int64 balance;
+                    LnCommunityJar jar;
+                    using (CoinpanicContext db = new CoinpanicContext())
+                    {
+                        jar = db.LnCommunityJars
+                            .Where(j => j.IsTestnet == false)
+                            .AsNoTracking().First();
+
+                        balance = jar.Balance;
+
+                        if (Convert.ToInt64(decoded.num_satoshis) > balance)
+                        {
+                            return new { Result = "Requested amount is greater than the available balance." };
+                        }
+
+                        //Get user
+                        user = GetUserFromDb(userId, db, jar, ip);
+
+                        var userMax = (user.TotalDeposited - user.TotalWithdrawn);
+                        if (userMax < maxWithdraw)
+                        {
+                            userMax = maxWithdraw;
+                        }
+
+                        if (Convert.ToInt64(decoded.num_satoshis) > userMax)
+                        {
+                            return new { Result = "Requested amount is greater than maximum allowed." };
+                        }
+                    }
+
+                    // Check for banned nodes
+                    if (IsNodeBanned(decoded.destination, out string banmessage))
+                    {
+                        return new { Result = "Banned.  Reason: " + banmessage };
+                    }
+
+                    if (decoded.destination == "03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf")
+                    {
+                        return new { Result = "Can not deposit from jar!" };
+                    }
+
+                    //Check rate limits
+
+                    if (nodeWithdrawAttemptTimes.TryGetValue(decoded.destination, out DateTime lastWithdraw))
+                    {
+                        if ((DateTime.UtcNow - lastWithdraw) < withdrawRateLimit)
+                        {
+                            return new { Result = "Rate limit exceeded." };
+                        }
+                    }
+
+                    bool isanon = false;
+                    using (CoinpanicContext db = new CoinpanicContext())
+                    {
+                        //check if new user
+                        DateTime? LastWithdraw = user.TimesampLastWithdraw;
+
+                        //LastWithdraw = db.LnTransactions.Where(tx => tx.IsDeposit == false && tx.IsSettled == true && tx.UserId == user.LnCJUserId).OrderBy(tx => tx.TimestampCreated).AsNoTracking().First().TimestampCreated;
+                        if (user.NumWithdraws == 0 && user.NumDeposits == 0)
+                        {
+                            maxWithdraw = maxWithdraw_firstuser;
+                            isanon = true;
+                            //check ip (if someone is not using cookies to rob the site)
+                            var userIPs = db.LnCommunityJarUsers.Where(u => u.UserIP == ip).ToList();
+                            if (userIPs.Count > 1)
+                            {
+                                //most recent withdraw
+                                LastWithdraw = userIPs.Max(u => u.TimesampLastWithdraw);
+                            }
+
+                            // Re-check limits
+                            if (Convert.ToInt64(decoded.num_satoshis) > maxWithdraw)
+                            {
+                                return new { Result = "Requested amount is greater than maximum allowed for first time users (" + Convert.ToString(maxWithdraw) + ").  Make a deposit." };
+                            }
+                        }
+
+                        if (user.TotalDeposited - user.TotalWithdrawn < maxWithdraw)
+                        {
+                            //check for time rate limiting
+                            if (DateTime.UtcNow - LastWithdraw < TimeSpan.FromHours(1))
+                            {
+                                return new { Result = "You must wait another " + ((user.TimesampLastWithdraw + TimeSpan.FromHours(1)) - DateTime.UtcNow).Value.TotalMinutes.ToString("0.0") + " minutes before withdrawing again, or make a deposit first." };
+                            }
+                        }
+
+                        //Check if already paid
+                        if (db.LnTransactions.Where(tx => tx.PaymentRequest == request && tx.IsSettled).Count() > 0)
+                        {
+                            return new { Result = "Invoice has already been paid." };
+                        }
+
+                        if (isanon && DateTime.Now - timeLastAnonWithdraw < TimeSpan.FromMinutes(60))
+                        {
+                            return new { Result = "Too many first-time user withdraws.  You must wait another " + ((timeLastAnonWithdraw + TimeSpan.FromMinutes(60)) - DateTime.Now).TotalMinutes.ToString("0.0") + " minutes before withdrawing again, or make a deposit first." };
+
+                        }
+                    }
+
+                    SendPaymentResponse paymentresult;
+                    if (WithdrawRequests.TryAdd(request, DateTime.UtcNow))
+                    {
+                        paymentresult = lndClient.PayInvoice(request);
+                    }
+                    else
+                    {
+                        //double request!
+                        Thread.Sleep(1000);
+
+                        //Check if paid (in another thread)
+                        using (CoinpanicContext db = new CoinpanicContext())
+                        {
+                            var txs = db.LnTransactions.Where(t => t.PaymentRequest == request && t.IsSettled).OrderByDescending(t => t.TimestampSettled).AsNoTracking();
+                            if (txs.Count() > 0)
+                            {
+                                //var tx = txs.First();
+                                WithdrawRequests.TryRemove(request, out DateTime reqInitTimeA);
+                                return new { Result = "success", Fees = "0" };
+                            }
+
+                            return new { Result = "Please click only once.  Payment already in processing." };
+                        }
+                    }
+                    WithdrawRequests.TryRemove(request, out DateTime reqInitTime);
+
+                    if (paymentresult.payment_error != null)
+                    {
+                        // Save payment error to database
+                        using (CoinpanicContext db = new CoinpanicContext())
+                        {
+                            user = GetUserFromDb(userId, db, jar, ip);
+                            LnTransaction t = new LnTransaction()
+                            {
+                                UserId = user.LnCJUserId,
+                                IsSettled = false,
+                                Memo = decoded.description ?? "Withdraw",
+                                Value = Convert.ToInt64(decoded.num_satoshis),
+                                IsTestnet = false,
+                                HashStr = decoded.payment_hash,
+                                IsDeposit = false,
+                                TimestampCreated = DateTime.UtcNow, //can't know
+                                PaymentRequest = request,
+                                DestinationPubKey = decoded.destination,
+                                IsError = true,
+                                ErrorMessage = paymentresult.payment_error,
+                            };
+                            db.LnTransactions.Add(t);
+                            db.SaveChanges();
+                        }
+                        return new { Result = "Payment Error: " + paymentresult.payment_error };
+                    }
+
+                    // We have a successful payment
+
+                    // Record time of withdraw to the node
+                    nodeWithdrawAttemptTimes.TryAdd(decoded.destination, DateTime.UtcNow);
+
+                    // Notify client(s)
+                    var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
+
+                    using (CoinpanicContext db = new CoinpanicContext())
+                    {
+                        user = GetUserFromDb(userId, db, jar, ip);
+                        user.NumWithdraws += 1;
+                        user.TotalWithdrawn += Convert.ToInt64(decoded.num_satoshis);
+                        user.TimesampLastWithdraw = DateTime.UtcNow;
+
+                        //insert transaction
+                        LnTransaction t = new LnTransaction()
+                        {
+                            UserId = user.LnCJUserId,
+                            IsSettled = true,
+                            Memo = decoded.description == null ? "Withdraw" : decoded.description,
+                            Value = Convert.ToInt64(decoded.num_satoshis),
+                            IsTestnet = false,
+                            HashStr = decoded.payment_hash,
+                            IsDeposit = false,
+                            TimestampSettled = DateTime.UtcNow,
+                            TimestampCreated = DateTime.UtcNow, //can't know
+                            PaymentRequest = request,
+                            FeePaid_Satoshi = (paymentresult.payment_route.total_fees == null ? 0 : Convert.ToInt64(paymentresult.payment_route.total_fees)),
+                            NumberOfHops = paymentresult.payment_route.hops == null ? 0 : paymentresult.payment_route.hops.Count(),
+                            DestinationPubKey = decoded.destination,
+                        };
+                        db.LnTransactions.Add(t);
+                        db.SaveChanges();
+
+                        jar = db.LnCommunityJars.Where(j => j.IsTestnet == false).First();
+                        jar.Balance -= Convert.ToInt64(decoded.num_satoshis);
+                        jar.Balance -= paymentresult.payment_route.total_fees != null ? Convert.ToInt64(paymentresult.payment_route.total_fees) : 0;
+                        jar.Transactions.Add(t);
+                        db.SaveChanges();
+
+                        var newT = new LnCJTransaction()
+                        {
+                            Timestamp = t.TimestampSettled == null ? DateTime.UtcNow : (DateTime)t.TimestampSettled,
+                            Amount = t.Value,
+                            Memo = t.Memo,
+                            Type = t.IsDeposit ? "Deposit" : "Withdrawal",
+                            Id = t.TransactionId,
+                        };
+
+                        context.Clients.All.NotifyNewTransaction(newT);
+                    }
+
+                    if (isanon)
+                    {
+                        timeLastAnonWithdraw = DateTime.Now;
+                    }
+
+                    return new { Result = "success", Fees = (paymentresult.payment_route.total_fees == null ? "0" : paymentresult.payment_route.total_fees) };
+                }
+                catch (Exception e)
+                {
+                    return new { Result = "Error decoding request." };
+                }
+            }
+            return new { Result = "Error decoding request." };
+        }
+
+        private static LnCJUser GetUserFromDb(string userId, CoinpanicContext db, LnCommunityJar jar, string ip)
+        {
+            LnCJUser user;
+            var users = db.LnCommunityJarUsers.Where(u => u.LnCJUserId == userId).ToList();
+
+            if (users.Count == 0)
+            {
+                // new user
+                user = new LnCJUser()
+                {
+                    LnCJUserId = userId,
+                    JarId = jar.JarId,
+                    UserIP = ip,
+                    NumDeposits = 0,
+                    NumWithdraws = 0,
+                    TotalDeposited = 0,
+                    TotalWithdrawn = 0,
+                    TimesampLastDeposit = DateTime.UtcNow - TimeSpan.FromDays(1),
+                    TimesampLastWithdraw = DateTime.UtcNow - TimeSpan.FromDays(1),
+                };
+                db.LnCommunityJarUsers.Add(user);
+            }
+            else if (users.Count > 1)
+            {
+                // error
+                throw new Exception("User database error: multiple users with same id.");
+            }
+            else
+            {
+                user = users.First();
+            }
+
+            // Ensure copy in usersDB
+            if (db.LnCommunityUsers.Where(u => u.UserId == user.LnCJUserId).Count() < 1)
+            {
+                // need to add to db
+                LnUser newu = new LnUser()
+                {
+                    UserId = user.LnCJUserId,
+                    Balance = user.TotalDeposited - user.TotalWithdrawn,
+                };
+                db.LnCommunityUsers.Add(newu);
+            }
+
+            db.SaveChanges();
+
+            return user;
         }
     }
 }

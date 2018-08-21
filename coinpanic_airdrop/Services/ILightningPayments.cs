@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LightningLib.lndrpc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,6 @@ namespace coinpanic_airdrop.Services
 
         bool IsNodeBanned(string node, out string message);
 
-        bool TryWithdrawal(string payreq);
+        object TryWithdrawal(string request, string userId, string ip, LndRpcClient lndClient);
     }
 }

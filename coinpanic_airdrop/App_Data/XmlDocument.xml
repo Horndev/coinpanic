@@ -27,10 +27,16 @@
             <param name="Hex">Hex encoded transaction</param>
             <returns></returns>
         </member>
-        <member name="F:coinpanic_airdrop.Controllers.LightningController.lndTransactionListeners">
+        <member name="P:coinpanic_airdrop.Controllers.LightningController.paymentsService">
             <summary>
             This is the interface to a singleton payments service which is injected for IOC.
             </summary>
+        </member>
+        <member name="M:coinpanic_airdrop.Controllers.LightningController.#ctor(coinpanic_airdrop.Services.ILightningPayments)">
+            <summary>
+            Constructor with dependency injection for IOC and controller singleton control.
+            </summary>
+            <param name="paymentsService"></param>
         </member>
         <member name="M:coinpanic_airdrop.Controllers.LightningController.GetQR(System.String)">
             <summary>
@@ -176,6 +182,25 @@
             <summary>
             Record of payment error
             </summary>
+        </member>
+        <member name="F:coinpanic_airdrop.Services.CJLightningPayments.nodeWithdrawAttemptTimes">
+            <summary>
+            Tracks the time each node has last withdrawn.
+            </summary>
+        </member>
+        <member name="F:coinpanic_airdrop.Services.CJLightningPayments.withdrawLock">
+            <summary>
+            Ensure only one withdraw at a time
+            </summary>
+        </member>
+        <member name="M:coinpanic_airdrop.Services.CJLightningPayments.TryWithdrawal(System.String,System.String,System.String,LightningLib.lndrpc.LndRpcClient)">
+            <summary>
+            
+            </summary>
+            <param name="request"></param>
+            <param name="userId"></param>
+            <param name="lndClient"></param>
+            <returns></returns>
         </member>
         <member name="T:coinpanic_airdrop.Services.ILightningPayments">
             <summary>
