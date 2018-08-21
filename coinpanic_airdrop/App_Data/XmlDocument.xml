@@ -27,6 +27,11 @@
             <param name="Hex">Hex encoded transaction</param>
             <returns></returns>
         </member>
+        <member name="F:coinpanic_airdrop.Controllers.LightningController.lndTransactionListeners">
+            <summary>
+            This is the interface to a singleton payments service which is injected for IOC.
+            </summary>
+        </member>
         <member name="M:coinpanic_airdrop.Controllers.LightningController.GetQR(System.String)">
             <summary>
             TODO: Move this to a dedicated controller
@@ -170,6 +175,11 @@
         <member name="P:coinpanic_airdrop.Models.LnTransaction.IsError">
             <summary>
             Record of payment error
+            </summary>
+        </member>
+        <member name="T:coinpanic_airdrop.Services.ILightningPayments">
+            <summary>
+            Manages payments over the lightning network
             </summary>
         </member>
     </members>

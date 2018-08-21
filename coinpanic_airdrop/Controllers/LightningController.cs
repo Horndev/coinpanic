@@ -22,6 +22,20 @@ namespace coinpanic_airdrop.Controllers
 {
     public class LightningController : Controller
     {
+        /// <summary>
+        /// This is the interface to a singleton payments service which is injected for IOC.
+        /// </summary>
+        public ILightningPayments paymentsService { get; private set; }
+
+        /// <summary>
+        /// Constructor with dependency injection for IOC and controller singleton control.
+        /// </summary>
+        /// <param name="paymentsService"></param>
+        public LightningController(ILightningPayments paymentsService)
+        {
+            this.paymentsService = paymentsService;
+        }
+
         // This listens for transactions which we are waiting for.
         private static ConcurrentDictionary<Guid, TransactionListener> lndTransactionListeners = new ConcurrentDictionary<Guid, TransactionListener>();
 
@@ -40,17 +54,12 @@ namespace coinpanic_airdrop.Controllers
 
         public ActionResult CommunityJar(int page=1)
         {
-            return RedirectToAction(actionName: "Maintenance", controllerName:"Home");
+            //return RedirectToAction("Maintenance", "Home");
+            //return RedirectToAction(actionName: "Maintenance", controllerName:"Home");
             LndRpcClient lndClient = GetLndClient();
 
             // TODO: Added this try-catch to avoid errors
             ViewBag.URI = "03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf@13.92.254.226:9735";
-            //try
-            //{
-            //    var info = lndClient.GetInfo();
-            //    ViewBag.URI = info.uris.First();
-            //}
-            //catch {}
 
             string userId = SetOrUpdateUserCookie();
 
@@ -79,7 +88,7 @@ namespace coinpanic_airdrop.Controllers
                 }
                 ViewBag.UserBalance = userMax;
 
-                // Query and filter the transactions
+                // Query and filter the transactions.  Cast into view model.
                 latestTx.Transactions = jar.Transactions.OrderByDescending(t => t.TimestampSettled).Skip((page - 1) * 20).Take(20).Select(t => new LnCJTransaction()
                 {
                     Timestamp = t.TimestampSettled == null ? DateTime.UtcNow : (DateTime)t.TimestampSettled,
@@ -248,22 +257,22 @@ namespace coinpanic_airdrop.Controllers
         [HttpPost]
         public ActionResult SubmitPaymentRequest(string request)
         {
+            //return RedirectToAction("Maintenance", "Home");
             int maxWithdraw = 150;
             int maxWithdraw_firstuser = 150;
             usingTestnet = GetUseTestnet();
-            string ip = GetClientIpAddress(Request);// Request.UserHostAddress;
+            string ip = GetClientIpAddress(Request);
 
             var lndClient = GetLndClient();
+
+            var paymentResult = paymentsService.TryWithdrawal(request);
 
             try
             {
                 LnCJUser user;
-
                 string userId = SetOrUpdateUserCookie();
 
-
                 // Check if payment request is ok
-                // Check if already paid
                 var decoded = lndClient.DecodePayment(request);
                 
                 if (decoded.destination == null)
@@ -298,30 +307,27 @@ namespace coinpanic_airdrop.Controllers
                         return Json(new { Result = "Requested amount is greater than maximum allowed." });
                     }
                 }
-                // TODO: This should be in a database with admin view
-                Dictionary<string, string> bannedNodes = new Dictionary<string, string>()
-                {
-                    { "023216c5b9a54b6179645c76b279ae267f3c6b2379b9f305d57c75065006a8e5bd", "Scripted withdraws to drain jar" },
-                    { "0370373fd498ffaf16dc0cf46250c5dae76fd79b0592254bf26fa74de815898a21", "Scripted withdraws to drain jar" }
-                };
 
-                if (bannedNodes.Keys.Contains(decoded.destination))
+                // Check for banned nodes
+                if (paymentsService.IsNodeBanned(decoded.destination, out string banmessage))
                 {
-                    return Json(new { Result = "Banned.  Reason: " + bannedNodes[decoded.destination] });
+                    return Json(new { Result = "Banned.  Reason: " + banmessage });
+                }
+
+                if (decoded.destination == "03a9d79bcfab7feb0f24c3cd61a57f0f00de2225b6d31bce0bc4564efa3b1b5aaf")
+                {
+                    return Json(new { Result = "Can not deposit from jar!"});
                 }
 
                 
 
                 //Check rate limits
-               
                 bool isanon = false;
                 using (CoinpanicContext db = new CoinpanicContext())
                 {
-                    //Get user
-                    //user = GetUserFromDb(userId, db, jar, ip);
-
                     //check if new user
                     DateTime? LastWithdraw = user.TimesampLastWithdraw;
+
                     //LastWithdraw = db.LnTransactions.Where(tx => tx.IsDeposit == false && tx.IsSettled == true && tx.UserId == user.LnCJUserId).OrderBy(tx => tx.TimestampCreated).AsNoTracking().First().TimestampCreated;
                     if (user.NumWithdraws == 0 && user.NumDeposits == 0)
                     {
@@ -357,15 +363,16 @@ namespace coinpanic_airdrop.Controllers
                         return Json(new { Result = "Invoice has already been paid." });
                     }
 
-                    if (isanon && DateTime.Now - timeLastAnonWithdraw < TimeSpan.FromMinutes(10))
+                    if (isanon && DateTime.Now - timeLastAnonWithdraw < TimeSpan.FromMinutes(60))
                     {
-                        return Json(new { Result = "Too many first-time user withdraws.  You must wait another " + ((timeLastAnonWithdraw + TimeSpan.FromMinutes(10)) - DateTime.Now).TotalMinutes.ToString("0.0") + " minutes before withdrawing again, or make a deposit first." });
+                        return Json(new { Result = "Too many first-time user withdraws.  You must wait another " + ((timeLastAnonWithdraw + TimeSpan.FromMinutes(60)) - DateTime.Now).TotalMinutes.ToString("0.0") + " minutes before withdrawing again, or make a deposit first." });
 
                     }
                 }
 
-                SendPaymentResponse paymentresult;
                 //all ok - make the payment
+
+                SendPaymentResponse paymentresult;
                 if (WithdrawRequests.TryAdd(request, DateTime.UtcNow))
                 {
                     paymentresult = lndClient.PayInvoice(request);
@@ -541,7 +548,6 @@ namespace coinpanic_airdrop.Controllers
             }
 
             //Create transaction record (not settled)
-
             using (CoinpanicContext db = new CoinpanicContext())
             {
                 var jar = db.LnCommunityJars.Where(j => j.IsTestnet == useTestnet).First();
@@ -650,6 +656,12 @@ namespace coinpanic_airdrop.Controllers
             var context = GlobalHost.ConnectionManager.GetHubContext<NotificationHub>();
             bool isTesnet = GetUseTestnet();
 
+            if (invoice.settle_date == "0" || invoice.settle_date == null)
+            {
+                // Was not settled
+                return;
+            }
+
             //Save in db
             using (CoinpanicContext db = new CoinpanicContext())
             {
@@ -664,7 +676,7 @@ namespace coinpanic_airdrop.Controllers
                 {
                     t = tx.First();
                     t.TimestampSettled = DateTime.SpecifyKind(new DateTime(1970, 1, 1), DateTimeKind.Utc) + TimeSpan.FromSeconds(Convert.ToInt64(invoice.settle_date));
-                    t.IsSettled = true;
+                    t.IsSettled = invoice.settled;
                 }
                 else
                 {
@@ -695,8 +707,11 @@ namespace coinpanic_airdrop.Controllers
                 user.NumDeposits += 1;
                 user.TimesampLastDeposit = DateTime.UtcNow;
 
-                t.IsSettled = true;
-                jar.Balance += Convert.ToInt64(invoice.value);
+                t.IsSettled = invoice.settled;
+                if (t.IsDeposit && t.IsSettled)
+                {
+                    jar.Balance += Convert.ToInt64(invoice.value);
+                }
                 jar.Transactions.Add(t);
                 db.SaveChanges();
 
@@ -721,7 +736,11 @@ namespace coinpanic_airdrop.Controllers
                 };
 
                 context.Clients.All.NotifyNewTransaction(newT);
-                context.Clients.All.NotifyInvoicePaid(invoice.payment_request);
+                if (invoice.settled)
+                {
+                    context.Clients.All.NotifyInvoicePaid(invoice.payment_request);
+                }
+                
             }
         }
 
