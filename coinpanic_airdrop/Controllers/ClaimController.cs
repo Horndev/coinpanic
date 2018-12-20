@@ -409,12 +409,66 @@ namespace coinpanic_airdrop.Controllers
                         MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
                     }
                 }
+                if (userclaim.CoinShortName == "SBTC")
+                {
+                    //http://block.superbtc.org/insight-api/tx/send
+                    try
+                    {
+                        var client = new RestClient("http://block.superbtc.org/insight-api/");
+                        var request = new RestRequest("tx/send/", Method.POST);
+                        request.AddJsonBody(new { rawtx = signedTransaction });
+
+                        IRestResponse restResponse = client.Execute(request);
+                        var content = restResponse.Content; // raw content as string
+                        userclaim.TransactionHash = content;
+                        userclaim.WasTransmitted = true;
+                        userclaim.SubmitDate = DateTime.Now;
+
+                        db.SaveChanges();
+                        MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue),
+                            "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction
+                            + "\r\n Result: " + content);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                    }
+                }
                 if (userclaim.CoinShortName == "BCI")
                 {
                     //https://explorer.bitcoininterest.io/api/
                     try
                     {
                         var client = new RestClient("https://explorer.bitcoininterest.io/api/");
+                        var request = new RestRequest("tx/send/", Method.POST);
+                        request.AddJsonBody(new { rawtx = signedTransaction });
+
+                        IRestResponse restResponse = client.Execute(request);
+                        var content = restResponse.Content; // raw content as string
+                        userclaim.TransactionHash = content;
+                        userclaim.WasTransmitted = true;
+                        userclaim.SubmitDate = DateTime.Now;
+
+                        db.SaveChanges();
+                        MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue),
+                            "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction
+                            + "\r\n Result: " + content);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                    }
+                }
+                if (userclaim.CoinShortName == "BCX")
+                {
+                    //https://explorer.bitcoininterest.io/api/
+                    try
+                    {
+                        var client = new RestClient("https://bcx.info/insight-api/");
                         var request = new RestRequest("tx/send/", Method.POST);
                         request.AddJsonBody(new { rawtx = signedTransaction });
 
@@ -443,9 +497,7 @@ namespace coinpanic_airdrop.Controllers
                     || userclaim.CoinShortName == "BCBC"
                     || userclaim.CoinShortName == "BTV" 
                     || userclaim.CoinShortName == "BCD"
-                    || userclaim.CoinShortName == "BTCP"
                     || userclaim.CoinShortName == "UBTC"
-                    || userclaim.CoinShortName == "SBTC"
                     || userclaim.CoinShortName == "BTW" 
                     || userclaim.CoinShortName == "BPA")
                 {
@@ -460,7 +512,33 @@ namespace coinpanic_airdrop.Controllers
                         MonitoringService.SendMessage(userclaim.CoinShortName + " RPC send failed", e.Message);
                     }
                 }
-                if (userclaim.CoinShortName == "BTG")
+                if (userclaim.CoinShortName == "BTCP")
+                {
+                    try
+                    {
+                        var client = new RestClient("https://explorer.btcprivate.org/api/");
+                        var request = new RestRequest("tx/send/", Method.POST);
+                        request.AddJsonBody(new { rawtx = signedTransaction });
+                        //request.AddParameter("rawtx", signedTransaction);
+
+                        IRestResponse restResponse = client.Execute(request);
+                        var content = restResponse.Content; // raw content as string
+                                                            //ViewBag.content = content;
+                        userclaim.TransactionHash = content;
+                        userclaim.WasTransmitted = true;
+                        userclaim.SubmitDate = DateTime.Now;
+                        db.SaveChanges();
+                        MonitoringService.SendMessage("New " + userclaim.CoinShortName + " broadcasting via explorer " + Convert.ToString(userclaim.TotalValue),
+                            "Claim broadcast: https://www.coinpanic.com/Claim/ClaimConfirm?claimId=" + ClaimId + " " + " for " + userclaim.CoinShortName + "\r\n " + signedTransaction);
+                        response.Result = content;
+                        return Json(response);
+                    }
+                    catch (Exception e)
+                    {
+                        MonitoringService.SendMessage(userclaim.CoinShortName + " explorer send failed", e.Message);
+                    }
+                }
+                else if (userclaim.CoinShortName == "BTG")
                 {
                     try
                     {
