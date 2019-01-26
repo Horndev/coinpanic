@@ -790,9 +790,9 @@ namespace coinpanic_airdrop.Controllers
                     var xfers = lndClient.GetForwardingEvents();
 
                     //Total amount transferred
-                    nodeSummaryViewModel.TotalValueXfer = Convert.ToDouble(xfers.forwarding_events.Sum(f => Convert.ToInt64(f.amt_out))) / 100000000.0;
-                    nodeSummaryViewModel.NumXfer = xfers.forwarding_events.Count;
-                    nodeSummaryViewModel.TotalFees = (Convert.ToDouble(xfers.forwarding_events.Sum(f => Convert.ToInt64(f.fee))) / 100000000.0).ToString("0.00000000");
+                    nodeSummaryViewModel.TotalValueXfer = xfers.forwarding_events == null ? 0 : Convert.ToDouble(xfers.forwarding_events.Sum(f => Convert.ToInt64(f.amt_out))) / 100000000.0;
+                    nodeSummaryViewModel.NumXfer = xfers.forwarding_events == null ? 0 : xfers.forwarding_events.Count;
+                    nodeSummaryViewModel.TotalFees = xfers.forwarding_events == null ? 0.ToString("0.00000000") : (Convert.ToDouble(xfers.forwarding_events.Sum(f => Convert.ToInt64(f.fee))) / 100000000.0).ToString("0.00000000");
                     LastNodeSummaryUpdate = DateTime.Now;
                 }
             }
@@ -801,7 +801,7 @@ namespace coinpanic_airdrop.Controllers
                 ViewBag.TotalValueXfer = "Unknown";
                 ViewBag.NumXfer = "Unknown";
                 ViewBag.TotalFees = "Unknown";
-                MonitoringService.SendMessage("Lightning Error", e.Message);
+                MonitoringService.SendMessage("Lightning Error", " Exception: " + e.Message + "\r\n Stack: " + e.StackTrace);
             }
 
             return PartialView("NodeSummary", nodeSummaryViewModel);

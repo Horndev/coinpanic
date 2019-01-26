@@ -24,7 +24,7 @@ namespace coinpanic_airdrop.Services
         // Badness value for node (for banning)
         private static ConcurrentDictionary<string, int> nodeBadness = new ConcurrentDictionary<string, int>();
 
-        private static TimeSpan withdrawRateLimit = TimeSpan.FromSeconds(60);
+        private static TimeSpan withdrawRateLimit = TimeSpan.FromHours(6);//.FromSeconds(60);
 
         private static DateTime timeLastAnonWithdraw = DateTime.Now - TimeSpan.FromHours(1);
 
