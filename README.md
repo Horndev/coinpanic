@@ -1,6 +1,7 @@
 # Coinpanic.com
 
 [![Build Status](https://horndev.visualstudio.com/_apis/public/build/definitions/42b52b2d-471f-47d9-ab4b-d0338f2c8036/1/badge)](https://horndev.visualstudio.com/Coinpanic/_build/index?definitionId=1)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHorndev%2Fcoinpanic.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FHorndev%2Fcoinpanic?ref=badge_shield)
 
 This is the website for Coinpanic.com.  It is provided here openly for audit by the website users.
 
@@ -19,3 +20,7 @@ A faucet using LND as the back-end and HTTP RPC.
 ### Web Wallet
 
 (comming soon)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHorndev%2Fcoinpanic.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FHorndev%2Fcoinpanic?ref=badge_large)
